@@ -3,14 +3,13 @@ import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Fix: Use process.cwd() directly which is standard in Node.js environment for Vite config
-  // Cast process to any to avoid TypeScript error "Property 'cwd' does not exist on type 'Process'"
+  // Fix: Cast process to any to avoid type error with cwd() in environments where Node types are missing
   const env = loadEnv(mode, (process as any).cwd(), '');
   return {
     plugins: [react()],
     define: {
-      // Define process.env.API_KEY to be available in the app, using GEMINI_API_KEY or API_KEY from env
-      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || env.API_KEY)
+      // Fix: Use API_KEY as per Google GenAI guidelines
+      'process.env.API_KEY': JSON.stringify(env.API_KEY || env.GEMINI_API_KEY)
     }
   };
 });

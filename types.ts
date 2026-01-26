@@ -33,7 +33,7 @@ export interface Message {
 }
 
 export enum ModelType {
-  FLASH_LITE = 'gemini-2.0-flash', // Updated to 2.0 Flash as requested (closest to stable 2.5 request)
+  FLASH_LITE = 'gemini-2.5-flash', // Updated to gemini-2.5-flash as requested
   FLASH = 'gemini-2.0-flash',
   PRO = 'gemini-2.0-pro-exp-02-05', 
   IMAGE_FLASH = 'gemini-2.5-flash-image', 
@@ -55,8 +55,8 @@ export interface ModelOption {
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
     id: ModelType.FLASH_LITE, 
-    label: 'Velicia AI', 
-    description: 'Smart & Fast (Gemini 2.0)', 
+    label: 'Velicia AI (2.5)', 
+    description: 'Super Fast & Smart', 
     category: 'text',
     brand: 'velicia'
   },
