@@ -24,7 +24,7 @@ export const initializeChat = (modelId: string) => {
     return;
   }
   
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   chatSession = ai.chats.create({
     model: modelId,
@@ -55,11 +55,11 @@ export const generatePresentationImage = async (prompt: string): Promise<string>
 };
 
 const analyzeImageWithGemini = async (attachment: Attachment): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const base64Data = attachment.content.split(',')[1];
   try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-2.5-flash',
         contents: {
           parts: [
             { inlineData: { mimeType: attachment.mimeType, data: base64Data } },
@@ -120,7 +120,7 @@ export const sendMessageToGemini = async (
   try {
     // 1. Image Generation Models
     if (modelId === ModelType.IMAGE_FLASH) {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
         const response = await ai.models.generateContent({
             model: modelId,
             contents: { parts: [{ text: text }] },
