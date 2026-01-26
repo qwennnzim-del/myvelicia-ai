@@ -15,6 +15,8 @@ interface AIResponse {
   groundingMetadata?: GroundingMetadata;
 }
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const initializeChat = (modelId: string) => {
   if (!modelId.startsWith('gemini-')) {
     currentModel = modelId;
@@ -41,6 +43,10 @@ const generateImagePollinations = async (prompt: string, modelId: string): Promi
     let targetModel = 'flux';
     if (modelId === 'midjourney') targetModel = 'midjourney';
     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1280&height=720&seed=${seed}&nologo=true&model=${targetModel}`;
+    
+    // Check if image URL is reachable (optional, but good for validation)
+    // Note: Pollinations images are generated on the fly, checking HEAD might trigger generation or 404 if busy.
+    // For now, we trust the URL generation but wrap usage in frontend.
     return imageUrl;
 };
 
@@ -51,35 +57,57 @@ export const generatePresentationImage = async (prompt: string): Promise<string>
 const analyzeImageWithGemini = async (attachment: Attachment): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const base64Data = attachment.content.split(',')[1];
-  const response = await ai.models.generateContent({
-    model: 'gemini-flash-lite-latest',
-    contents: {
-      parts: [
-        { inlineData: { mimeType: attachment.mimeType, data: base64Data } },
-        { text: "Describe this image in detail. Focus on the main elements, text, and context." }
-      ]
-    }
-  });
-  return response.text || "Image analysis unavailable.";
+  try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: {
+          parts: [
+            { inlineData: { mimeType: attachment.mimeType, data: base64Data } },
+            { text: "Describe this image in detail. Focus on the main elements, text, and context." }
+          ]
+        }
+      });
+      return response.text || "Image analysis unavailable.";
+  } catch (error) {
+      console.error("Analysis Error:", error);
+      return "Image analysis failed.";
+  }
 };
 
 const sendMessageToPollinations = async (text: string, history: Message[], modelId: string, attachment?: Attachment): Promise<string> => {
   try {
     const apiModelId = CONFIG.POLLINATIONS.MODEL_MAPPING[modelId] || modelId;
+    
+    // Fallback: If POST fails, we might want to try a simple GET for single-turn text (not implemented here to keep history context)
+    // Using standard OpenAI format for Pollinations
     const messages = [
       { role: "system", content: CONFIG.SYSTEM_INSTRUCTION },
       ...history.map(msg => ({ role: msg.role === Role.MODEL ? "assistant" : "user", content: msg.text || " " })),
       { role: "user", content: attachment ? [{ type: "text", text: text || "Analyze this." }, { type: "image_url", image_url: { url: attachment.content } }] : text }
     ];
+
     const response = await fetch(CONFIG.POLLINATIONS.API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: apiModelId, messages: messages, json: false, seed: Math.floor(Math.random() * 1000) })
+          body: JSON.stringify({ 
+              model: apiModelId, 
+              messages: messages, 
+              json: false, 
+              seed: Math.floor(Math.random() * 1000) 
+          })
     });
-    if (!response.ok) throw new Error(`Status ${response.status}`);
-    return await response.text() || "No response.";
+
+    if (!response.ok) {
+        // If 404 or other error, fallback message
+        throw new Error(`External Provider Error (${response.status})`);
+    }
+    
+    const result = await response.text();
+    return result || "No response.";
   } catch (error: any) {
-    throw new Error(`Pollinations API Error: ${error.message}`);
+    console.warn(`Pollinations API Error: ${error.message}`);
+    // Soft fallback or error message
+    return `⚠️ Maaf, model eksternal (${modelId}) sedang tidak tersedia atau mengalami gangguan. Silakan coba model 'Velicia AI' atau 'Gemini'.`;
   }
 };
 
@@ -90,6 +118,7 @@ export const sendMessageToGemini = async (
   attachment?: Attachment
 ): Promise<AIResponse> => {
   try {
+    // 1. Image Generation Models
     if (modelId === ModelType.IMAGE_FLASH) {
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
@@ -111,9 +140,10 @@ export const sendMessageToGemini = async (
 
     if (IMAGE_MODELS.includes(modelId) || modelId.startsWith('flux')) {
         const imageUrl = await generateImagePollinations(text, modelId);
-        return { text: imageUrl };
+        return { text: `![Generated Image](${imageUrl})` };
     }
 
+    // 2. External Text Models (Pollinations)
     if (!modelId.startsWith('gemini-')) {
       let finalMessage = text;
       if (attachment) {
@@ -127,6 +157,7 @@ export const sendMessageToGemini = async (
       return { text: responseText };
     }
 
+    // 3. Google Gemini Models (with Retry Logic)
     const currentParts: any[] = [];
     if (attachment) {
       const base64Data = attachment.content.split(',')[1]; 
@@ -134,24 +165,56 @@ export const sendMessageToGemini = async (
     }
     if (text) currentParts.push({ text: text });
     
+    // Initialize session if needed
     if (!chatSession || currentModel !== modelId) initializeChat(modelId);
     if (!chatSession) throw new Error("Failed to initialize chat");
 
-    const response: GenerateContentResponse = await chatSession.sendMessage({ message: attachment ? currentParts : text });
+    // Retry Loop for 429 Errors
+    let attempt = 0;
+    const maxRetries = 3;
+    let lastError: any;
 
-    return { 
-        text: response.text || "Maaf, error.",
-        groundingMetadata: response.candidates?.[0]?.groundingMetadata as GroundingMetadata
-    };
+    while (attempt < maxRetries) {
+        try {
+            const response: GenerateContentResponse = await chatSession.sendMessage({ message: attachment ? currentParts : text });
+            return { 
+                text: response.text || "Maaf, tidak ada respons.",
+                groundingMetadata: response.candidates?.[0]?.groundingMetadata as GroundingMetadata
+            };
+        } catch (error: any) {
+            lastError = error;
+            // Check for Quota Exceeded (429) or Service Unavailable (503)
+            if (error.message?.includes('429') || error.status === 429 || error.message?.includes('Quota exceeded')) {
+                console.warn(`Attempt ${attempt + 1} failed with 429. Retrying...`);
+                attempt++;
+                if (attempt < maxRetries) {
+                    await delay(2000 * attempt); // Exponential backoff: 2s, 4s
+                    continue;
+                }
+            }
+            // If not retry-able or max retries reached, break loop
+            break;
+        }
+    }
+    
+    throw lastError;
 
   } catch (error: any) {
     console.error("API Error:", error);
+    
+    // Handle Permission/Auth Errors
     if (error.message?.includes('403') || error.status === 'PERMISSION_DENIED') {
          if (typeof window !== 'undefined' && (window as any).aistudio) {
              try { await (window as any).aistudio.openSelectKey(); } catch (e) {}
              return { text: "⚠️ **Akses Ditolak**. Silakan pilih API Key yang valid." };
          }
     }
-    return { text: `Error: ${error.message}` };
+
+    // Handle Quota Errors explicitly
+    if (error.message?.includes('429') || error.message?.includes('Quota exceeded')) {
+        return { text: "⚠️ **Kuota Habis (Limit Tercapai)**. \n\nMohon tunggu beberapa saat sebelum mengirim pesan lagi, atau coba ganti ke model lain seperti 'Gemini 2.0 Flash' atau 'Gemini Pro'." };
+    }
+
+    return { text: `Error: ${error.message || "Terjadi kesalahan internal."}` };
   }
 };
