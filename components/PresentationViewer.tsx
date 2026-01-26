@@ -98,7 +98,7 @@ const PresentationViewer: React.FC<PresentationViewerProps> = ({ data }) => {
     }
   };
 
-  const theme = themes[data.theme] || themes.modern_dark;
+  const theme = themes[data.theme as keyof typeof themes] || themes.modern_dark;
 
   // --- LAYOUT RENDERERS ---
   

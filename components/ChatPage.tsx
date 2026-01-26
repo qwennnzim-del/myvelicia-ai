@@ -167,6 +167,7 @@ const ChatPage: React.FC = () => {
       <Header 
         onNewChat={handleNewChat} 
         onMenuClick={() => setIsSidebarOpen(true)}
+        user={null}
       />
       
       {/* Main Content Area - Scrollable */}
