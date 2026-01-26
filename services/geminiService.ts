@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Chat, GenerateContentResponse, Type } from "@google/genai";
 import { Message, Role, Attachment, GroundingMetadata, ModelType } from '../types';
 import { CONFIG } from '../config';
@@ -24,7 +23,8 @@ export const initializeChat = (modelId: string) => {
     return;
   }
   
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  // Use process.env.API_KEY as per guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   chatSession = ai.chats.create({
     model: modelId,
@@ -44,9 +44,6 @@ const generateImagePollinations = async (prompt: string, modelId: string): Promi
     if (modelId === 'midjourney') targetModel = 'midjourney';
     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1280&height=720&seed=${seed}&nologo=true&model=${targetModel}`;
     
-    // Check if image URL is reachable (optional, but good for validation)
-    // Note: Pollinations images are generated on the fly, checking HEAD might trigger generation or 404 if busy.
-    // For now, we trust the URL generation but wrap usage in frontend.
     return imageUrl;
 };
 
@@ -55,11 +52,12 @@ export const generatePresentationImage = async (prompt: string): Promise<string>
 };
 
 const analyzeImageWithGemini = async (attachment: Attachment): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  // Use process.env.API_KEY as per guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const base64Data = attachment.content.split(',')[1];
   try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-2.0-flash',
         contents: {
           parts: [
             { inlineData: { mimeType: attachment.mimeType, data: base64Data } },
@@ -78,8 +76,6 @@ const sendMessageToPollinations = async (text: string, history: Message[], model
   try {
     const apiModelId = CONFIG.POLLINATIONS.MODEL_MAPPING[modelId] || modelId;
     
-    // Fallback: If POST fails, we might want to try a simple GET for single-turn text (not implemented here to keep history context)
-    // Using standard OpenAI format for Pollinations
     const messages = [
       { role: "system", content: CONFIG.SYSTEM_INSTRUCTION },
       ...history.map(msg => ({ role: msg.role === Role.MODEL ? "assistant" : "user", content: msg.text || " " })),
@@ -98,7 +94,6 @@ const sendMessageToPollinations = async (text: string, history: Message[], model
     });
 
     if (!response.ok) {
-        // If 404 or other error, fallback message
         throw new Error(`External Provider Error (${response.status})`);
     }
     
@@ -106,7 +101,6 @@ const sendMessageToPollinations = async (text: string, history: Message[], model
     return result || "No response.";
   } catch (error: any) {
     console.warn(`Pollinations API Error: ${error.message}`);
-    // Soft fallback or error message
     return `⚠️ Maaf, model eksternal (${modelId}) sedang tidak tersedia atau mengalami gangguan. Silakan coba model 'Velicia AI' atau 'Gemini'.`;
   }
 };
@@ -120,7 +114,8 @@ export const sendMessageToGemini = async (
   try {
     // 1. Image Generation Models
     if (modelId === ModelType.IMAGE_FLASH) {
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        // Use process.env.API_KEY as per guidelines
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
             model: modelId,
             contents: { parts: [{ text: text }] },
@@ -192,7 +187,6 @@ export const sendMessageToGemini = async (
                     continue;
                 }
             }
-            // If not retry-able or max retries reached, break loop
             break;
         }
     }
