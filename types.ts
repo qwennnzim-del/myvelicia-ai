@@ -34,9 +34,9 @@ export interface Message {
 
 export enum ModelType {
   FLASH_LITE = 'gemini-2.5-flash', // Updated to gemini-2.5-flash as requested
-  FLASH = 'gemini-2.0-flash',
-  PRO = 'gemini-2.0-pro-exp-02-05', 
-  IMAGE_FLASH = 'gemini-2.5-flash-image', 
+  FLASH = 'gemini-2.5-flash-lite',
+  PRO = 'gemini-flash-latest', 
+  IMAGE_FLASH = 'imagen-4.0-generate-001', 
   GPT4O = 'gpt-4o',
   GPT5_MINI = 'gpt-4o-mini', 
   DEEPSEEK = 'deepseek',
@@ -55,29 +55,29 @@ export interface ModelOption {
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
     id: ModelType.FLASH_LITE, 
-    label: 'Velicia AI (2.5)', 
+    label: 'Velicia AI 2.5 pro', 
     description: 'Super Fast & Smart', 
     category: 'text',
     brand: 'velicia'
   },
   { 
     id: ModelType.PRO, 
-    label: 'Gemini 2.0 Pro', 
+    label: 'Gemini 3 Pro', 
     description: 'Complex Reasoning', 
     category: 'text',
     brand: 'google'
   },
   { 
     id: ModelType.FLASH, 
-    label: 'Gemini 2.0 Flash', 
+    label: 'Gemini 2.5 pro', 
     description: 'Fast & Versatile', 
     category: 'text',
     brand: 'google'
   },
   { 
     id: ModelType.IMAGE_FLASH, 
-    label: 'Gemini Flash Image', 
-    description: 'Fast Gen Image (Free)', 
+    label: 'Imagen', 
+    description: 'fast & detail', 
     category: 'image',
     brand: 'google'
   },
