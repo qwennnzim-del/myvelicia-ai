@@ -33,9 +33,9 @@ export interface Message {
 }
 
 export enum ModelType {
-  FLASH_LITE = 'gemini-2.0-flash-lite-preview-02-05',
+  FLASH_LITE = 'gemini-2.0-flash', // Switched to Flash for better stability than Lite preview
   FLASH = 'gemini-2.0-flash',
-  PRO = 'gemini-2.0-flash', 
+  PRO = 'gemini-2.0-pro-exp-02-05', 
   IMAGE_FLASH = 'gemini-2.5-flash-image', 
   GPT4O = 'gpt-4o',
   GPT5_MINI = 'gpt-4o-mini', 
@@ -56,21 +56,21 @@ export const DEFAULT_MODELS: ModelOption[] = [
   { 
     id: ModelType.FLASH_LITE, 
     label: 'Velicia AI', 
-    description: 'Fastest & Smartest (Default)', 
+    description: 'Smart & Fast (Recommended)', 
     category: 'text',
     brand: 'velicia'
   },
   { 
     id: ModelType.PRO, 
-    label: 'Gemini 2.0 Reasoning', 
-    description: 'Deep Logic (Free Tier)', 
+    label: 'Gemini 2.0 Pro', 
+    description: 'Complex Reasoning', 
     category: 'text',
     brand: 'google'
   },
   { 
     id: ModelType.FLASH, 
     label: 'Gemini 2.0 Flash', 
-    description: 'Vision & UI Expert', 
+    description: 'Fast & Versatile', 
     category: 'text',
     brand: 'google'
   },
