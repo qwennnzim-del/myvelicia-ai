@@ -65,8 +65,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
             </button>
 
             <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-[#7C3AED] to-pink-500 rounded-2xl shadow-lg shadow-purple-200 mb-4">
-                    <Sparkles size={32} className="text-white" />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-[#7C3AED] to-pink-500 rounded-2xl shadow-lg shadow-purple-200 mb-4 overflow-hidden">
+                    <img src="/logoApp/logo-app.png" alt="Velicia" className="w-10 h-10 object-contain" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">Buat Akun</h2>
                 <p className="text-gray-500 text-sm mt-1">Bergabunglah dengan Velicia AI hari ini.</p>

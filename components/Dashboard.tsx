@@ -9,8 +9,8 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ onModelSelect }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-in fade-in duration-700">
-      <div className="w-20 h-20 bg-gradient-to-br from-violet-100 to-indigo-100 rounded-3xl flex items-center justify-center mb-8 shadow-sm">
-        <Sparkles size={40} className="text-indigo-600" />
+      <div className="w-20 h-20 bg-gradient-to-br from-violet-100 to-indigo-100 rounded-3xl flex items-center justify-center mb-8 shadow-sm overflow-hidden">
+        <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-12 h-12 object-contain" />
       </div>
       <h2 className="text-3xl font-bold text-gray-900 mb-3">Selamat datang di Velicia.ai</h2>
       <p className="text-gray-500 max-w-md mb-8">

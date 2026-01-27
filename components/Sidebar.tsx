@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, MessageSquarePlus, Settings, CircleHelp, History, LogOut, Sparkles, LayoutGrid, Layers, CreditCard, BookOpen, Info } from 'lucide-react';
+import { X, MessageSquarePlus, Settings, CircleHelp, History, LogOut, LayoutGrid, Layers, CreditCard, BookOpen, Info } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -30,8 +30,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onNewChat, onNavigat
         {/* Header Sidebar */}
         <div className="p-5 flex items-center justify-between">
            <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-tr from-[#7C3AED] to-pink-500 rounded-lg flex items-center justify-center text-white shadow-sm">
-                    <Sparkles size={18} fill="white" />
+                <div className="w-8 h-8 bg-gradient-to-tr from-[#7C3AED] to-pink-500 rounded-lg flex items-center justify-center text-white shadow-sm overflow-hidden">
+                    <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-5 h-5 object-contain" />
                 </div>
                 <h2 className="text-xl font-bold tracking-tight text-gray-900">Velicia<span className="text-pink-500">.ai</span></h2>
            </div>

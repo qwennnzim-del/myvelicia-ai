@@ -16,8 +16,8 @@ const BrandIcon: React.FC<{ brand: string, className?: string }> = ({ brand, cla
   switch (brand) {
     case 'velicia':
       return (
-        <div className={`${className} bg-gradient-to-tr from-[#7C3AED] to-pink-500 rounded-md flex items-center justify-center text-white shadow-sm`}>
-          <Sparkles size={14} fill="white" />
+        <div className={`${className} bg-gradient-to-tr from-[#7C3AED] to-pink-500 rounded-md flex items-center justify-center text-white shadow-sm overflow-hidden`}>
+          <img src="/logoApp/logo-app.png" alt="Velicia" className="w-full h-full object-contain p-0.5" />
         </div>
       );
     case 'google':

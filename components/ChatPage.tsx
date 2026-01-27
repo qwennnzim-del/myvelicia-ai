@@ -17,8 +17,8 @@ const ChatPage: React.FC = () => {
   // Status loading spesifik: 'idle' | 'thinking' | 'searching' | 'youtube_search'
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
   
-  // Default to Flash Lite
-  const [model, setModel] = useState<string>(ModelType.FLASH_LITE);
+  // Default to Flash Lite (Updated to Gemini 3 Flash in types, variable name kept generic)
+  const [model, setModel] = useState<string>(ModelType.GEMINI_3_FLASH);
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
 
   const handleSend = async (text: string, selectedModel: string, attachment?: Attachment) => {
@@ -144,7 +144,7 @@ const ChatPage: React.FC = () => {
     if (type === 'image') {
         setModel('flux');
     } else {
-        setModel(ModelType.FLASH_LITE);
+        setModel(ModelType.GEMINI_3_FLASH);
     }
   };
 
