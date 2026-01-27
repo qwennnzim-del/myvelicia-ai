@@ -34,7 +34,7 @@ export interface Message {
 
 export enum ModelType {
   VELICIA_PRO = 'gemini-2.5-flash',      // Deepthink & Reasoning
-  VELICIA_FLASH = 'gemini-2.0-flash',    // Efficient & Smart
+  VELICIA_FLASH = 'gemini-2.5-flash-lite',    // Efficient & Smart
   VELICIA_LITE = 'gemini-flash-latest'   // Fast & Low Latency
 }
 
