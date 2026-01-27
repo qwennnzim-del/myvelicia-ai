@@ -27,7 +27,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
-  const [model, setModel] = useState<string>(ModelType.FLASH_LITE);
+  const [model, setModel] = useState<string>(ModelType.GEMINI_3_FLASH); // Updated default
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
 
   // UI State
@@ -170,7 +170,7 @@ const App: React.FC = () => {
     if (type === 'image') {
         setModel('flux');
     } else {
-        setModel(ModelType.FLASH_LITE);
+        setModel(ModelType.GEMINI_3_FLASH);
     }
   };
 

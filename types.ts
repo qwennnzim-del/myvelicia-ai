@@ -33,10 +33,16 @@ export interface Message {
 }
 
 export enum ModelType {
-  FLASH_LITE = 'gemini-2.5-flash', // Updated to gemini-2.5-flash as requested
-  FLASH = 'gemini-2.5-flash-lite',
-  PRO = 'gemini-flash-latest', 
-  IMAGE_FLASH = 'imagen-4.0-generate-001', 
+  // --- LATEST GEMINI MODELS ---
+  GEMINI_3_FLASH = 'gemini-3-flash-preview', // Basic Text Tasks (Fastest)
+  GEMINI_3_PRO = 'gemini-3-pro-preview',     // Complex Reasoning
+  GEMINI_2_5_FLASH = 'gemini-2.5-flash',     // Stable previous version
+  
+  // --- IMAGE MODELS ---
+  IMAGE_FLASH = 'gemini-2.5-flash-image',          // General Image Gen
+  IMAGE_PRO = 'gemini-3-pro-image-preview',        // High Quality Image Gen
+  
+  // --- EXTERNAL MODELS (MAPPED) ---
   GPT4O = 'gpt-4o',
   GPT5_MINI = 'gpt-4o-mini', 
   DEEPSEEK = 'deepseek',
@@ -54,30 +60,37 @@ export interface ModelOption {
 
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
-    id: ModelType.FLASH_LITE, 
-    label: 'Velicia AI 2.5 pro', 
-    description: 'Super Fast & Smart', 
+    id: ModelType.GEMINI_3_FLASH, 
+    label: 'Velicia AI (3.0)', 
+    description: 'Ultra Fast & Smart', 
     category: 'text',
     brand: 'velicia'
   },
   { 
-    id: ModelType.PRO, 
-    label: 'Gemini 3 Pro', 
-    description: 'Complex Reasoning', 
+    id: ModelType.GEMINI_3_PRO, 
+    label: 'Gemini 3.0 Pro', 
+    description: 'Reasoning & Coding', 
     category: 'text',
     brand: 'google'
   },
   { 
-    id: ModelType.FLASH, 
-    label: 'Gemini 2.5 pro', 
-    description: 'Fast & Versatile', 
+    id: ModelType.GEMINI_2_5_FLASH, 
+    label: 'Gemini 2.5 Flash', 
+    description: 'Stable & Balanced', 
     category: 'text',
     brand: 'google'
   },
   { 
     id: ModelType.IMAGE_FLASH, 
-    label: 'Imagen', 
-    description: 'fast & detail', 
+    label: 'Gemini Flash Image', 
+    description: 'Fast Gen Image', 
+    category: 'image',
+    brand: 'google'
+  },
+  { 
+    id: ModelType.IMAGE_PRO, 
+    label: 'Gemini Pro Vision', 
+    description: 'High Quality Image', 
     category: 'image',
     brand: 'google'
   },
@@ -89,16 +102,9 @@ export const DEFAULT_MODELS: ModelOption[] = [
     brand: 'openai'
   },
   { 
-    id: ModelType.GPT5_MINI, 
-    label: 'GPT-4o Mini', 
-    description: 'Lightweight & Efficient', 
-    category: 'text',
-    brand: 'openai'
-  },
-  { 
     id: ModelType.DEEPSEEK, 
     label: 'DeepSeek V3', 
-    description: 'Coding & Logic Expert', 
+    description: 'Coding & Logic', 
     category: 'text',
     brand: 'deepseek'
   },
@@ -115,13 +121,6 @@ export const DEFAULT_MODELS: ModelOption[] = [
     description: 'Artistic & Detailed', 
     category: 'image',
     brand: 'midjourney'
-  },
-  { 
-    id: 'gptimage-large', 
-    label: 'DALL·E 3', 
-    description: 'High Quality', 
-    category: 'image',
-    brand: 'openai'
   },
 ];
 
