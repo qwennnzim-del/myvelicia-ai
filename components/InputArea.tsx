@@ -116,7 +116,7 @@ const InputArea: React.FC<InputAreaProps> = ({
             placeholder="Ketik pesan ke Velicia..."
             disabled={isLoading}
             rows={1}
-            className="w-full resize-none text-gray-800 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] md:text-[16px] max-h-[120px] overflow-y-auto no-scrollbar"
+            className="w-full resize-none text-gray-800 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none text-[16px] max-h-[120px] overflow-y-auto no-scrollbar"
             style={{ minHeight: '24px' }}
           />
         </div>
@@ -167,17 +167,17 @@ const InputArea: React.FC<InputAreaProps> = ({
 
           <div className="flex items-center gap-1 md:gap-2">
             <button onClick={handleTriggerFile} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 md:p-2 transition-colors">
-              <Paperclip size={18} md:size={20} strokeWidth={2} />
+              <Paperclip className="w-[18px] h-[18px] md:w-5 md:h-5" strokeWidth={2} />
             </button>
             <button className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 md:p-2 transition-colors hidden sm:block">
-              <AudioLines size={18} md:size={20} />
+              <AudioLines className="w-[18px] h-[18px] md:w-5 md:h-5" />
             </button>
             <button
               onClick={handleSend}
               disabled={(!text.trim() && !attachment) || isLoading}
               className={`flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full transition-all duration-300 ${ (text.trim() || attachment) && !isLoading ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
             >
-              {isLoading ? <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <ArrowUp size={18} md:size={20} strokeWidth={3} />}
+              {isLoading ? <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <ArrowUp className="w-[18px] h-[18px] md:w-5 md:h-5" strokeWidth={3} />}
             </button>
           </div>
         </div>
