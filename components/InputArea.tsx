@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Paperclip, AudioLines, ArrowUp, ChevronUp, X, Globe } from 'lucide-react';
+import { Paperclip, AudioLines, ArrowUp, ChevronUp, X } from 'lucide-react';
 import { ModelOption, Attachment } from '../types';
 
 interface InputAreaProps {
@@ -58,6 +58,21 @@ const InputArea: React.FC<InputAreaProps> = ({
 
   const handleTriggerFile = () => fileInputRef.current?.click();
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setAttachment({
+          type: 'image',
+          content: event.target?.result as string,
+          mimeType: file.type
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -70,7 +85,13 @@ const InputArea: React.FC<InputAreaProps> = ({
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 pb-6">
-      <input type="file" ref={fileInputRef} className="hidden" accept="image/*" />
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden" 
+        accept="image/*" 
+        onChange={handleFileChange}
+      />
 
       <div className="relative bg-white rounded-[32px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] border transition-all duration-300 focus-within:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] border-gray-100 p-2">
         {attachment && (
@@ -105,19 +126,19 @@ const InputArea: React.FC<InputAreaProps> = ({
             <div className="relative" ref={menuRef}>
                 <button
                     onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-                    className="flex items-center space-x-2 hover:bg-gray-100 text-gray-700 py-1.5 px-3 rounded-2xl transition-all border border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50 border-pink-100"
+                    className="flex items-center space-x-2 hover:bg-gray-100 text-gray-700 py-1.5 px-3 rounded-full transition-all border border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50 border-pink-100"
                 >
                     <BrandIcon brand="velicia" className="w-5 h-5" />
-                    <div className="flex flex-col items-start text-left leading-tight">
-                        <span className="font-bold text-[12px]">{activeModelLabel}</span>
-                        <span className="text-[9px] opacity-60 font-medium tracking-wide">{activeModelOption?.description}</span>
+                    <div className="flex flex-col items-start text-left leading-tight pr-1">
+                        <span className="font-bold text-[11px] whitespace-nowrap">{activeModelLabel}</span>
+                        <span className="text-[8px] opacity-60 font-bold uppercase tracking-wider">{activeModelOption?.description}</span>
                     </div>
-                    <ChevronUp size={14} className={`ml-1 text-gray-400 transition-transform duration-200 ${isModelMenuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronUp size={12} className={`text-gray-400 transition-transform duration-200 ${isModelMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isModelMenuOpen && (
-                <div className="absolute bottom-full left-0 mb-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-20 origin-bottom-left animate-in fade-in slide-in-from-bottom-2 duration-200">
-                    <div className="px-4 py-2 bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-wider sticky top-0 backdrop-blur-sm z-10 border-t border-gray-100">
+                <div className="absolute bottom-full left-0 mb-3 w-72 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-20 origin-bottom-left animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <div className="px-4 py-2.5 bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
                     Velicia Intelligence Engine
                     </div>
                     {availableModels.map((model) => (
@@ -127,15 +148,15 @@ const InputArea: React.FC<InputAreaProps> = ({
                             onModelChange(model.id);
                             setIsModelMenuOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${selectedModel === model.id ? 'bg-gray-50' : ''}`}
+                        className={`w-full text-left px-4 py-3.5 text-sm hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${selectedModel === model.id ? 'bg-purple-50/50' : ''}`}
                     >
                         <div className="flex items-center gap-3">
                             <BrandIcon brand="velicia" className="w-6 h-6" />
                             <div>
-                                <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500">
+                                <div className="font-black text-gray-900 leading-none mb-1">
                                     {model.label}
                                 </div>
-                                {model.description && <div className="text-[10px] text-gray-400 font-medium">{model.description}</div>}
+                                {model.description && <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{model.description}</div>}
                             </div>
                         </div>
                     </button>
@@ -155,9 +176,9 @@ const InputArea: React.FC<InputAreaProps> = ({
             <button
               onClick={handleSend}
               disabled={(!text.trim() && !attachment) || isLoading}
-              className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${ (text.trim() || attachment) && !isLoading ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
+              className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${ (text.trim() || attachment) && !isLoading ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
             >
-              {isLoading ? <div className="btn-jump-loader"></div> : <ArrowUp size={20} strokeWidth={3} />}
+              {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <ArrowUp size={20} strokeWidth={3} />}
             </button>
           </div>
         </div>
