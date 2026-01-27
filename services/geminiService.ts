@@ -15,11 +15,17 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const initializeGeminiChat = (modelId: string, customSystemInstruction?: string) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
+  let instruction = customSystemInstruction || CONFIG.SYSTEM_INSTRUCTION;
+
+  if (modelId === ModelType.VELICIA_PRO) {
+    instruction = CONFIG.DEEP_REASONING_INSTRUCTION;
+  }
+  
   // Use the requested model IDs directly as they are allowed
   chatSession = ai.chats.create({
     model: modelId,
     config: {
-      systemInstruction: customSystemInstruction || CONFIG.SYSTEM_INSTRUCTION,
+      systemInstruction: instruction,
       tools: [{ googleSearch: {} }],
     },
   });
