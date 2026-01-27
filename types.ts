@@ -1,3 +1,4 @@
+
 export enum Role {
   USER = 'user',
   MODEL = 'model'
@@ -33,21 +34,12 @@ export interface Message {
 
 export enum ModelType {
   // --- LATEST GEMINI MODELS ---
-  GEMINI_3_FLASH = 'gemini-2.5-flash', // Basic Text Tasks (Fastest)
-  GEMINI_3_PRO = 'gemini-2.5-flash-lite',     // Complex Reasoning
-  GEMINI_2_5_FLASH = 'gemini-flash-lite-latest',     // Stable previous version
-  
-  // --- IMAGE MODELS ---
-  IMAGE_FLASH = 'gemini-2.5-flash-image',          // General Image Gen
-  IMAGE_PRO = 'gemini-3-pro-image-preview',        // High Quality Image Gen
-  
-  // --- EXTERNAL MODELS (MAPPED) ---
-  GPT4O = 'gpt-4o',
-  GPT5_MINI = 'gpt-4o-mini', 
-  DEEPSEEK = 'deepseek',
+  GEMINI_3_FLASH = 'gemini-3-flash-preview', 
+  GEMINI_3_PRO = 'gemini-3-pro-preview',     
+  GEMINI_2_5_FLASH = 'gemini-2.5-flash',     
 }
 
-export type BrandType = 'velicia' | 'google' | 'openai' | 'deepseek' | 'flux' | 'midjourney' | 'stability' | 'pollinations';
+export type BrandType = 'velicia';
 
 export interface ModelOption {
   id: string; 
@@ -59,68 +51,26 @@ export interface ModelOption {
 
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
-    id: ModelType.GEMINI_3_FLASH, 
-    label: 'Velicia AI (3.0)', 
-    description: 'Ultra Fast & Smart', 
+    id: ModelType.GEMINI_3_PRO, 
+    label: 'Velicia Pro', 
+    description: 'Advanced Intelligence', 
     category: 'text',
     brand: 'velicia'
   },
   { 
-    id: ModelType.GEMINI_3_PRO, 
-    label: 'Gemini 3.0 Pro', 
-    description: 'Reasoning & Coding', 
+    id: ModelType.GEMINI_3_FLASH, 
+    label: 'Velicia Fast', 
+    description: 'High-Speed Response', 
     category: 'text',
-    brand: 'google'
+    brand: 'velicia'
   },
   { 
     id: ModelType.GEMINI_2_5_FLASH, 
-    label: 'Gemini 2.5 Flash', 
-    description: 'Stable & Balanced', 
+    label: 'Velicia Lite', 
+    description: 'Efficient & Precise', 
     category: 'text',
-    brand: 'google'
-  },
-  { 
-    id: ModelType.IMAGE_FLASH, 
-    label: 'Gemini Flash Image', 
-    description: 'Fast Gen Image', 
-    category: 'image',
-    brand: 'google'
-  },
-  { 
-    id: ModelType.IMAGE_PRO, 
-    label: 'Gemini Pro Vision', 
-    description: 'High Quality Image', 
-    category: 'image',
-    brand: 'google'
-  },
-  { 
-    id: ModelType.GPT4O, 
-    label: 'GPT-4o', 
-    description: 'OpenAI Omnimodel', 
-    category: 'text',
-    brand: 'openai'
-  },
-  { 
-    id: ModelType.DEEPSEEK, 
-    label: 'DeepSeek V3', 
-    description: 'Coding & Logic', 
-    category: 'text',
-    brand: 'deepseek'
-  },
-  { 
-    id: 'flux', 
-    label: 'Flux Schnell', 
-    description: 'Standard Speed', 
-    category: 'image',
-    brand: 'flux'
-  },
-  { 
-    id: 'midjourney', 
-    label: 'Midjourney', 
-    description: 'Artistic & Detailed', 
-    category: 'image',
-    brand: 'midjourney'
-  },
+    brand: 'velicia'
+  }
 ];
 
 // Presentation Feature Types
