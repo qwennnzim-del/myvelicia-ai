@@ -387,28 +387,22 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
              </div>
           </div>
         ) : (
-           /* Unified Text Loader with Smooth Transition */
+           /* Optimized Text Loader: Removed glow ring, replaced Sparkles with Velicia Logo */
            <div className="flex items-center justify-start w-full pl-0 mt-2 h-14 relative overflow-visible">
                 <div className="flex items-center gap-4">
                     
-                    {/* Ring Container */}
+                    {/* Simplified Container */}
                     <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
-                        {/* Static Ring Background */}
-                        <div className="loader-glow-ring">
-                             <span></span><span></span><span></span><span></span>
-                        </div>
-                        
                         {/* OVERLAPPING ICONS FOR SMOOTH TRANSITION */}
-                        {/* We render all icons absolute centered, and control opacity/scale via active state */}
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             
-                            {/* 1. Velicia / Thinking Icon */}
+                            {/* 1. Velicia / Thinking Icon - Replaced Sparkles with Logo */}
                             <div className={`absolute transition-all duration-500 ease-out transform ${
                                 loadingState === 'thinking' || loadingState === 'idle' 
                                 ? 'opacity-100 scale-100 rotate-0' 
                                 : 'opacity-0 scale-50 -rotate-90'
                             }`}>
-                                <Sparkles className="w-5 h-5 text-purple-600" fill="currentColor"/>
+                                <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-6 h-6 object-contain animate-pulse" />
                             </div>
 
                             {/* 2. Google / Searching Icon */}

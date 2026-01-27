@@ -16,9 +16,8 @@ const BrandIcon: React.FC<{ brand: string, className?: string }> = ({ brand, cla
   switch (brand) {
     case 'velicia':
       return (
-        <div className={`${className} bg-gradient-to-tr from-[#7C3AED] to-pink-500 rounded-md flex items-center justify-center text-white shadow-sm overflow-hidden`}>
-          <img src="/logoApp/logo-app.png" alt="Velicia" className="w-full h-full object-contain p-0.5" />
-        </div>
+        /* Optimized: Removed container and gradient, direct transparent logo */
+        <img src="/logoApp/logo-app.png" alt="Velicia" className={`${className} object-contain`} />
       );
     case 'google':
       return (
@@ -27,43 +26,6 @@ const BrandIcon: React.FC<{ brand: string, className?: string }> = ({ brand, cla
             alt="Gemini" 
             className={`${className} object-contain`} 
         />
-      );
-    case 'openai':
-      return (
-        <img 
-            src="https://img.icons8.com/?size=100&id=FBO05Dys9QCg&format=png&color=000000" 
-            alt="GPT" 
-            className={`${className} object-contain`} 
-        />
-      );
-    case 'deepseek':
-      return (
-         <img 
-            src="https://img.icons8.com/?size=100&id=YWOidjGxCpFW&format=png&color=000000" 
-            alt="DeepSeek" 
-            className={`${className} object-contain`} 
-        />
-      );
-    case 'midjourney':
-      return (
-        <img 
-            src="https://img.icons8.com/?size=100&id=2Wgfq9p8joZQ&format=png&color=000000" 
-            alt="Midjourney" 
-            className={`${className} object-contain`} 
-        />
-      );
-    case 'flux':
-      return (
-        <div className={`${className} bg-black rounded-sm flex items-center justify-center`}>
-            <Palette size={14} className="text-white" />
-        </div>
-      );
-    case 'stability':
-    case 'pollinations':
-      return (
-        <div className={`${className} bg-indigo-500 rounded-sm flex items-center justify-center`}>
-            <ImageIcon size={14} className="text-white" />
-        </div>
       );
     default:
       return <Zap size={16} className={className} />;
@@ -87,15 +49,12 @@ const InputArea: React.FC<InputAreaProps> = ({
 
   const activeModelOption = availableModels.find(m => m.id === selectedModel);
   const activeModelLabel = activeModelOption?.label || selectedModel;
-  const isImageModel = activeModelOption?.category === 'image';
 
   const handleSend = () => {
     if ((!text.trim() && !attachment) || isLoading) return;
     
-    // Kirim pesan without imageSize
     onSend(text, selectedModel, attachment || undefined);
     
-    // Reset state
     setText('');
     setAttachment(null);
     if (textareaRef.current) {
@@ -116,7 +75,6 @@ const InputArea: React.FC<InputAreaProps> = ({
     e.target.style.height = `${Math.min(e.target.scrollHeight, 150)}px`;
   };
 
-  // Handle File Selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -158,9 +116,6 @@ const InputArea: React.FC<InputAreaProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const textModels = availableModels.filter(m => m.category === 'text');
-  const imageModels = availableModels.filter(m => m.category === 'image');
-
   return (
     <div className="w-full max-w-3xl mx-auto px-4 pb-6">
       <input 
@@ -193,17 +148,13 @@ const InputArea: React.FC<InputAreaProps> = ({
           </div>
         )}
 
-        {/* Text Input Area */}
         <div className={`px-4 pb-2 ${attachment ? 'pt-2' : 'pt-3'}`}>
           <textarea
             ref={textareaRef}
             value={text}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            placeholder={
-                isImageModel ? "Deskripsikan gambar yang ingin dibuat..." : 
-                "Ketik pesan ke Velicia..."
-            }
+            placeholder="Ketik pesan ke Velicia..."
             disabled={isLoading}
             rows={1}
             className="w-full resize-none text-gray-800 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none text-[16px] max-h-[150px] overflow-y-auto no-scrollbar"
@@ -211,11 +162,8 @@ const InputArea: React.FC<InputAreaProps> = ({
           />
         </div>
 
-        {/* Bottom Toolbar */}
         <div className="flex items-center justify-between px-2 pb-1 mt-1">
-          
           <div className="flex items-center gap-2">
-            {/* Model Selector Pill */}
             <div className="relative" ref={menuRef}>
                 <button
                 onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
@@ -231,89 +179,44 @@ const InputArea: React.FC<InputAreaProps> = ({
                 <ChevronUp size={14} className={`ml-1 text-gray-400 transition-transform duration-200 ${isModelMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                {/* Dropdown Menu */}
                 {isModelMenuOpen && (
-                <div className="absolute bottom-full left-0 mb-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-20 origin-bottom-left animate-in fade-in slide-in-from-bottom-2 duration-200 max-h-[400px] overflow-y-auto no-scrollbar">
-                    
-                    {/* Text Models */}
-                    {textModels.length > 0 && (
-                    <div>
-                        <div className="px-4 py-2 bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-wider sticky top-0 backdrop-blur-sm z-10 border-t border-gray-100">
-                        Reasoning & Chat
-                        </div>
-                        {textModels.map((model) => (
-                        <button
-                            key={model.id}
-                            onClick={() => {
-                            onModelChange(model.id);
-                            setIsModelMenuOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${
-                            selectedModel === model.id ? 'bg-gray-50' : ''
-                            }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 flex items-center justify-center`}>
-                                    <BrandIcon brand={model.brand} className="w-8 h-8" />
-                                </div>
-                                <div>
-                                    <div className={`font-bold text-gray-800 flex items-center gap-2 ${model.brand === 'velicia' ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500' : ''}`}>
-                                        {model.label}
-                                        {model.brand === 'velicia' && <span className="bg-pink-100 text-pink-600 text-[9px] px-1.5 py-0.5 rounded-full font-extrabold uppercase tracking-wide">Pro</span>}
-                                    </div>
-                                    {model.description && <div className="text-[10px] text-gray-400 font-medium">{model.description}</div>}
-                                </div>
-                            </div>
-                        </button>
-                        ))}
+                <div className="absolute bottom-full left-0 mb-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-20 origin-bottom-left animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <div className="px-4 py-2 bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-wider sticky top-0 backdrop-blur-sm z-10 border-t border-gray-100">
+                    Available Models
                     </div>
-                    )}
-
-                    {/* Image Models */}
-                    {imageModels.length > 0 && (
-                    <div>
-                        <div className="px-4 py-2 bg-purple-50/30 text-[10px] font-bold text-purple-600 uppercase tracking-wider sticky top-0 backdrop-blur-sm z-10 border-t border-gray-100">
-                        Vision & Art
-                        </div>
-                        {imageModels.map((model) => (
-                        <button
-                            key={model.id}
-                            onClick={() => {
-                            onModelChange(model.id);
-                            setIsModelMenuOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-3 text-sm hover:bg-purple-50/30 transition-colors border-b border-gray-50 last:border-0 ${
-                            selectedModel === model.id ? 'bg-purple-50/50' : ''
-                            }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 flex items-center justify-center`}>
-                                    <BrandIcon brand={model.brand} className="w-8 h-8" />
+                    {availableModels.map((model) => (
+                    <button
+                        key={model.id}
+                        onClick={() => {
+                        onModelChange(model.id);
+                        setIsModelMenuOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${
+                        selectedModel === model.id ? 'bg-gray-50' : ''
+                        }`}
+                    >
+                        <div className="flex items-center gap-3">
+                            <BrandIcon brand={model.brand} className="w-6 h-6" />
+                            <div>
+                                <div className={`font-bold text-gray-800 flex items-center gap-2 ${model.brand === 'velicia' ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500' : ''}`}>
+                                    {model.label}
+                                    {model.brand === 'velicia' && <span className="bg-pink-100 text-pink-600 text-[9px] px-1.5 py-0.5 rounded-full font-extrabold uppercase tracking-wide">Pro</span>}
                                 </div>
-                                <div>
-                                    <div className="font-bold text-gray-800">
-                                        {model.label}
-                                    </div>
-                                    {model.description && <div className="text-[10px] text-gray-400 font-medium">{model.description}</div>}
-                                </div>
+                                {model.description && <div className="text-[10px] text-gray-400 font-medium">{model.description}</div>}
                             </div>
-                        </button>
-                        ))}
-                    </div>
-                    )}
-                    
+                        </div>
+                    </button>
+                    ))}
                 </div>
                 )}
             </div>
-            
           </div>
 
-          {/* Right Action Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button 
               onClick={handleTriggerFile}
               className={`transition-colors p-2 rounded-full hover:bg-gray-100 ${attachment ? 'text-gray-900 bg-gray-100' : 'text-gray-400 hover:text-gray-600'}`} 
-              title="Attach file"
+              title="Attach image"
             >
               <Paperclip size={20} strokeWidth={attachment ? 2.5 : 2} />
             </button>
