@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Message, Role } from '../types';
 import ReactMarkdown from 'react-markdown';
 import { IMAGE_MODELS } from '../services/geminiService';
-import { Copy, ThumbsUp, Share2, Edit2, Check, ExternalLink, Globe, Play, Youtube, FileText } from 'lucide-react';
+import { Copy, ThumbsUp, Share2, Edit2, Check, ExternalLink, Globe, Play, Youtube, FileText, Brain, ChevronDown, Sparkles, Cpu } from 'lucide-react';
 
 interface MessageListProps {
   messages: Message[];
@@ -18,6 +18,68 @@ const getYoutubeId = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
+};
+
+// --- Helper: Parse Chain of Thought ---
+const parseChainOfThought = (text: string) => {
+  // Regex must match the format defined in config.ts DEEP_REASONING_INSTRUCTION
+  const pattern = /PART 1: THE THINKING SPACE\s*([\s\S]*?)\s*PART 2: THE FINAL EXECUTION\s*([\s\S]*)/i;
+  const match = text.match(pattern);
+
+  if (match) {
+    return {
+      hasThought: true,
+      thought: match[1].trim(),
+      answer: match[2].trim()
+    };
+  }
+  
+  return {
+    hasThought: false,
+    thought: '',
+    answer: text
+  };
+};
+
+// --- Component: Thinking Box (CoT) ---
+const ThinkingBox: React.FC<{ thought: string }> = ({ thought }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Calculate a fake "duration" based on thought length to make it look realistic
+  const duration = Math.max(1.2, (thought.length / 500)).toFixed(1);
+
+  return (
+    <div className="mb-4 w-full max-w-full">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 border w-full md:w-auto ${
+          isOpen 
+            ? 'bg-purple-50 text-purple-700 border-purple-100' 
+            : 'bg-gray-50 text-gray-500 border-gray-100 hover:bg-gray-100'
+        }`}
+      >
+        <div className={`p-1 rounded-md ${isOpen ? 'bg-purple-100' : 'bg-gray-200'}`}>
+           <Brain size={12} className={isOpen ? 'text-purple-600' : 'text-gray-500'} />
+        </div>
+        <span>Deep Reasoning Process</span>
+        <span className="text-[10px] opacity-60 font-normal ml-1">({duration}s)</span>
+        <ChevronDown size={12} className={`ml-auto md:ml-2 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      <div 
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isOpen ? 'max-h-[500px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="bg-gray-50/50 rounded-xl border border-gray-100 p-4 text-xs font-mono text-gray-600 leading-relaxed shadow-inner overflow-x-auto">
+           <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+              <Cpu size={12} /> Chain of Thought Log
+           </div>
+           <ReactMarkdown>{thought}</ReactMarkdown>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // --- Internal Component: Typewriter Effect ---
@@ -175,7 +237,13 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
 
   return (
     <div className="flex flex-col space-y-6 pb-4">
-      {messages.map((msg) => (
+      {messages.map((msg) => {
+        // Parse content for Thinking Box (Only for Model messages)
+        const { hasThought, thought, answer } = (msg.role === Role.MODEL) 
+            ? parseChainOfThought(msg.text) 
+            : { hasThought: false, thought: '', answer: msg.text };
+
+        return (
         <div
           key={msg.id}
           className={`flex w-full group animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both ${
@@ -218,6 +286,9 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
             {msg.role === Role.MODEL ? (
                <div className="relative w-full">
                  
+                 {/* CHAIN OF THOUGHT BOX (NEW) */}
+                 {hasThought && <ThinkingBox thought={thought} />}
+
                  {/* Regular Text Content - Optimized Typography */}
                  <div className="prose prose-slate max-w-none 
                    prose-p:leading-relaxed prose-p:text-gray-800 prose-p:text-[15px]
@@ -231,7 +302,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                    prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
                    prose-blockquote:border-l-4 prose-blockquote:border-gray-200 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-500
                    prose-img:rounded-2xl prose-img:shadow-md prose-img:my-2 prose-img:max-w-full prose-img:w-auto">
-                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    <ReactMarkdown>{answer}</ReactMarkdown>
                  </div>
                  
                  {/* GROUNDING SOURCES */}
@@ -379,7 +450,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
             )}
           </div>
         </div>
-      ))}
+      );
+      })}
       
       {isLoading && (
         isImageModel ? (
