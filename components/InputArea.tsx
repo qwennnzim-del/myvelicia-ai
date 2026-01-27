@@ -53,7 +53,7 @@ const InputArea: React.FC<InputAreaProps> = ({
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
     e.target.style.height = 'auto';
-    e.target.style.height = `${Math.min(e.target.scrollHeight, 150)}px`;
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
   };
 
   const handleTriggerFile = () => fileInputRef.current?.click();
@@ -84,7 +84,7 @@ const InputArea: React.FC<InputAreaProps> = ({
   }, []);
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 pb-6">
+    <div className="w-full max-w-3xl mx-auto px-3 md:px-4 pb-2 md:pb-6">
       <input 
         type="file" 
         ref={fileInputRef} 
@@ -93,21 +93,21 @@ const InputArea: React.FC<InputAreaProps> = ({
         onChange={handleFileChange}
       />
 
-      <div className="relative bg-white rounded-[32px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] border transition-all duration-300 focus-within:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] border-gray-100 p-2">
+      <div className="relative bg-white rounded-[28px] md:rounded-[32px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] border transition-all duration-300 focus-within:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.12)] border-gray-100 p-1.5 md:p-2">
         {attachment && (
-          <div className="px-4 pt-3 pb-1 flex">
+          <div className="px-3 md:px-4 pt-2 pb-1 flex">
             <div className="relative group">
-              <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
                 <img src={attachment.content} alt="Preview" className="w-full h-full object-cover" />
               </div>
               <button onClick={() => setAttachment(null)} className="absolute -top-1.5 -right-1.5 bg-gray-800 text-white rounded-full p-0.5 shadow-md hover:bg-black transition-colors">
-                <X size={12} strokeWidth={3} />
+                <X size={12} strokeWidth={2} />
               </button>
             </div>
           </div>
         )}
 
-        <div className={`px-4 pb-2 ${attachment ? 'pt-2' : 'pt-3'}`}>
+        <div className={`px-3 md:px-4 pb-1 ${attachment ? 'pt-2' : 'pt-2 md:pt-3'}`}>
           <textarea
             ref={textareaRef}
             value={text}
@@ -116,28 +116,27 @@ const InputArea: React.FC<InputAreaProps> = ({
             placeholder="Ketik pesan ke Velicia..."
             disabled={isLoading}
             rows={1}
-            className="w-full resize-none text-gray-800 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none text-[16px] max-h-[150px] overflow-y-auto no-scrollbar"
+            className="w-full resize-none text-gray-800 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none text-[15px] md:text-[16px] max-h-[120px] overflow-y-auto no-scrollbar"
             style={{ minHeight: '24px' }}
           />
         </div>
 
-        <div className="flex items-center justify-between px-2 pb-1 mt-1">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between px-1 pb-1 mt-1">
+          <div className="flex items-center gap-1 md:gap-2">
             <div className="relative" ref={menuRef}>
                 <button
                     onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-                    className="flex items-center space-x-2 hover:bg-gray-100 text-gray-700 py-1.5 px-3 rounded-full transition-all border border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50 border-pink-100"
+                    className="flex items-center space-x-1.5 hover:bg-gray-100 text-gray-700 py-1.5 px-2.5 md:px-3 rounded-full transition-all border border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50 border-pink-100"
                 >
-                    <BrandIcon brand="velicia" className="w-5 h-5" />
-                    <div className="flex flex-col items-start text-left leading-tight pr-1">
-                        <span className="font-bold text-[11px] whitespace-nowrap">{activeModelLabel}</span>
-                        <span className="text-[8px] opacity-60 font-bold uppercase tracking-wider">{activeModelOption?.description}</span>
+                    <BrandIcon brand="velicia" className="w-4 h-4 md:w-5 md:h-5" />
+                    <div className="flex flex-col items-start text-left leading-tight pr-0.5">
+                        <span className="font-bold text-[10px] md:text-[11px] whitespace-nowrap">{activeModelLabel}</span>
                     </div>
                     <ChevronUp size={12} className={`text-gray-400 transition-transform duration-200 ${isModelMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isModelMenuOpen && (
-                <div className="absolute bottom-full left-0 mb-3 w-72 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-20 origin-bottom-left animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="absolute bottom-full left-0 mb-3 w-64 md:w-72 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-30 origin-bottom-left animate-in fade-in slide-in-from-bottom-2 duration-200">
                     <div className="px-4 py-2.5 bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
                     Velicia Intelligence Engine
                     </div>
@@ -148,15 +147,15 @@ const InputArea: React.FC<InputAreaProps> = ({
                             onModelChange(model.id);
                             setIsModelMenuOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-3.5 text-sm hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${selectedModel === model.id ? 'bg-purple-50/50' : ''}`}
+                        className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${selectedModel === model.id ? 'bg-purple-50/50' : ''}`}
                     >
                         <div className="flex items-center gap-3">
-                            <BrandIcon brand="velicia" className="w-6 h-6" />
+                            <BrandIcon brand="velicia" className="w-5 h-5" />
                             <div>
-                                <div className="font-black text-gray-900 leading-none mb-1">
+                                <div className="font-black text-gray-900 leading-none mb-1 text-xs md:text-sm">
                                     {model.label}
                                 </div>
-                                {model.description && <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">{model.description}</div>}
+                                {model.description && <div className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-wide">{model.description}</div>}
                             </div>
                         </div>
                     </button>
@@ -166,19 +165,19 @@ const InputArea: React.FC<InputAreaProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button onClick={handleTriggerFile} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2 transition-colors">
-              <Paperclip size={20} strokeWidth={2} />
+          <div className="flex items-center gap-1 md:gap-2">
+            <button onClick={handleTriggerFile} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 md:p-2 transition-colors">
+              <Paperclip size={18} md:size={20} strokeWidth={2} />
             </button>
-            <button className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2 transition-colors">
-              <AudioLines size={20} />
+            <button className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 md:p-2 transition-colors hidden sm:block">
+              <AudioLines size={18} md:size={20} />
             </button>
             <button
               onClick={handleSend}
               disabled={(!text.trim() && !attachment) || isLoading}
-              className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${ (text.trim() || attachment) && !isLoading ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
+              className={`flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full transition-all duration-300 ${ (text.trim() || attachment) && !isLoading ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}
             >
-              {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <ArrowUp size={20} strokeWidth={3} />}
+              {isLoading ? <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <ArrowUp size={18} md:size={20} strokeWidth={3} />}
             </button>
           </div>
         </div>
