@@ -9,7 +9,6 @@ import Sidebar from './components/Sidebar';
 import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment } from './types';
 import { sendMessageToGemini } from './services/geminiService';
 
-// --- Global Top Progress Bar Component ---
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   if (!isLoading) return null;
   return (
@@ -22,20 +21,14 @@ const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
 const App: React.FC = () => {
   const [showLanding, setShowLanding] = useState(true);
   const [initialScrollTo, setInitialScrollTo] = useState<string | null>(null);
-  
-  // App State
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
-  const [model, setModel] = useState<string>(ModelType.GEMINI_3_FLASH); // Updated default
+  const [model, setModel] = useState<string>(ModelType.VELICIA_FLASH); 
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
-
-  // UI State
   const [isPageLoading, setIsPageLoading] = useState(false); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
 
-  // --- NAVIGATION & LOADING LOGIC ---
-  
   const handlePageTransition = (callback: () => void) => {
     setIsPageLoading(true);
     setTimeout(() => {
@@ -69,8 +62,6 @@ const App: React.FC = () => {
     setInitialScrollTo(sectionId);
   };
 
-  // --- LOGIKA CHAT ---
-
   const handleSend = async (text: string, selectedModel: string, attachment?: Attachment) => {
     const newUserMessage: Message = {
       id: Date.now().toString(),
@@ -82,7 +73,6 @@ const App: React.FC = () => {
 
     const newHistory = [...messages, newUserMessage];
     setMessages(newHistory);
-    
     await processAIResponse(text, selectedModel, newHistory, attachment);
   };
 
@@ -90,12 +80,11 @@ const App: React.FC = () => {
     setIsAILoading(true);
     setLoadingState('thinking'); 
 
-    // ... (Existing Keyword Detection Logic) ...
     const lowerText = text.toLowerCase();
     const youtubeKeywords = ['youtube', 'video', 'nonton', 'watch', 'clip', 'cuplikan', 'trailer', 'film'];
-    const isYoutubeIntent = youtubeKeywords.some(keyword => lowerText.includes(keyword)) && !attachment && !selectedModel.includes('image');
+    const isYoutubeIntent = youtubeKeywords.some(keyword => lowerText.includes(keyword)) && !attachment;
     const searchKeywords = ['siapa', 'kapan', 'dimana', 'berapa', 'terbaru', 'berita', 'hari ini', 'sekarang', 'news', 'latest', 'price', 'who', 'when', 'where', 'search', 'cari', 'info', 'live', 'realtime', 'gaza', 'israel', 'gempa', 'cuaca', 'skor', 'hasil'];
-    const isGeneralSearch = searchKeywords.some(keyword => lowerText.includes(keyword)) && !attachment && !selectedModel.includes('image');
+    const isGeneralSearch = searchKeywords.some(keyword => lowerText.includes(keyword)) && !attachment;
 
     let searchToggleInterval: ReturnType<typeof setInterval> | undefined;
     let initialSearchTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -114,7 +103,6 @@ const App: React.FC = () => {
 
     try {
       const response = await sendMessageToGemini(text, selectedModel, history, attachment);
-      
       const newModelMessage: Message = {
         id: (Date.now() + 1).toString(), 
         role: Role.MODEL,
@@ -122,7 +110,6 @@ const App: React.FC = () => {
         timestamp: Date.now(),
         groundingMetadata: response.groundingMetadata
       };
-
       setMessages((prev) => [...prev, newModelMessage]);
     } catch (error) {
       console.error("Error sending message:", error);
@@ -136,7 +123,6 @@ const App: React.FC = () => {
     } finally {
       if (initialSearchTimeout) clearTimeout(initialSearchTimeout);
       if (searchToggleInterval) clearInterval(searchToggleInterval);
-      
       setIsAILoading(false);
       setLoadingState('idle');
     }
@@ -145,18 +131,11 @@ const App: React.FC = () => {
   const handleEditMessage = async (messageId: string, newText: string) => {
     const messageIndex = messages.findIndex(m => m.id === messageId);
     if (messageIndex === -1) return;
-
     const pastMessages = messages.slice(0, messageIndex);
     const oldMessage = messages[messageIndex];
-    const updatedUserMessage: Message = {
-        ...oldMessage,
-        text: newText,
-        timestamp: Date.now()
-    };
-
+    const updatedUserMessage: Message = { ...oldMessage, text: newText, timestamp: Date.now() };
     const newHistory = [...pastMessages, updatedUserMessage];
     setMessages(newHistory);
-
     await processAIResponse(newText, model, newHistory, updatedUserMessage.attachment);
   };
 
@@ -167,24 +146,14 @@ const App: React.FC = () => {
   };
 
   const handleModelSelectFromDashboard = (type: 'text' | 'image') => {
-    if (type === 'image') {
-        setModel('flux');
-    } else {
-        setModel(ModelType.GEMINI_3_FLASH);
-    }
+    setModel(ModelType.VELICIA_FLASH);
   };
 
   return (
     <div className={`flex flex-col bg-[#FAFAFA] text-gray-900 font-sans animate-in fade-in duration-500 ${showLanding ? 'min-h-screen' : 'h-screen overflow-hidden'}`}>
-      
-      {/* Global Glowing Progress Bar */}
       <TopProgressBar isLoading={isPageLoading} />
-
       {showLanding ? (
-        <LandingPage 
-          onEnterApp={handleEnterApp}
-          initialScrollTo={initialScrollTo}
-        />
+        <LandingPage onEnterApp={handleEnterApp} initialScrollTo={initialScrollTo} />
       ) : (
         <>
           <Sidebar 
@@ -193,37 +162,18 @@ const App: React.FC = () => {
             onNewChat={handleNewChat}
             onNavigate={handleNavigateFromSidebar}
           />
-
-          <Header 
-            onNewChat={handleNewChat} 
-            onMenuClick={() => setIsSidebarOpen(true)}
-            user={null} 
-          />
-          
+          <Header onNewChat={handleNewChat} onMenuClick={() => setIsSidebarOpen(true)} user={null} />
           <main className="flex-1 w-full max-w-5xl mx-auto pt-24 pb-4 overflow-y-auto no-scrollbar px-4 relative flex flex-col">
             <div className="flex-1">
               {messages.length === 0 ? (
                 <Dashboard onModelSelect={handleModelSelectFromDashboard} />
               ) : (
-                <MessageList 
-                  messages={messages} 
-                  isLoading={isAILoading} 
-                  loadingState={loadingState}
-                  currentModel={model}
-                  onEditMessage={handleEditMessage}
-                />
+                <MessageList messages={messages} isLoading={isAILoading} loadingState={loadingState} currentModel={model} onEditMessage={handleEditMessage} />
               )}
             </div>
           </main>
-
           <footer className="w-full bg-[#FAFAFA]">
-            <InputArea 
-              onSend={handleSend} 
-              isLoading={isAILoading} 
-              selectedModel={model}
-              onModelChange={setModel}
-              availableModels={availableModels}
-            />
+            <InputArea onSend={handleSend} isLoading={isAILoading} selectedModel={model} onModelChange={setModel} availableModels={availableModels} />
           </footer>
         </>
       )}

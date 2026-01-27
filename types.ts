@@ -32,11 +32,13 @@ export interface Message {
   groundingMetadata?: GroundingMetadata;
 }
 
+// Updated ModelType to align with Google GenAI guidelines for Gemini 3 and 2.5 series
 export enum ModelType {
-  // --- LATEST GEMINI MODELS ---
-  GEMINI_3_FLASH = 'gemini-2.5-flash', 
-  GEMINI_3_PRO = 'gemini-2.0-flash',     
-  GEMINI_2_5_FLASH = 'gemini-flash-latest',     
+  VELICIA_PRO = 'gemini-3-pro-preview',
+  VELICIA_FLASH = 'gemini-3-flash-preview',
+  VELICIA_LITE = 'gemini-flash-lite-latest',
+  GEMINI_3_FLASH = 'gemini-3-flash-preview',
+  GEMINI_3_PRO = 'gemini-3-pro-preview'
 }
 
 export type BrandType = 'velicia';
@@ -49,31 +51,31 @@ export interface ModelOption {
   brand: BrandType;
 }
 
+// Updated DEFAULT_MODELS to use the revised ModelType values
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
-    id: ModelType.GEMINI_3_PRO, 
-    label: 'Velicia Pro', 
-    description: 'Penalaran & Efisien', 
+    id: ModelType.VELICIA_PRO, 
+    label: 'Velicia 3.5 Pro', 
+    description: 'Deepthink & Reasoning', 
     category: 'text',
     brand: 'velicia'
   },
   { 
-    id: ModelType.GEMINI_3_FLASH, 
-    label: 'Velicia Fast', 
-    description: 'Reasoning', 
+    id: ModelType.VELICIA_FLASH, 
+    label: 'Velicia 3.5 Flash', 
+    description: 'Efficient & Smart', 
     category: 'text',
     brand: 'velicia'
   },
   { 
-    id: ModelType.GEMINI_2_5_FLASH, 
-    label: 'Velicia Lite', 
-    description: 'Fast & efisien', 
+    id: ModelType.VELICIA_LITE, 
+    label: 'Velicia 1.5 Lite', 
+    description: 'Fast & Low Latency', 
     category: 'text',
     brand: 'velicia'
   }
 ];
 
-// Presentation Feature Types
 export type SlideLayout = 'title_modern' | 'image_focus' | 'big_number' | 'features_grid' | 'two_column';
 
 export interface Slide {
