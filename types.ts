@@ -1,4 +1,3 @@
-
 export enum Role {
   USER = 'user',
   MODEL = 'model'
@@ -34,9 +33,9 @@ export interface Message {
 
 export enum ModelType {
   // --- LATEST GEMINI MODELS ---
-  GEMINI_3_FLASH = 'gemini-3-flash-preview', // Basic Text Tasks (Fastest)
-  GEMINI_3_PRO = 'gemini-3-pro-preview',     // Complex Reasoning
-  GEMINI_2_5_FLASH = 'gemini-2.5-flash',     // Stable previous version
+  GEMINI_3_FLASH = 'gemini-2.5-flash', // Basic Text Tasks (Fastest)
+  GEMINI_3_PRO = 'gemini-2.5-flash-lite',     // Complex Reasoning
+  GEMINI_2_5_FLASH = 'gemini-flash-lite-latest',     // Stable previous version
   
   // --- IMAGE MODELS ---
   IMAGE_FLASH = 'gemini-2.5-flash-image',          // General Image Gen
