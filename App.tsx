@@ -25,7 +25,6 @@ const App: React.FC = () => {
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
   
-  // Default to Velicia 3.5 Flash as requested
   const [model, setModel] = useState<string>(ModelType.VELICIA_FLASH); 
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
   const [isPageLoading, setIsPageLoading] = useState(false); 
@@ -148,39 +147,56 @@ const App: React.FC = () => {
   };
 
   const handleModelSelectFromDashboard = (type: 'text' | 'image') => {
-    // Correctly handle model selection using the enum
     setModel(ModelType.VELICIA_FLASH);
   };
 
   return (
-    <div className={`flex flex-col bg-[#FAFAFA] text-gray-900 font-sans animate-in fade-in duration-500 ${showLanding ? 'min-h-screen' : 'h-screen overflow-hidden'}`}>
-      <TopProgressBar isLoading={isPageLoading} />
-      {showLanding ? (
-        <LandingPage onEnterApp={handleEnterApp} initialScrollTo={initialScrollTo} />
-      ) : (
-        <>
-          <Sidebar 
-            isOpen={isSidebarOpen} 
-            onClose={() => setIsSidebarOpen(false)} 
-            onNewChat={handleNewChat}
-            onNavigate={handleNavigateFromSidebar}
-          />
-          <Header onNewChat={handleNewChat} onMenuClick={() => setIsSidebarOpen(true)} user={null} />
-          <main className="flex-1 w-full max-w-5xl mx-auto pt-24 pb-4 overflow-y-auto no-scrollbar px-4 relative flex flex-col">
-            <div className="flex-1">
-              {messages.length === 0 ? (
-                <Dashboard onModelSelect={handleModelSelectFromDashboard} />
-              ) : (
-                <MessageList messages={messages} isLoading={isAILoading} loadingState={loadingState} currentModel={model} onEditMessage={handleEditMessage} />
-              )}
+    <>
+        <TopProgressBar isLoading={isPageLoading} />
+        
+        {showLanding ? (
+            <div className="min-h-screen bg-white">
+                <LandingPage onEnterApp={handleEnterApp} initialScrollTo={initialScrollTo} />
             </div>
-          </main>
-          <footer className="w-full bg-[#FAFAFA]">
-            <InputArea onSend={handleSend} isLoading={isAILoading} selectedModel={model} onModelChange={setModel} availableModels={availableModels} />
-          </footer>
-        </>
-      )}
-    </div>
+        ) : (
+            /* APP LAYOUT - FIXED HEIGHT 100dvh (Dynamic Viewport Height) */
+            <div className="fixed inset-0 w-full h-[100dvh] bg-[#FAFAFA] flex flex-col overflow-hidden text-gray-900 font-sans">
+                
+                <Sidebar 
+                    isOpen={isSidebarOpen} 
+                    onClose={() => setIsSidebarOpen(false)} 
+                    onNewChat={handleNewChat}
+                    onNavigate={handleNavigateFromSidebar}
+                />
+                
+                <Header onNewChat={handleNewChat} onMenuClick={() => setIsSidebarOpen(true)} user={null} />
+                
+                {/* Main Chat Area - Flexible Height & Scrollable */}
+                <main className="flex-1 w-full max-w-5xl mx-auto pt-20 overflow-y-auto no-scrollbar relative flex flex-col scroll-smooth">
+                    <div className="flex-1 px-4 md:px-6 py-4">
+                        {messages.length === 0 ? (
+                            <div className="h-full flex items-center justify-center">
+                                <Dashboard onModelSelect={handleModelSelectFromDashboard} />
+                            </div>
+                        ) : (
+                            <MessageList messages={messages} isLoading={isAILoading} loadingState={loadingState} currentModel={model} onEditMessage={handleEditMessage} />
+                        )}
+                    </div>
+                </main>
+                
+                {/* Input Area - Fixed Bottom / Shrink 0 */}
+                <div className="w-full shrink-0 z-20 bg-gradient-to-t from-[#FAFAFA] via-[#FAFAFA] to-transparent pt-2 pb-safe">
+                    <InputArea 
+                        onSend={handleSend} 
+                        isLoading={isAILoading} 
+                        selectedModel={model} 
+                        onModelChange={setModel} 
+                        availableModels={availableModels} 
+                    />
+                </div>
+            </div>
+        )}
+    </>
   );
 };
 
