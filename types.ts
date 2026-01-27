@@ -72,32 +72,10 @@ export const DEFAULT_MODELS: ModelOption[] = [
   }
 ];
 
-// Kept for compatibility if needed, though unused in cleanup
-export type SlideLayout = 'title_modern' | 'image_focus' | 'big_number' | 'features_grid' | 'two_column';
-
-export interface Slide {
-  layout: SlideLayout;
-  title: string;
-  subtitle?: string;
-  content: string[];
-  imageUrl?: string;
-  imageStatus?: 'loading' | 'generated' | 'failed';
-  visualDescription?: string;
-  searchQuery?: string;
-  highlightMetric?: string;
-  speakerNotes?: string;
-}
-
 export interface PresentationConfig {
   topic: string;
   cardCount: number;
   modelId: string;
   imageSource: 'ai_generated' | 'google_search';
   language: string;
-}
-
-export interface PresentationData {
-  slides: Slide[];
-  config: PresentationConfig;
-  theme: string;
 }

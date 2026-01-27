@@ -24,6 +24,8 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
+  
+  // Default to Velicia 3.5 Flash as requested
   const [model, setModel] = useState<string>(ModelType.VELICIA_FLASH); 
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
   const [isPageLoading, setIsPageLoading] = useState(false); 
@@ -146,6 +148,7 @@ const App: React.FC = () => {
   };
 
   const handleModelSelectFromDashboard = (type: 'text' | 'image') => {
+    // Correctly handle model selection using the enum
     setModel(ModelType.VELICIA_FLASH);
   };
 
