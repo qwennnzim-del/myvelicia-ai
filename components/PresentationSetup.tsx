@@ -13,7 +13,8 @@ const PresentationSetup: React.FC<PresentationSetupProps> = ({ onClose, onGenera
   const [step, setStep] = useState<1 | 2>(1);
   const [topic, setTopic] = useState('');
   const [cardCount, setCardCount] = useState(6);
-  const [selectedModel, setSelectedModel] = useState<string>(ModelType.GEMINI_3_PRO); // Default to a smart model
+  // Using ModelType.GEMINI_3_PRO as defined in types.ts
+  const [selectedModel, setSelectedModel] = useState<string>(ModelType.GEMINI_3_PRO); 
   const [imageSource, setImageSource] = useState<'ai_generated' | 'google_search'>('ai_generated');
 
   const textModels = availableModels.filter(m => m.category === 'text');
@@ -175,4 +176,3 @@ const PresentationSetup: React.FC<PresentationSetupProps> = ({ onClose, onGenera
 };
 
 export default PresentationSetup;
-    

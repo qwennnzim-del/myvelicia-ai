@@ -17,7 +17,7 @@ const ChatPage: React.FC = () => {
   // Status loading spesifik: 'idle' | 'thinking' | 'searching' | 'youtube_search'
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
   
-  // Default to Flash Lite (Updated to Gemini 3 Flash in types, variable name kept generic)
+  // Default to Gemini 3 Flash via updated ModelType enum
   const [model, setModel] = useState<string>(ModelType.GEMINI_3_FLASH);
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
 
