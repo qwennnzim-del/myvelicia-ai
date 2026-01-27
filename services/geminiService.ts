@@ -30,7 +30,7 @@ export const sendMessageToGemini = async (
   text: string, 
   modelId: string,
   history: Message[],
-  attachment?: Attachment
+  attachments?: Attachment[]
 ): Promise<{ text: string; groundingMetadata?: GroundingMetadata }> => {
   try {
     if (!chatSession || currentModel !== modelId) {
@@ -40,10 +40,20 @@ export const sendMessageToGemini = async (
     if (!chatSession) throw new Error("Chat session not initialized");
 
     const currentParts: any[] = [];
-    if (attachment) {
-      const base64Data = attachment.content.split(',')[1]; 
-      currentParts.push({ inlineData: { mimeType: attachment.mimeType, data: base64Data } });
+    
+    // Handle multiple attachments
+    if (attachments && attachments.length > 0) {
+        attachments.forEach(att => {
+            const base64Data = att.content.split(',')[1]; 
+            currentParts.push({ 
+                inlineData: { 
+                    mimeType: att.mimeType, 
+                    data: base64Data 
+                } 
+            });
+        });
     }
+
     if (text) currentParts.push({ text: text });
 
     let attempt = 0;
@@ -52,9 +62,8 @@ export const sendMessageToGemini = async (
     while (attempt <= maxRetries) {
         try {
             // Fix: sendMessage message parameter must be a string or Part[].
-            // Wrapping it in { parts: ... } was causing the TS2322 error.
             const response: GenerateContentResponse = await chatSession.sendMessage({ 
-              message: attachment ? currentParts : text 
+              message: (attachments && attachments.length > 0) ? currentParts : text 
             });
             
             return { 
