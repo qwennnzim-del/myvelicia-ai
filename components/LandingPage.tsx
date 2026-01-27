@@ -79,8 +79,8 @@ const TRANSLATIONS = {
             { title: 'AI Debugger', desc: 'Temukan & perbaiki bug.' },
         ],
         'Pemasaran': [
-            { title: 'Copywriter', desc: 'Copy iklan persuasif.' },
-            { title: 'Ide Kampanye', desc: 'Brainstorming ide viral.' },
+            { title: 'Copywriter', desc: 'Persuasive ad copy.' },
+            { title: 'Campaign Ideas', desc: 'Brainstorming ide viral.' },
         ]
       }
     },
@@ -264,9 +264,9 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
             <div className="flex gap-3 mb-6 animate-in fade-in duration-300">
               <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-8 h-8 object-contain shrink-0 animate-pulse" />
               <div className="flex gap-1.5 mt-3">
-                <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-                <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-1.5 h-1.5 bg-[#7928CA] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                <div className="w-1.5 h-1.5 bg-[#FF0080] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-1.5 h-1.5 bg-[#7928CA] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
               </div>
             </div>
           )}
@@ -280,7 +280,7 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
                 </p>
                 {step >= 4 && (
                    <div className="mt-2 pt-2 border-t border-gray-50 animate-in fade-in duration-1000">
-                      <div className="flex items-center gap-1.5 text-[9px] font-bold text-purple-600 uppercase tracking-widest">
+                      <div className="flex items-center gap-1.5 text-[9px] font-bold text-[#7928CA] uppercase tracking-widest">
                          <Zap size={10} /> {t.hero.mockupPowered}
                       </div>
                    </div>
@@ -339,10 +339,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
   };
 
   const teamMembers = [
-    { name: 'M Fariz', color: 'from-purple-600 to-indigo-600' },
-    { name: 'Sarah A', color: 'from-pink-600 to-rose-600' },
-    { name: 'Andi W', color: 'from-blue-600 to-cyan-600' },
-    { name: 'Riana P', color: 'from-orange-600 to-amber-600' }
+    { name: 'M Fariz', color: 'from-[#7928CA] to-[#FF0080]' },
+    { name: 'Sarah A', color: 'from-[#FF0080] to-[#FF4D4D]' },
+    { name: 'Andi W', color: 'from-[#0070F3] to-[#00DFD8]' },
+    { name: 'Riana P', color: 'from-[#F5A623] to-[#F76B1C]' }
   ];
 
   const toggleFaq = (index: number) => {
@@ -374,7 +374,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                     className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-xl border border-gray-100"
                  >
                     <div className="flex items-center gap-3">
-                        <Globe size={18} className="text-purple-600" />
+                        <Globe size={18} className="text-[#7928CA]" />
                         <span className="font-bold text-sm">{t.nav.langLabel === 'ID' ? 'Bahasa Indonesia' : 'English'}</span>
                     </div>
                     <div className="px-2 py-0.5 bg-white rounded-md text-[10px] font-bold shadow-sm border border-gray-100">
@@ -395,7 +395,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
 
           <div className="hidden md:flex items-center gap-4">
              {['Features', 'Pricing', 'About'].map((item) => (
-                <button key={item} className="text-sm font-semibold text-gray-600 hover:text-purple-600 transition-colors">{item}</button>
+                <button key={item} className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{item}</button>
              ))}
              <div className="w-px h-4 bg-gray-200 mx-2"></div>
              <button 
@@ -417,7 +417,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
       {/* --- HERO SECTION --- */}
       <section className="relative pt-32 pb-16 px-6 bg-white overflow-hidden">
         
-        <div className="hero-glow opacity-60"></div>
+        {/* Updated: Removed opacity-60 to allow full vividness from CSS */}
+        <div className="hero-glow"></div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -465,7 +466,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
 
           {/* DYNAMIC DASHBOARD MOCKUP */}
           <div className="relative max-w-4xl mx-auto group perspective-1000 mb-8">
-             <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded-[2rem] opacity-20 blur-2xl group-hover:opacity-30 transition-all duration-700"></div>
+             {/* INCREASED OPACITY AND SHARPER GRADIENT FOR MOCKUP GLOW */}
+             <div className="absolute -inset-2 bg-gradient-to-r from-[#7928CA] to-[#FF0080] rounded-[2rem] opacity-30 blur-2xl group-hover:opacity-40 transition-all duration-700"></div>
              <div className="relative bg-white rounded-[1.5rem] p-2 md:p-3 shadow-xl border border-gray-100 transform transition-transform duration-1000 hover:rotate-x-1">
                 <MockupChat t={t} />
              </div>
@@ -486,7 +488,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                                 alt={article.title} 
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                              />
-                             <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide text-purple-600 shadow-sm">
+                             <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide text-[#7928CA] shadow-sm">
                                 {article.tag}
                              </div>
                         </div>
@@ -496,13 +498,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                                 <Calendar size={12} />
                                 {blogDates[i]}
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 leading-tight group-hover:text-purple-600 transition-colors">
+                            <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 leading-tight group-hover:text-[#FF0080] transition-colors">
                                 {article.title}
                             </h3>
                             <p className="text-gray-500 text-sm font-medium leading-relaxed mb-6 line-clamp-2 opacity-80">
                                 {article.desc}
                             </p>
-                            <button className="flex items-center gap-2 text-purple-600 font-bold text-xs hover:gap-4 transition-all">
+                            <button className="flex items-center gap-2 text-[#7928CA] font-bold text-xs hover:gap-4 transition-all">
                                 {t.blog.readMore} <ArrowRight size={14} />
                             </button>
                         </div>
@@ -540,7 +542,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                     const Icon = Icons[i % Icons.length];
                     return (
                       <div key={i} className="flex gap-6 p-6 bg-gray-50 rounded-[2rem] border border-gray-100 hover:bg-white hover:shadow-md transition-all group items-start">
-                          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm border border-gray-100 group-hover:bg-purple-600 group-hover:text-white transition-all">
+                          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm border border-gray-100 group-hover:bg-[#7928CA] group-hover:text-white transition-all">
                               <Icon size={20} />
                           </div>
                           <div className="flex flex-col">
@@ -587,9 +589,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
             <div className="space-y-4">
                 {t.faq.items.map((faq, i) => (
                     <div key={i} className="border border-gray-100 rounded-2xl p-2 bg-gray-50/50">
-                        <button onClick={() => toggleFaq(i)} className="w-full flex items-center justify-between p-4 text-left font-bold text-lg text-gray-900 hover:text-purple-600 transition-colors">
+                        <button onClick={() => toggleFaq(i)} className="w-full flex items-center justify-between p-4 text-left font-bold text-lg text-gray-900 hover:text-[#7928CA] transition-colors">
                             <span>{faq.q}</span>
-                            <ChevronDown size={20} className={`text-gray-300 transition-transform duration-300 ${openFaqIndex === i ? 'rotate-180 text-purple-600' : ''}`} />
+                            <ChevronDown size={20} className={`text-gray-300 transition-transform duration-300 ${openFaqIndex === i ? 'rotate-180 text-[#7928CA]' : ''}`} />
                         </button>
                         <div className={`overflow-hidden transition-all duration-500 ${openFaqIndex === i ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'}`}>
                             <p className="px-4 pb-4 text-gray-500 text-sm leading-relaxed font-medium">{faq.a}</p>

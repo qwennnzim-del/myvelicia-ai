@@ -20,32 +20,31 @@ const getYoutubeId = (url: string) => {
     return (match && match[2].length === 11) ? match[2] : null;
 };
 
-// --- Helper: Parse Chain of Thought ---
+// --- Helper: Robust Chain of Thought Parsing ---
 const parseChainOfThought = (text: string) => {
-  // Regex to capture PART 1 and PART 2, handling potential formatting variations like bolding or extra text
-  // Matches: "PART 1: THE THINKING SPACE" (case insensitive, ignoring leading markdown chars)
-  // Group 1: Thinking Content
-  // Matches: "PART 2: THE FINAL EXECUTION"
-  // Group 2: Final Answer
-  const pattern = /(?:^|\n)(?:[\#\*\_]*)\s*PART 1: THE THINKING SPACE(?:[^\n]*)(?:\n+)([\s\S]*?)(?:\n+)(?:[\#\*\_]*)\s*PART 2: THE FINAL EXECUTION(?:[^\n]*)(?:\n+)([\s\S]*)/i;
-  
-  const match = text.match(pattern);
+  // Normalize text to avoid case sensitivity issues with headers
+  const upperText = text.toUpperCase();
+  const part1Marker = "PART 1: THE THINKING SPACE";
+  const part2Marker = "PART 2: THE FINAL EXECUTION";
 
-  if (match) {
-    let thought = match[1].trim();
-    let answer = match[2].trim();
+  // Check if both markers exist
+  const p1Index = upperText.indexOf(part1Marker);
+  const p2Index = upperText.indexOf(part2Marker);
 
-    // CLEANUP: If the model wrapped the ENTIRE answer in a code block (common mistake), unwrap it.
-    // e.g. ```\nAnswer...\n```
-    const codeBlockWrapper = /^```(?:markdown|md|text)?\s*([\s\S]*?)\s*```$/i;
-    const codeMatch = answer.match(codeBlockWrapper);
-    if (codeMatch) {
-        answer = codeMatch[1].trim();
+  if (p1Index !== -1 && p2Index !== -1 && p2Index > p1Index) {
+    // 1. Extract Raw Segments
+    let thought = text.substring(p1Index + part1Marker.length, p2Index).trim();
+    let answer = text.substring(p2Index + part2Marker.length).trim();
+
+    // 2. Cleanup Thought: Remove potential leading markdown chars like ** or ##
+    thought = thought.replace(/^[\*\#\-\s]+/, '').trim();
+
+    // 3. Cleanup Answer: Unwrap accidental code blocks (Common LLM mistake)
+    // Checks if the ENTIRE answer is wrapped in ``` ... ```
+    const codeBlockMatch = answer.match(/^```(?:markdown|md|text)?\s*([\s\S]*?)\s*```$/i);
+    if (codeBlockMatch) {
+        answer = codeBlockMatch[1].trim();
     }
-
-    // Handle weird trailing artifacts if any (e.g. "]))" from the user's screenshot, likely JSON closure artifact)
-    // If the answer looks like a sliced JSON string ending weirdly, we can't easily fix it without context, 
-    // but unwrapping the code block usually fixes the visual display issue.
 
     return {
       hasThought: true,
@@ -54,6 +53,7 @@ const parseChainOfThought = (text: string) => {
     };
   }
   
+  // Fallback: No CoT detected
   return {
     hasThought: false,
     thought: '',
@@ -65,35 +65,38 @@ const parseChainOfThought = (text: string) => {
 const ThinkingBox: React.FC<{ thought: string }> = ({ thought }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Calculate a fake "duration" based on thought length to make it look realistic (approx 50 chars per sec thinking speed)
+  // Calculate a fake "duration" based on thought length
   const duration = Math.max(1.2, (thought.length / 100)).toFixed(1);
 
   return (
-    <div className="mb-4 w-full max-w-full">
+    <div className="mb-4 w-full animate-in fade-in slide-in-from-top-2 duration-500">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 border w-full md:w-auto ${
+        className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 border w-full md:w-auto cursor-pointer select-none ${
           isOpen 
-            ? 'bg-purple-50 text-purple-700 border-purple-100' 
-            : 'bg-gray-50 text-gray-500 border-gray-100 hover:bg-gray-100'
+            ? 'bg-purple-50 text-purple-700 border-purple-200 shadow-sm' 
+            : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
         }`}
       >
-        <div className={`p-1 rounded-md ${isOpen ? 'bg-purple-100' : 'bg-gray-200'}`}>
-           <Brain size={12} className={isOpen ? 'text-purple-600' : 'text-gray-500'} />
+        <div className={`p-1.5 rounded-lg transition-colors ${isOpen ? 'bg-purple-200 text-purple-700' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'}`}>
+           <Brain size={14} />
         </div>
-        <span>Deep Reasoning Process</span>
-        <span className="text-[10px] opacity-60 font-normal ml-1">({duration}s)</span>
-        <ChevronDown size={12} className={`ml-auto md:ml-2 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <div className="flex flex-col items-start text-left">
+            <span className="leading-none">Proses Berpikir</span>
+            <span className="text-[9px] opacity-60 font-medium mt-0.5">{duration} detik</span>
+        </div>
+        <ChevronDown size={14} className={`ml-auto md:ml-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       <div 
         className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isOpen ? 'max-h-[500px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+          isOpen ? 'max-h-[800px] opacity-100 mt-2' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="bg-gray-50/50 rounded-xl border border-gray-100 p-4 text-xs font-mono text-gray-600 leading-relaxed shadow-inner overflow-x-auto">
-           <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-              <Cpu size={12} /> Chain of Thought Log
+        <div className="bg-[#F8F9FA] rounded-xl border border-gray-200/80 p-4 text-xs font-mono text-gray-700 leading-relaxed shadow-inner overflow-x-auto relative">
+           <div className="absolute top-0 left-0 w-1 h-full bg-purple-500/20"></div>
+           <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200/60 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+              <Cpu size={12} /> Log Analisis
            </div>
            <ReactMarkdown>{thought}</ReactMarkdown>
         </div>
@@ -166,7 +169,10 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Delay scroll slightly to account for animations
+    setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   }, [messages, isLoading, editingId, loadingState]); 
 
   const isImageModel = IMAGE_MODELS.includes(currentModel) || currentModel.startsWith('flux');
@@ -256,7 +262,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
   }
 
   return (
-    <div className="flex flex-col space-y-6 pb-4">
+    <div className="flex flex-col space-y-8 pb-4">
       {messages.map((msg) => {
         // Parse content for Thinking Box (Only for Model messages)
         const { hasThought, thought, answer } = (msg.role === Role.MODEL) 
@@ -266,7 +272,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
         return (
         <div
           key={msg.id}
-          className={`flex w-full group animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both ${
+          className={`flex w-full group ${
             msg.role === Role.USER ? 'justify-end' : 'justify-start'
           }`}
         >
@@ -279,7 +285,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
           >
             {/* User Attachment Display (Multi-File) */}
             {msg.role === Role.USER && msg.attachments && msg.attachments.length > 0 && (
-              <div className="mb-2 flex flex-wrap gap-2 justify-end">
+              <div className="mb-2 flex flex-wrap gap-2 justify-end animate-in fade-in zoom-in-95 duration-500">
                 {msg.attachments.map((att, idx) => (
                     <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm bg-gray-50 flex items-center justify-center group/file">
                         {att.type === 'image' ? (
@@ -302,15 +308,15 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
               </div>
             )}
 
-            {/* Message Text Area */}
+            {/* MESSAGE CONTAINER */}
             {msg.role === Role.MODEL ? (
                <div className="relative w-full">
                  
-                 {/* CHAIN OF THOUGHT BOX (NEW) */}
+                 {/* === SEPARATE COMPONENT: CHAIN OF THOUGHT === */}
                  {hasThought && <ThinkingBox thought={thought} />}
 
-                 {/* Regular Text Content - Optimized Typography */}
-                 <div className="prose prose-slate max-w-none 
+                 {/* === SEPARATE COMPONENT: FINAL ANSWER === */}
+                 <div className={`prose prose-slate max-w-none 
                    prose-p:leading-relaxed prose-p:text-gray-800 prose-p:text-[15px]
                    prose-headings:font-bold prose-headings:text-gray-900 prose-headings:mb-2 prose-headings:mt-4 first:prose-headings:mt-0 prose-headings:text-lg
                    prose-ul:my-2 prose-ul:list-disc prose-ul:pl-4
@@ -321,13 +327,17 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                    prose-pre:bg-[#1a1a1a] prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:p-3 prose-pre:my-3 prose-pre:shadow-sm
                    prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
                    prose-blockquote:border-l-4 prose-blockquote:border-gray-200 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-500
-                   prose-img:rounded-2xl prose-img:shadow-md prose-img:my-2 prose-img:max-w-full prose-img:w-auto">
+                   prose-img:rounded-2xl prose-img:shadow-md prose-img:my-2 prose-img:max-w-full prose-img:w-auto
+                   /* ANIMATION: Delay the appearance of the answer slightly for smooth effect */
+                   animate-in fade-in slide-in-from-bottom-2 duration-1000 fill-mode-both
+                   ${hasThought ? 'delay-500' : ''} 
+                   `}>
                     <ReactMarkdown>{answer}</ReactMarkdown>
                  </div>
                  
                  {/* GROUNDING SOURCES */}
                  {msg.groundingMetadata && msg.groundingMetadata.groundingChunks?.length > 0 && (
-                    <div className="mt-4 pt-3 border-t border-gray-100">
+                    <div className="mt-4 pt-3 border-t border-gray-100 animate-in fade-in duration-1000 delay-700">
                         <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-gray-700">
                              <div className="p-1 bg-blue-50 rounded-full"><Globe size={12} className="text-blue-600"/></div>
                              <span>Sumber Penelusuran</span>
@@ -398,7 +408,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                     </div>
                  )}
 
-                 <div className="flex items-center gap-2 mt-3 pt-1">
+                 <div className="flex items-center gap-2 mt-3 pt-1 animate-in fade-in duration-700 delay-1000">
                     <button 
                         onClick={() => handleCopy(msg.text, msg.id)}
                         className="flex items-center gap-1 text-[10px] font-medium text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
@@ -424,7 +434,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                  </div>
                </div>
             ) : (
-              <div className="group relative">
+              // USER MESSAGE RENDERING
+              <div className="group relative animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {editingId === msg.id ? (
                   <div className="bg-white border border-gray-200 rounded-2xl p-3 shadow-md min-w-[280px] md:min-w-[400px]">
                      <textarea 
