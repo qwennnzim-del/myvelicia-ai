@@ -51,9 +51,10 @@ export const sendMessageToGemini = async (
 
     while (attempt <= maxRetries) {
         try {
-            // chat.sendMessage accepts string or Content for the message property
+            // Fix: sendMessage message parameter must be a string or Part[].
+            // Wrapping it in { parts: ... } was causing the TS2322 error.
             const response: GenerateContentResponse = await chatSession.sendMessage({ 
-              message: attachment ? { parts: currentParts } : text 
+              message: attachment ? currentParts : text 
             });
             
             return { 
