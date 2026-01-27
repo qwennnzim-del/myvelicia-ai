@@ -34,9 +34,9 @@ export interface Message {
 
 export enum ModelType {
   // --- LATEST GEMINI MODELS ---
-  GEMINI_3_FLASH = 'gemini-3-flash-preview', 
-  GEMINI_3_PRO = 'gemini-3-pro-preview',     
-  GEMINI_2_5_FLASH = 'gemini-2.5-flash',     
+  GEMINI_3_FLASH = 'gemini-2.5-flash', 
+  GEMINI_3_PRO = 'gemini-2.0-flash',     
+  GEMINI_2_5_FLASH = 'gemini-flash-latest',     
 }
 
 export type BrandType = 'velicia';
@@ -53,21 +53,21 @@ export const DEFAULT_MODELS: ModelOption[] = [
   { 
     id: ModelType.GEMINI_3_PRO, 
     label: 'Velicia Pro', 
-    description: 'Advanced Intelligence', 
+    description: 'Penalaran & Efisien', 
     category: 'text',
     brand: 'velicia'
   },
   { 
     id: ModelType.GEMINI_3_FLASH, 
     label: 'Velicia Fast', 
-    description: 'High-Speed Response', 
+    description: 'Reasoning', 
     category: 'text',
     brand: 'velicia'
   },
   { 
     id: ModelType.GEMINI_2_5_FLASH, 
     label: 'Velicia Lite', 
-    description: 'Efficient & Precise', 
+    description: 'Fast & efisien', 
     category: 'text',
     brand: 'velicia'
   }
