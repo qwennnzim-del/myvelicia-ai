@@ -63,29 +63,34 @@ const App: React.FC = () => {
     setInitialScrollTo(sectionId);
   };
 
-  const handleSend = async (text: string, selectedModel: string, attachment?: Attachment) => {
+  const handleSend = async (text: string, selectedModel: string, attachments?: Attachment[]) => {
     const newUserMessage: Message = {
       id: Date.now().toString(),
       role: Role.USER,
       text: text,
       timestamp: Date.now(),
-      attachment: attachment 
+      attachments: attachments 
     };
 
     const newHistory = [...messages, newUserMessage];
     setMessages(newHistory);
-    await processAIResponse(text, selectedModel, newHistory, attachment);
+    await processAIResponse(text, selectedModel, newHistory, attachments);
   };
 
-  const processAIResponse = async (text: string, selectedModel: string, history: Message[], attachment?: Attachment) => {
+  const processAIResponse = async (text: string, selectedModel: string, history: Message[], attachments?: Attachment[]) => {
     setIsAILoading(true);
     setLoadingState('thinking'); 
 
     const lowerText = text.toLowerCase();
+    const hasAttachments = attachments && attachments.length > 0;
+    
+    // Logic: Only trigger Youtube/Web search if there are NO attachments. 
+    // If there are attachments, the user likely wants to analyze them.
     const youtubeKeywords = ['youtube', 'video', 'nonton', 'watch', 'clip', 'cuplikan', 'trailer', 'film'];
-    const isYoutubeIntent = youtubeKeywords.some(keyword => lowerText.includes(keyword)) && !attachment;
+    const isYoutubeIntent = youtubeKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
+    
     const searchKeywords = ['siapa', 'kapan', 'dimana', 'berapa', 'terbaru', 'berita', 'hari ini', 'sekarang', 'news', 'latest', 'price', 'who', 'when', 'where', 'search', 'cari', 'info', 'live', 'realtime', 'gaza', 'israel', 'gempa', 'cuaca', 'skor', 'hasil'];
-    const isGeneralSearch = searchKeywords.some(keyword => lowerText.includes(keyword)) && !attachment;
+    const isGeneralSearch = searchKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
 
     let searchToggleInterval: ReturnType<typeof setInterval> | undefined;
     let initialSearchTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -103,7 +108,7 @@ const App: React.FC = () => {
     }
 
     try {
-      const response = await sendMessageToGemini(text, selectedModel, history, attachment);
+      const response = await sendMessageToGemini(text, selectedModel, history, attachments);
       const newModelMessage: Message = {
         id: (Date.now() + 1).toString(), 
         role: Role.MODEL,
@@ -137,7 +142,7 @@ const App: React.FC = () => {
     const updatedUserMessage: Message = { ...oldMessage, text: newText, timestamp: Date.now() };
     const newHistory = [...pastMessages, updatedUserMessage];
     setMessages(newHistory);
-    await processAIResponse(newText, model, newHistory, updatedUserMessage.attachment);
+    await processAIResponse(newText, model, newHistory, updatedUserMessage.attachments);
   };
 
   const handleNewChat = () => {

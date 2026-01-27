@@ -5,9 +5,10 @@ export enum Role {
 }
 
 export interface Attachment {
-  type: 'image';
+  type: 'image' | 'file';
   content: string; // Base64 string
   mimeType: string;
+  name?: string; // Added for document display
 }
 
 export interface GroundingChunk {
@@ -28,13 +29,13 @@ export interface Message {
   role: Role;
   text: string;
   timestamp: number;
-  attachment?: Attachment; 
+  attachments?: Attachment[]; // Changed from single attachment to array
   groundingMetadata?: GroundingMetadata;
 }
 
 export enum ModelType {
   VELICIA_PRO = 'gemini-2.5-flash',      // Deepthink & Reasoning
-  VELICIA_FLASH = 'gemini-2.5-flash-lite',    // Efficient & Smart
+  VELICIA_FLASH = 'gemini-2.0-flash',    // Efficient & Smart
   VELICIA_LITE = 'gemini-flash-latest'   // Fast & Low Latency
 }
 
