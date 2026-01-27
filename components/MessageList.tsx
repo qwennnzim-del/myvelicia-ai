@@ -22,15 +22,35 @@ const getYoutubeId = (url: string) => {
 
 // --- Helper: Parse Chain of Thought ---
 const parseChainOfThought = (text: string) => {
-  // Regex must match the format defined in config.ts DEEP_REASONING_INSTRUCTION
-  const pattern = /PART 1: THE THINKING SPACE\s*([\s\S]*?)\s*PART 2: THE FINAL EXECUTION\s*([\s\S]*)/i;
+  // Regex to capture PART 1 and PART 2, handling potential formatting variations like bolding or extra text
+  // Matches: "PART 1: THE THINKING SPACE" (case insensitive, ignoring leading markdown chars)
+  // Group 1: Thinking Content
+  // Matches: "PART 2: THE FINAL EXECUTION"
+  // Group 2: Final Answer
+  const pattern = /(?:^|\n)(?:[\#\*\_]*)\s*PART 1: THE THINKING SPACE(?:[^\n]*)(?:\n+)([\s\S]*?)(?:\n+)(?:[\#\*\_]*)\s*PART 2: THE FINAL EXECUTION(?:[^\n]*)(?:\n+)([\s\S]*)/i;
+  
   const match = text.match(pattern);
 
   if (match) {
+    let thought = match[1].trim();
+    let answer = match[2].trim();
+
+    // CLEANUP: If the model wrapped the ENTIRE answer in a code block (common mistake), unwrap it.
+    // e.g. ```\nAnswer...\n```
+    const codeBlockWrapper = /^```(?:markdown|md|text)?\s*([\s\S]*?)\s*```$/i;
+    const codeMatch = answer.match(codeBlockWrapper);
+    if (codeMatch) {
+        answer = codeMatch[1].trim();
+    }
+
+    // Handle weird trailing artifacts if any (e.g. "]))" from the user's screenshot, likely JSON closure artifact)
+    // If the answer looks like a sliced JSON string ending weirdly, we can't easily fix it without context, 
+    // but unwrapping the code block usually fixes the visual display issue.
+
     return {
       hasThought: true,
-      thought: match[1].trim(),
-      answer: match[2].trim()
+      thought: thought,
+      answer: answer
     };
   }
   
@@ -45,8 +65,8 @@ const parseChainOfThought = (text: string) => {
 const ThinkingBox: React.FC<{ thought: string }> = ({ thought }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Calculate a fake "duration" based on thought length to make it look realistic
-  const duration = Math.max(1.2, (thought.length / 500)).toFixed(1);
+  // Calculate a fake "duration" based on thought length to make it look realistic (approx 50 chars per sec thinking speed)
+  const duration = Math.max(1.2, (thought.length / 100)).toFixed(1);
 
   return (
     <div className="mb-4 w-full max-w-full">
