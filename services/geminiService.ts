@@ -1,31 +1,23 @@
 
-import { GoogleGenAI, Chat, GenerateContentResponse, Type } from "@google/genai";
-import { Message, Role, Attachment, GroundingMetadata, ModelType } from '../types';
+import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
+import { Message, ModelType, GroundingMetadata, Attachment } from '../types';
 import { CONFIG } from '../config';
+
+// Exported IMAGE_MODELS to fix the missing member error in MessageList.tsx
+export const IMAGE_MODELS = ['gemini-2.5-flash-image', 'gemini-3-pro-image-preview', 'imagen-4.0-generate-001'];
 
 let chatSession: Chat | null = null;
 let currentModel: string | null = null;
 
-// Empty unused image models
-export const IMAGE_MODELS: string[] = [];
-
-interface AIResponse {
-  text: string;
-  groundingMetadata?: GroundingMetadata;
-}
-
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Always use { apiKey: process.env.API_KEY } for initialization
 const initializeGeminiChat = (modelId: string, customSystemInstruction?: string) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  // Fallback map to ensure we use real Gemini models even if IDs differ
-  let actualModel = 'gemini-3-flash-preview';
-  if (modelId === ModelType.GEMINI_3_PRO) actualModel = 'gemini-3-pro-preview';
-  if (modelId === ModelType.GEMINI_2_5_FLASH) actualModel = 'gemini-2.5-flash';
-
+  // Use the requested model IDs directly as they are allowed
   chatSession = ai.chats.create({
-    model: actualModel,
+    model: modelId,
     config: {
       systemInstruction: customSystemInstruction || CONFIG.SYSTEM_INSTRUCTION,
       tools: [{ googleSearch: {} }],
@@ -39,7 +31,7 @@ export const sendMessageToGemini = async (
   modelId: string,
   history: Message[],
   attachment?: Attachment
-): Promise<AIResponse> => {
+): Promise<{ text: string; groundingMetadata?: GroundingMetadata }> => {
   try {
     if (!chatSession || currentModel !== modelId) {
         initializeGeminiChat(modelId);
@@ -59,7 +51,10 @@ export const sendMessageToGemini = async (
 
     while (attempt <= maxRetries) {
         try {
-            const response: GenerateContentResponse = await chatSession.sendMessage({ message: attachment ? currentParts : text });
+            // chat.sendMessage accepts string or Content for the message property
+            const response: GenerateContentResponse = await chatSession.sendMessage({ 
+              message: attachment ? { parts: currentParts } : text 
+            });
             
             return { 
                 text: response.text || "Maaf, tidak ada respons.",
@@ -97,7 +92,6 @@ export const sendMessageToGemini = async (
   }
 };
 
-// Placeholder for unused functionality
 export const generatePresentationImage = async (prompt: string): Promise<string> => {
     return ""; 
 };
