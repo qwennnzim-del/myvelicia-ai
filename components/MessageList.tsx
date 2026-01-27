@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Message, Role } from '../types';
 import ReactMarkdown from 'react-markdown';
 import { IMAGE_MODELS } from '../services/geminiService';
-import { Copy, ThumbsUp, Share2, Edit2, Check, ExternalLink, Globe, Sparkles, Youtube, Play } from 'lucide-react';
+import { Copy, ThumbsUp, Share2, Edit2, Check, ExternalLink, Globe, Sparkles, Youtube, Play, FileText, FileIcon } from 'lucide-react';
 
 interface MessageListProps {
   messages: Message[];
@@ -189,14 +189,28 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                 : `items-start text-gray-900 text-left max-w-[90%] md:max-w-[85%]`
             }`}
           >
-            {/* User Attachment Display */}
-            {msg.role === Role.USER && msg.attachment && (
-              <div className="mb-2 rounded-2xl overflow-hidden border border-gray-100 shadow-sm max-w-[200px] md:max-w-[300px]">
-                <img 
-                  src={msg.attachment.content} 
-                  alt="Attachment" 
-                  className="w-full h-auto object-cover" 
-                />
+            {/* User Attachment Display (Multi-File) */}
+            {msg.role === Role.USER && msg.attachments && msg.attachments.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2 justify-end">
+                {msg.attachments.map((att, idx) => (
+                    <div key={idx} className="relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm bg-gray-50 flex items-center justify-center group/file">
+                        {att.type === 'image' ? (
+                            <div className="max-w-[150px] md:max-w-[200px]">
+                                <img src={att.content} alt="Attachment" className="w-full h-auto object-cover rounded-xl" />
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-3 p-3 min-w-[180px] bg-white rounded-xl">
+                                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                                    <FileText className="text-gray-600" size={20} />
+                                </div>
+                                <div className="flex flex-col text-left overflow-hidden">
+                                    <span className="text-xs font-bold text-gray-900 truncate max-w-[120px]">{att.name || "Document"}</span>
+                                    <span className="text-[10px] text-gray-500 uppercase">{att.mimeType.split('/')[1] || 'FILE'}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ))}
               </div>
             )}
 
@@ -220,7 +234,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
                  </div>
                  
-                 {/* GROUNDING SOURCES (SEARCH RESULTS) */}
+                 {/* GROUNDING SOURCES */}
                  {msg.groundingMetadata && msg.groundingMetadata.groundingChunks?.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-gray-100">
                         <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-gray-700">
@@ -349,9 +363,11 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                   </div>
                 ) : (
                     <div className="relative group">
-                         <div className="bg-gray-100/50 hover:bg-gray-100 transition-colors py-2 px-4 rounded-[20px] text-gray-800 inline-block text-left break-words">
-                            {msg.text}
-                         </div>
+                         {msg.text && (
+                            <div className="bg-gray-100/50 hover:bg-gray-100 transition-colors py-2 px-4 rounded-[20px] text-gray-800 inline-block text-left break-words">
+                                {msg.text}
+                            </div>
+                         )}
                          <button 
                             onClick={() => handleStartEdit(msg)}
                             className="absolute -left-8 top-1/2 -translate-y-1/2 p-1.5 text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
@@ -387,7 +403,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
              </div>
           </div>
         ) : (
-           /* Optimized Text Loader: Removed glow ring, replaced Sparkles with Velicia Logo */
            <div className="flex items-center justify-start w-full pl-0 mt-2 h-14 relative overflow-visible">
                 <div className="flex items-center gap-4">
                     
