@@ -33,11 +33,9 @@ export interface Message {
 }
 
 export enum ModelType {
-  VELICIA_PRO = 'gemini-2.5-flash-native-audio-preview-12-2025', // Mapping "Deepthink & Reasoning" to high-end preview
-  VELICIA_FLASH = 'gemini-2.0-flash-exp',                        // Mapping "Efficient & Smart"
-  VELICIA_LITE = 'gemini-flash-latest',                         // "Fast & Low Latency"
-  GEMINI_3_FLASH = 'gemini-3-flash-preview',
-  GEMINI_3_PRO = 'gemini-3-pro-preview'
+  VELICIA_PRO = 'gemini-2.5-flash',      // Deepthink & Reasoning
+  VELICIA_FLASH = 'gemini-2.0-flash',    // Efficient & Smart
+  VELICIA_LITE = 'gemini-flash-latest'   // Fast & Low Latency
 }
 
 export type BrandType = 'velicia';
@@ -74,6 +72,7 @@ export const DEFAULT_MODELS: ModelOption[] = [
   }
 ];
 
+// Kept for compatibility if needed, though unused in cleanup
 export type SlideLayout = 'title_modern' | 'image_focus' | 'big_number' | 'features_grid' | 'two_column';
 
 export interface Slide {
