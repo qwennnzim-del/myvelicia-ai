@@ -109,6 +109,11 @@ const App: React.FC = () => {
 
     try {
       const response = await sendMessageToGemini(text, selectedModel, history, attachments);
+      
+      // ARTIFICIAL DELAY FOR SMOOTHNESS
+      // Wait for 1s to simulate "finalizing thought" before showing the message
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       const newModelMessage: Message = {
         id: (Date.now() + 1).toString(), 
         role: Role.MODEL,
