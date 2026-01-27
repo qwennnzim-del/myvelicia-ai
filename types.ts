@@ -32,11 +32,10 @@ export interface Message {
   groundingMetadata?: GroundingMetadata;
 }
 
-// Updated ModelType to align with Google GenAI guidelines for Gemini 3 and 2.5 series
 export enum ModelType {
-  VELICIA_PRO = 'gemini-3-pro-preview',
-  VELICIA_FLASH = 'gemini-3-flash-preview',
-  VELICIA_LITE = 'gemini-flash-lite-latest',
+  VELICIA_PRO = 'gemini-2.5-flash-native-audio-preview-12-2025', // Mapping "Deepthink & Reasoning" to high-end preview
+  VELICIA_FLASH = 'gemini-2.0-flash-exp',                        // Mapping "Efficient & Smart"
+  VELICIA_LITE = 'gemini-flash-latest',                         // "Fast & Low Latency"
   GEMINI_3_FLASH = 'gemini-3-flash-preview',
   GEMINI_3_PRO = 'gemini-3-pro-preview'
 }
@@ -51,7 +50,6 @@ export interface ModelOption {
   brand: BrandType;
 }
 
-// Updated DEFAULT_MODELS to use the revised ModelType values
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
     id: ModelType.VELICIA_PRO, 
