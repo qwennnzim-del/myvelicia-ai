@@ -9,6 +9,7 @@ import {
 
 interface LandingPageProps {
   onEnterApp: () => void;
+  onReadArticle: (id: number) => void;
   initialScrollTo?: string | null;
 }
 
@@ -41,16 +42,19 @@ const TRANSLATIONS = {
       viewAll: 'Lihat Semua',
       articles: [
         {
+          id: 0,
           title: "Visi Kedaulatan Digital",
           desc: "Velicia AI sebagai solusi mandiri untuk kebutuhan teknologi nasional.",
           tag: "Visi"
         },
         {
+          id: 1,
           title: "Optimasi Alur Kerja",
           desc: "Hemat waktu dengan algoritma ekstraksi informasi cerdas kami.",
           tag: "Tips"
         },
         {
+          id: 2,
           title: "Pemrosesan Bahasa Lokal",
           desc: "Memahami dialek dan konteks budaya Indonesia lebih baik.",
           tag: "Tech"
@@ -134,16 +138,19 @@ const TRANSLATIONS = {
       viewAll: 'View All',
       articles: [
         {
+          id: 0,
           title: "Digital Sovereignty Vision",
           desc: "Velicia AI as an independent solution for national tech needs.",
           tag: "Vision"
         },
         {
+          id: 1,
           title: "Workflow Optimization",
           desc: "Save time with our intelligent information extraction algorithms.",
           tag: "Tips"
         },
         {
+          id: 2,
           title: "Local Language Processing",
           desc: "Understanding Indonesian dialects and cultural contexts better.",
           tag: "Tech"
@@ -295,7 +302,7 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
   );
 };
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeProfession, setActiveProfession] = useState('Entrepreneur');
   const [scrolled, setScrolled] = useState(false);
@@ -417,7 +424,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
       {/* --- HERO SECTION --- */}
       <section className="relative pt-32 pb-16 px-6 bg-white overflow-hidden">
         
-        {/* Updated: Removed opacity-60 to allow full vividness from CSS */}
+        {/* Updated: Reverted opacity-60 for softer glow */}
         <div className="hero-glow"></div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
@@ -430,6 +437,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 tracking-tighter animate-in fade-in slide-in-from-bottom-6 duration-1000 mb-6 leading-[1.1]">
              {t.hero.title1}
              <div className="relative inline-block ml-3">
+                 {/* Reverted to Text Gradient */}
                 <span className="text-vivid-gradient">
                    {t.hero.title2}
                 </span>
@@ -504,7 +512,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                             <p className="text-gray-500 text-sm font-medium leading-relaxed mb-6 line-clamp-2 opacity-80">
                                 {article.desc}
                             </p>
-                            <button className="flex items-center gap-2 text-[#7928CA] font-bold text-xs hover:gap-4 transition-all">
+                            <button 
+                                onClick={() => onReadArticle(article.id)}
+                                className="flex items-center gap-2 text-[#7928CA] font-bold text-xs hover:gap-4 transition-all"
+                            >
                                 {t.blog.readMore} <ArrowRight size={14} />
                             </button>
                         </div>

@@ -1,15 +1,34 @@
 
 import React from 'react';
-import { X, MessageSquarePlus, Settings, CircleHelp, History, LogOut, LayoutGrid, Layers, CreditCard, BookOpen, Info } from 'lucide-react';
+import { X, MessageSquarePlus, Settings, CircleHelp, History, LogIn, LayoutGrid, Layers, CreditCard, BookOpen, Info, MessageSquare, User, Trash2 } from 'lucide-react';
+import { ChatSession, UserProfile } from '../types';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   onNewChat: () => void;
   onNavigate: (sectionId: string) => void;
+  
+  // New Props
+  history: ChatSession[];
+  activeChatId: string | null;
+  onSelectChat: (id: string) => void;
+  onDeleteChat: (id: string, e: React.MouseEvent) => void;
+  
+  userProfile: UserProfile;
+  
+  onOpenSettings: () => void;
+  onOpenProfile: () => void;
+  onOpenHelp: () => void;
+  onLogin: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onNewChat, onNavigate }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+    isOpen, onClose, onNewChat, onNavigate, 
+    history, activeChatId, onSelectChat, onDeleteChat,
+    userProfile,
+    onOpenSettings, onOpenProfile, onOpenHelp, onLogin
+}) => {
   
   const handleNavigation = (id: string) => {
     onNavigate(id);
@@ -18,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onNewChat, onNavigat
 
   return (
     <>
-      {/* Backdrop - Klik di luar untuk menutup */}
+      {/* Backdrop */}
       <div 
         className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-[60] transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={onClose}
@@ -30,7 +49,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onNewChat, onNavigat
         {/* Header Sidebar */}
         <div className="p-5 flex items-center justify-between">
            <div className="flex items-center gap-2">
-                {/* Optimized: Transparent logo, no container */}
                 <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-7 h-7 object-contain" />
                 <h2 className="text-xl font-bold tracking-tight text-gray-900">Velicia<span className="text-pink-500">.ai</span></h2>
            </div>
@@ -49,76 +67,97 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onNewChat, onNavigat
                 className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gray-900 text-white rounded-xl hover:bg-black transition-all shadow-md hover:shadow-lg active:scale-95 group"
             >
                 <MessageSquarePlus size={18} className="group-hover:-translate-y-0.5 transition-transform" />
-                <span className="font-semibold">New Chat</span>
+                <span className="font-semibold">Chat Baru</span>
             </button>
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1 no-scrollbar">
+        <div className="flex-1 overflow-y-auto py-2 px-3 flex flex-col gap-1 no-scrollbar">
             
             <div className="px-3 mb-2 mt-2 flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Menu</span>
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Navigasi</span>
             </div>
-
-            {/* Halaman Utama Link - Navigates to Home section */}
-            <button 
-                onClick={() => handleNavigation('home')} 
-                className="flex items-center gap-3 w-full p-3 text-gray-700 bg-gray-50 rounded-xl font-medium text-sm border border-gray-100 hover:bg-pink-50 hover:text-pink-700 transition-colors group"
-            >
-                <LayoutGrid size={18} className="text-pink-600 group-hover:text-pink-500" /> Halaman Utama
-            </button>
 
             {/* Navigation Links */}
-            <button 
-                onClick={() => handleNavigation('features')} 
-                className="flex items-center gap-3 w-full p-3 text-gray-600 hover:bg-pink-50 hover:text-pink-700 rounded-xl font-medium text-sm transition-colors group"
-            >
-                <Layers size={18} className="group-hover:text-pink-500 transition-colors" /> Fitur
-            </button>
-            <button 
-                onClick={() => handleNavigation('pricing')} 
-                className="flex items-center gap-3 w-full p-3 text-gray-600 hover:bg-pink-50 hover:text-pink-700 rounded-xl font-medium text-sm transition-colors group"
-            >
-                <CreditCard size={18} className="group-hover:text-pink-500 transition-colors" /> Harga
-            </button>
-            <button 
-                onClick={() => handleNavigation('blog')} 
-                className="flex items-center gap-3 w-full p-3 text-gray-600 hover:bg-pink-50 hover:text-pink-700 rounded-xl font-medium text-sm transition-colors group"
-            >
-                <BookOpen size={18} className="group-hover:text-pink-500 transition-colors" /> Blog
-            </button>
-            <button 
-                onClick={() => handleNavigation('about')} 
-                className="flex items-center gap-3 w-full p-3 text-gray-600 hover:bg-pink-50 hover:text-pink-700 rounded-xl font-medium text-sm transition-colors group"
-            >
-                <Info size={18} className="group-hover:text-pink-500 transition-colors" /> Tentang Kami
-            </button>
+            <button onClick={() => handleNavigation('home')} className="sidebar-link"><LayoutGrid size={16} /> Utama</button>
+            <button onClick={() => handleNavigation('features')} className="sidebar-link"><Layers size={16} /> Fitur</button>
+            <button onClick={() => handleNavigation('blog')} className="sidebar-link"><BookOpen size={16} /> Blog</button>
 
             <div className="px-3 mb-2 mt-6 flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Riwayat</span>
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Riwayat Chat</span>
             </div>
 
-            <button className="flex items-center gap-3 w-full p-3 text-gray-600 hover:bg-gray-100 rounded-xl font-medium text-sm transition-colors">
-                <History size={18} /> Belum ada riwayat
-            </button>
+            {/* Chat History List */}
+            <div className="flex flex-col gap-1 pb-4">
+                {history.length === 0 ? (
+                    <div className="px-4 py-8 text-center">
+                        <History size={24} className="mx-auto text-gray-300 mb-2" />
+                        <p className="text-xs text-gray-400 font-medium">Belum ada riwayat percakapan.</p>
+                    </div>
+                ) : (
+                    history.slice().reverse().map((session) => (
+                        <div 
+                            key={session.id} 
+                            onClick={() => { onSelectChat(session.id); onClose(); }}
+                            className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border border-transparent ${activeChatId === session.id ? 'bg-purple-50 border-purple-100 text-purple-900' : 'hover:bg-gray-50 text-gray-700'}`}
+                        >
+                            <div className="flex items-center gap-3 overflow-hidden">
+                                <MessageSquare size={16} className={`shrink-0 ${activeChatId === session.id ? 'text-purple-600' : 'text-gray-400'}`} />
+                                <span className="text-sm font-medium truncate">{session.title}</span>
+                            </div>
+                            <button 
+                                onClick={(e) => onDeleteChat(session.id, e)}
+                                className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-100 text-gray-400 hover:text-red-500 rounded-lg transition-all"
+                            >
+                                <Trash2 size={12} />
+                            </button>
+                        </div>
+                    ))
+                )}
+            </div>
             
-            <button className="flex items-center gap-3 w-full p-3 text-gray-600 hover:bg-gray-100 rounded-xl font-medium text-sm transition-colors">
-                <CircleHelp size={18} /> Bantuan
-            </button>
-
         </div>
 
         {/* Footer Sidebar */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-            <button className="flex items-center gap-3 w-full p-3 text-gray-600 hover:bg-gray-100 rounded-xl font-medium text-sm transition-colors mb-1">
-                <Settings size={18} /> Pengaturan
+        <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex flex-col gap-2">
+            
+            <button 
+                onClick={onOpenProfile}
+                className="flex items-center gap-3 w-full p-2.5 hover:bg-white border border-transparent hover:border-gray-200 rounded-xl transition-all group"
+            >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs shadow-sm group-hover:scale-105 transition-transform">
+                    {userProfile.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex flex-col items-start overflow-hidden">
+                    <span className="text-xs font-bold text-gray-900 truncate w-full text-left">{userProfile.name}</span>
+                    <span className="text-[10px] text-gray-500 truncate w-full text-left">{userProfile.bio || 'Pengguna Velicia'}</span>
+                </div>
             </button>
-            <button className="flex items-center gap-3 w-full p-3 text-red-600 hover:bg-red-50 rounded-xl font-medium text-sm transition-colors">
-                <LogOut size={18} /> Keluar
+
+            <div className="grid grid-cols-2 gap-2 mt-1">
+                <button onClick={onOpenSettings} className="flex items-center justify-center gap-2 p-2.5 text-gray-600 bg-white border border-gray-200 hover:border-purple-300 hover:text-purple-600 rounded-xl font-bold text-xs transition-colors">
+                    <Settings size={14} /> Atur
+                </button>
+                <button onClick={onOpenHelp} className="flex items-center justify-center gap-2 p-2.5 text-gray-600 bg-white border border-gray-200 hover:border-purple-300 hover:text-purple-600 rounded-xl font-bold text-xs transition-colors">
+                    <CircleHelp size={14} /> Info
+                </button>
+            </div>
+
+            <button 
+                onClick={onLogin}
+                className={`flex items-center justify-center gap-2 w-full p-3 rounded-xl font-bold text-sm transition-colors mt-1 ${userProfile.isLoggedIn ? 'text-red-600 hover:bg-red-50' : 'bg-black text-white hover:bg-gray-800 shadow-md'}`}
+            >
+                <LogIn size={16} /> {userProfile.isLoggedIn ? 'Keluar' : 'Masuk / Daftar'}
             </button>
         </div>
 
       </div>
+
+      <style>{`
+        .sidebar-link {
+            @apply flex items-center gap-3 w-full p-2.5 text-gray-600 hover:bg-pink-50 hover:text-pink-700 rounded-xl font-medium text-sm transition-colors;
+        }
+      `}</style>
     </>
   );
 };
