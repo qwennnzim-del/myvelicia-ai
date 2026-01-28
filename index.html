@@ -52,14 +52,13 @@
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
       /* --- SHARP VIVID TEXT GRADIENT --- */
-      /* Updated for maximum sharpness and contrast */
       .text-vivid-gradient {
         background: linear-gradient(to right, #9333EA 0%, #FF0080 50%, #FF1E1E 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         background-size: 200% auto;
-        filter: drop-shadow(0 2px 12px rgba(255, 0, 128, 0.4)); /* Stronger, sharper glow */
+        filter: drop-shadow(0 2px 12px rgba(255, 0, 128, 0.4));
       }
 
       /* --- PERFECTLY CENTERED & ROUNDED BUTTONS --- */
@@ -71,18 +70,17 @@
         justify-content: center;
         overflow: hidden;
         transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        /* Sharper Vivid Gradient: Electric Purple to Razor Pink */
         background: linear-gradient(135deg, #8B5CF6 0%, #FF0080 100%);
-        border-radius: 9999px; /* Professional pill shape */
+        border-radius: 9999px;
         border: none;
         outline: none;
         padding: 16px 40px;
         min-width: 260px;
-        box-shadow: 0 10px 40px -10px rgba(255, 0, 128, 0.8); /* Sharper, more intense pink shadow */
+        box-shadow: 0 10px 40px -10px rgba(255, 0, 128, 0.8);
       }
       .uiverse-button:hover {
         transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 20px 50px -10px rgba(255, 0, 128, 0.9); /* Even stronger on hover */
+        box-shadow: 0 20px 50px -10px rgba(255, 0, 128, 0.9);
       }
       .uiverse-button:active { transform: scale(0.97); }
 
@@ -94,7 +92,7 @@
         gap: 12px;
         border: 2px solid rgba(255, 255, 255, 0.05);
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        border-radius: 9999px; /* Professional pill shape */
+        border-radius: 9999px;
         font-weight: 800;
         padding: 16px 40px;
         font-size: 1rem;
@@ -107,7 +105,7 @@
 
       .btn-github:hover {
         background-color: #000;
-        color: #FF0080; /* Use pink for hover accent */
+        color: #FF0080;
         border-color: #FF0080;
         transform: translateY(-4px);
         box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4);
@@ -119,9 +117,9 @@
         width: 100%;
         max-width: 900px;
         height: 600px;
-        /* Updated: Much sharper, vivid pink core with better definition */
-        background: radial-gradient(circle at 50% 40%, rgba(255, 0, 128, 0.6) 0%, rgba(121, 40, 202, 0.4) 35%, transparent 65%);
-        filter: blur(50px); /* Reduced blur to sharpen the "shape" */
+        /* Reverted to a softer, comfortable gradient (Pink core, fading to purple/transparent) */
+        background: radial-gradient(circle at 50% 30%, rgba(255, 0, 128, 0.5) 0%, rgba(121, 40, 202, 0.3) 45%, transparent 75%);
+        filter: blur(60px); /* Increased blur for softness */
         top: -140px;
         left: 50%;
         transform: translateX(-50%);
@@ -162,7 +160,7 @@
         width: 1.2rem;
         display: inline-block;
         transition: all 0.5s ease-in-out;
-        background: rgba(255, 255, 255, 0.25); /* Increased opacity for cleaner fold */
+        background: rgba(255, 255, 255, 0.25);
         backdrop-filter: blur(5px);
         border-bottom-left-radius: 0.5rem;
       }

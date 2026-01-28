@@ -1,12 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
 import MessageList from './components/MessageList';
 import InputArea from './components/InputArea';
 import Dashboard from './components/Dashboard';
 import Sidebar from './components/Sidebar';
-import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment } from './types';
+import ArticlePage from './components/ArticlePage';
+import { SettingsModal, ProfileModal, HelpModal, LoginModal } from './components/Modals';
+import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
 import { sendMessageToGemini } from './services/geminiService';
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
@@ -18,27 +20,72 @@ const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   );
 };
 
+// Define View States
+type AppView = 'landing' | 'app' | 'article';
+
 const App: React.FC = () => {
-  const [showLanding, setShowLanding] = useState(true);
+  // --- VIEW STATE ---
+  const [currentView, setCurrentView] = useState<AppView>('landing');
+  const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null);
   const [initialScrollTo, setInitialScrollTo] = useState<string | null>(null);
+  const [isPageLoading, setIsPageLoading] = useState(false);
+
+  // --- CHAT STATE ---
   const [messages, setMessages] = useState<Message[]>([]);
+  const [history, setHistory] = useState<ChatSession[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
-  
   const [model, setModel] = useState<string>(ModelType.VELICIA_FLASH); 
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
-  const [isPageLoading, setIsPageLoading] = useState(false); 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
 
+  // --- USER & SETTINGS STATE ---
+  const [userProfile, setUserProfile] = useState<UserProfile>(() => {
+    const saved = localStorage.getItem('velicia_profile');
+    return saved ? JSON.parse(saved) : { name: 'Guest', bio: '', isLoggedIn: false };
+  });
+  const [language, setLanguage] = useState<'id' | 'en'>('id');
+  
+  // --- UI FLAGS ---
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [modals, setModals] = useState({
+      settings: false,
+      profile: false,
+      help: false,
+      login: false
+  });
+
+  // --- PERSISTENCE ---
+  useEffect(() => {
+    localStorage.setItem('velicia_profile', JSON.stringify(userProfile));
+  }, [userProfile]);
+
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('velicia_chat_history');
+    if (savedHistory) {
+        try {
+            setHistory(JSON.parse(savedHistory));
+        } catch (e) {
+            console.error("Failed to load history", e);
+        }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('velicia_chat_history', JSON.stringify(history));
+  }, [history]);
+
+  // --- NAVIGATION HANDLERS ---
   const handlePageTransition = (callback: () => void) => {
     setIsPageLoading(true);
     setTimeout(() => {
       callback();
       setTimeout(() => setIsPageLoading(false), 500); 
-    }, 1500);
+    }, 800);
   };
 
   const handleEnterApp = async () => {
+    // API Key Check
     try {
         const win = window as any;
         if (win.aistudio) {
@@ -47,20 +94,84 @@ const App: React.FC = () => {
                 await win.aistudio.openSelectKey();
             }
         }
-    } catch (e) {
-        console.error("API Key Selection Error:", e);
-    }
+    } catch (e) { console.error("API Key Selection Error:", e); }
 
     handlePageTransition(() => {
-      setShowLanding(false);
+      setCurrentView('app');
       setInitialScrollTo(null);
     });
   };
   
+  const handleReadArticle = (id: number) => {
+    handlePageTransition(() => {
+        setSelectedArticleId(id);
+        setCurrentView('article');
+    });
+  };
+
+  const handleBackToLanding = () => {
+     handlePageTransition(() => {
+        setCurrentView('landing');
+        setSelectedArticleId(null);
+     });
+  };
+  
   const handleNavigateFromSidebar = (sectionId: string) => {
     setIsSidebarOpen(false);
-    setShowLanding(true);
-    setInitialScrollTo(sectionId);
+    if (currentView !== 'landing') {
+        handlePageTransition(() => {
+            setCurrentView('landing');
+            setInitialScrollTo(sectionId);
+        });
+    } else {
+        setInitialScrollTo(sectionId);
+    }
+  };
+
+  // --- CHAT LOGIC ---
+
+  const createNewSession = (firstMessage: Message) => {
+      const newSession: ChatSession = {
+          id: Date.now().toString(),
+          title: firstMessage.text.slice(0, 30) + (firstMessage.text.length > 30 ? '...' : ''),
+          messages: [firstMessage],
+          timestamp: Date.now()
+      };
+      setHistory(prev => [...prev, newSession]);
+      setActiveChatId(newSession.id);
+      return newSession;
+  };
+
+  const updateActiveSession = (newMessages: Message[]) => {
+      if (activeChatId) {
+          setHistory(prev => prev.map(session => 
+              session.id === activeChatId ? { ...session, messages: newMessages } : session
+          ));
+      }
+  };
+
+  const handleSelectChat = (id: string) => {
+      const session = history.find(s => s.id === id);
+      if (session) {
+          setActiveChatId(id);
+          setMessages(session.messages);
+      }
+  };
+
+  const handleDeleteChat = (id: string, e: React.MouseEvent) => {
+      e.stopPropagation();
+      setHistory(prev => prev.filter(s => s.id !== id));
+      if (activeChatId === id) {
+          setActiveChatId(null);
+          setMessages([]);
+      }
+  };
+
+  const handleNewChat = () => {
+    setMessages([]);
+    setActiveChatId(null);
+    setIsAILoading(false);
+    setLoadingState('idle');
   };
 
   const handleSend = async (text: string, selectedModel: string, attachments?: Attachment[]) => {
@@ -72,20 +183,27 @@ const App: React.FC = () => {
       attachments: attachments 
     };
 
-    const newHistory = [...messages, newUserMessage];
-    setMessages(newHistory);
-    await processAIResponse(text, selectedModel, newHistory, attachments);
+    let currentMessages = [...messages, newUserMessage];
+    setMessages(currentMessages);
+
+    // If no active chat, create one now
+    if (!activeChatId) {
+        createNewSession(newUserMessage);
+    } else {
+        updateActiveSession(currentMessages);
+    }
+
+    await processAIResponse(text, selectedModel, currentMessages, attachments);
   };
 
-  const processAIResponse = async (text: string, selectedModel: string, history: Message[], attachments?: Attachment[]) => {
+  const processAIResponse = async (text: string, selectedModel: string, historyMessages: Message[], attachments?: Attachment[]) => {
     setIsAILoading(true);
     setLoadingState('thinking'); 
 
     const lowerText = text.toLowerCase();
     const hasAttachments = attachments && attachments.length > 0;
     
-    // Logic: Only trigger Youtube/Web search if there are NO attachments. 
-    // If there are attachments, the user likely wants to analyze them.
+    // Check intents
     const youtubeKeywords = ['youtube', 'video', 'nonton', 'watch', 'clip', 'cuplikan', 'trailer', 'film'];
     const isYoutubeIntent = youtubeKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
     
@@ -108,10 +226,8 @@ const App: React.FC = () => {
     }
 
     try {
-      const response = await sendMessageToGemini(text, selectedModel, history, attachments);
+      const response = await sendMessageToGemini(text, selectedModel, historyMessages, attachments);
       
-      // ARTIFICIAL DELAY FOR SMOOTHNESS
-      // Wait for 1s to simulate "finalizing thought" before showing the message
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const newModelMessage: Message = {
@@ -121,13 +237,29 @@ const App: React.FC = () => {
         timestamp: Date.now(),
         groundingMetadata: response.groundingMetadata
       };
-      setMessages((prev) => [...prev, newModelMessage]);
+      
+      const updatedMessages = [...historyMessages, newModelMessage];
+      setMessages(updatedMessages);
+      
+      // Update session explicitly here to ensure AI response is saved
+      if (activeChatId) {
+          setHistory(prev => prev.map(session => 
+              session.id === activeChatId ? { ...session, messages: updatedMessages } : session
+          ));
+      } else {
+         // Fallback if ID wasn't set (shouldn't happen due to createNewSession above)
+         const lastSession = history[history.length - 1];
+         if (lastSession) {
+             setHistory(prev => prev.map(s => s.id === lastSession.id ? { ...s, messages: updatedMessages } : s));
+         }
+      }
+
     } catch (error) {
       console.error("Error sending message:", error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: Role.MODEL,
-        text: error instanceof Error ? `⚠️ ${error.message}` : "Maaf, terjadi kesalahan. Silakan coba lagi nanti.",
+        text: error instanceof Error ? `⚠️ ${error.message}` : "Maaf, terjadi kesalahan.",
         timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -147,29 +279,82 @@ const App: React.FC = () => {
     const updatedUserMessage: Message = { ...oldMessage, text: newText, timestamp: Date.now() };
     const newHistory = [...pastMessages, updatedUserMessage];
     setMessages(newHistory);
+    updateActiveSession(newHistory);
     await processAIResponse(newText, model, newHistory, updatedUserMessage.attachments);
-  };
-
-  const handleNewChat = () => {
-    setMessages([]);
-    setIsAILoading(false);
-    setLoadingState('idle');
   };
 
   const handleModelSelectFromDashboard = (type: 'text' | 'image') => {
     setModel(ModelType.VELICIA_FLASH);
   };
 
+  // --- MODAL HANDLERS ---
+  const toggleModal = (key: keyof typeof modals) => {
+      setModals(prev => ({ ...prev, [key]: !prev[key] }));
+      setIsSidebarOpen(false); // Close sidebar when opening modal
+  };
+
+  const handleLogin = () => {
+      if (userProfile.isLoggedIn) {
+          if (window.confirm("Apakah Anda yakin ingin keluar?")) {
+              setUserProfile({ ...userProfile, isLoggedIn: false, name: 'Guest', bio: '' });
+          }
+      } else {
+          toggleModal('login');
+      }
+  };
+
+  const handlePerformLogin = () => {
+      setUserProfile({ ...userProfile, name: 'User Velicia', isLoggedIn: true });
+  };
+
   return (
     <>
         <TopProgressBar isLoading={isPageLoading} />
         
-        {showLanding ? (
+        {/* MODALS */}
+        <SettingsModal 
+            isOpen={modals.settings} 
+            onClose={() => toggleModal('settings')} 
+            language={language}
+            setLanguage={setLanguage}
+            onClearHistory={() => { setHistory([]); setMessages([]); setActiveChatId(null); }}
+        />
+        <ProfileModal 
+            isOpen={modals.profile} 
+            onClose={() => toggleModal('profile')}
+            profile={userProfile}
+            onSave={setUserProfile}
+        />
+        <HelpModal 
+            isOpen={modals.help}
+            onClose={() => toggleModal('help')}
+        />
+        <LoginModal 
+            isOpen={modals.login}
+            onClose={() => toggleModal('login')}
+            onLogin={handlePerformLogin}
+        />
+
+        {currentView === 'landing' && (
             <div className="min-h-screen bg-white">
-                <LandingPage onEnterApp={handleEnterApp} initialScrollTo={initialScrollTo} />
+                <LandingPage 
+                    onEnterApp={handleEnterApp} 
+                    onReadArticle={handleReadArticle}
+                    initialScrollTo={initialScrollTo} 
+                />
             </div>
-        ) : (
-            /* APP LAYOUT - FIXED HEIGHT 100dvh (Dynamic Viewport Height) */
+        )}
+
+        {currentView === 'article' && selectedArticleId !== null && (
+            <div className="min-h-screen bg-white">
+                <ArticlePage 
+                    articleId={selectedArticleId} 
+                    onBack={handleBackToLanding} 
+                />
+            </div>
+        )}
+
+        {currentView === 'app' && (
             <div className="fixed inset-0 w-full h-[100dvh] bg-[#FAFAFA] flex flex-col overflow-hidden text-gray-900 font-sans">
                 
                 <Sidebar 
@@ -177,11 +362,26 @@ const App: React.FC = () => {
                     onClose={() => setIsSidebarOpen(false)} 
                     onNewChat={handleNewChat}
                     onNavigate={handleNavigateFromSidebar}
+                    
+                    history={history}
+                    activeChatId={activeChatId}
+                    onSelectChat={handleSelectChat}
+                    onDeleteChat={handleDeleteChat}
+                    
+                    userProfile={userProfile}
+                    
+                    onOpenSettings={() => toggleModal('settings')}
+                    onOpenProfile={() => toggleModal('profile')}
+                    onOpenHelp={() => toggleModal('help')}
+                    onLogin={handleLogin}
                 />
                 
-                <Header onNewChat={handleNewChat} onMenuClick={() => setIsSidebarOpen(true)} user={null} />
+                <Header 
+                    onNewChat={handleNewChat} 
+                    onMenuClick={() => setIsSidebarOpen(true)} 
+                    user={userProfile.isLoggedIn ? { name: userProfile.name, initial: userProfile.name.charAt(0) } : null} 
+                />
                 
-                {/* Main Chat Area - Flexible Height & Scrollable */}
                 <main className="flex-1 w-full max-w-5xl mx-auto pt-20 overflow-y-auto no-scrollbar relative flex flex-col scroll-smooth">
                     <div className="flex-1 px-4 md:px-6 py-4">
                         {messages.length === 0 ? (
@@ -194,7 +394,6 @@ const App: React.FC = () => {
                     </div>
                 </main>
                 
-                {/* Input Area - Fixed Bottom / Shrink 0 */}
                 <div className="w-full shrink-0 z-20 bg-gradient-to-t from-[#FAFAFA] via-[#FAFAFA] to-transparent pt-2 pb-safe">
                     <InputArea 
                         onSend={handleSend} 
