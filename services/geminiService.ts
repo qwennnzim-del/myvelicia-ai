@@ -1,31 +1,20 @@
 
-import { GoogleGenerativeAI, ChatSession, HarmCategory, HarmBlockThreshold, Part } from "@google/generative-ai";
-import { Message, ModelType, GroundingMetadata, Attachment, Role } from '../types';
+import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
+import { Message, ModelType, GroundingMetadata, Attachment } from '../types';
 import { CONFIG } from '../config';
 import { sendToPollinations } from './pollinationsService';
 
-// Exported IMAGE_MODELS
-export const IMAGE_MODELS = ['gemini-2.5-flash-image', 'gemini-3-pro-image-preview', 'imagen-4.0-generate-001', 'nano-banana-pro-preview'];
+// Exported IMAGE_MODELS to fix the missing member error in MessageList.tsx
+export const IMAGE_MODELS = ['gemini-2.5-flash-image', 'gemini-3-pro-image-preview', 'imagen-4.0-generate-001'];
 
-let chatSession: ChatSession | null = null;
-let currentModelId: string | null = null;
-let genAI: GoogleGenerativeAI | null = null;
+let chatSession: Chat | null = null;
+let currentModel: string | null = null;
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const initializeGeminiChat = async (modelId: string, history: Message[], customSystemInstruction?: string) => {
-  // Initialize Gen 1 Client
-  if (!genAI) {
-    // Vite akan me-replace process.env.API_KEY dengan string value saat build
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
-    
-    if (!apiKey) {
-        console.error("API Key is missing. Please check your .env file.");
-        throw new Error("API Key tidak ditemukan.");
-    }
-
-    genAI = new GoogleGenerativeAI(apiKey);
-  }
+// Always use { apiKey: process.env.API_KEY } for initialization
+const initializeGeminiChat = (modelId: string, customSystemInstruction?: string) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   let instruction = customSystemInstruction || CONFIG.SYSTEM_INSTRUCTION;
 
@@ -34,65 +23,20 @@ const initializeGeminiChat = async (modelId: string, history: Message[], customS
     instruction = CONFIG.DEEP_REASONING_INSTRUCTION;
   }
   
-  // Mapping logic (Gen 1)
-  // Gen 1 SDK biasanya menggunakan nama model langsung, misal 'gemini-1.5-flash'
-  // Sesuaikan mapping ini jika model ID di types.ts berbeda dengan nama model API
-  const actualModelId = modelId; 
+  // Mapping logic: Ensure 'velicia-v5' maps to a valid engine ID internally
+  // We use gemini-2.0-flash as the engine for v5 to provide O1-class speed and intelligence
+  // UPDATE: This acts as a fallback or initialization placeholder. Actual routing happens in sendMessageToGemini.
+  const actualModelId = (modelId === ModelType.VELICIA_V5) ? 'gemini-2.0-flash' : modelId;
   
-  // Create Model Instance (Gen 1 Style)
-  const model = genAI.getGenerativeModel({
+  // Use the requested model IDs directly as they are allowed
+  chatSession = ai.chats.create({
     model: actualModelId,
-    systemInstruction: instruction,
-    safetySettings: [
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-    ]
+    config: {
+      systemInstruction: instruction,
+      tools: [{ googleSearch: {} }],
+    },
   });
-
-  // Convert internal Message[] to Gen 1 SDK Content[]
-  // Gen 1 expects: { role: string, parts: { text: string }[] }
-  // Filter pesan terakhir karena akan dikirim via sendMessage
-  const historyMessages = history.slice(0, -1);
-
-  const sdkHistory = historyMessages.map(msg => {
-      const parts: Part[] = [];
-      
-      // Handle Text
-      if (msg.text) {
-          parts.push({ text: msg.text });
-      }
-
-      // Handle Attachments (Images) di History
-      // Note: Gen 1 Chat History support untuk gambar tergantung model, 
-      // tapi struktur datanya harus { inlineData: ... }
-      if (msg.attachments && msg.attachments.length > 0) {
-          msg.attachments.forEach(att => {
-              const base64Data = att.content.split(',')[1];
-              parts.push({
-                  inlineData: {
-                      mimeType: att.mimeType,
-                      data: base64Data
-                  }
-              });
-          });
-      }
-
-      return {
-          role: msg.role === Role.MODEL ? 'model' : 'user',
-          parts: parts
-      };
-  });
-  
-  chatSession = model.startChat({
-    history: sdkHistory,
-    generationConfig: {
-        maxOutputTokens: 8192,
-    }
-  });
-  
-  currentModelId = modelId;
+  currentModel = modelId;
 };
 
 export const sendMessageToGemini = async (
@@ -102,31 +46,29 @@ export const sendMessageToGemini = async (
   attachments?: Attachment[]
 ): Promise<{ text: string; groundingMetadata?: GroundingMetadata }> => {
   try {
-    // --- ROUTING LOGIC: POLLINATIONS.AI ---
-    const pollinationModels = [
-        ModelType.VELICIA_V5, 
-        ModelType.VELICIA_GPT4, 
-        ModelType.VELICIA_CLAUDE, 
-        ModelType.VELICIA_MISTRAL
-    ];
-
-    if (pollinationModels.includes(modelId as ModelType)) {
-        const responseText = await sendToPollinations(text, history, CONFIG.SYSTEM_INSTRUCTION, modelId);
+    
+    // --- ROUTING LOGIC: POLLINATIONS.AI (OPENAI) ---
+    if (modelId === ModelType.VELICIA_V5) {
+        // Use the Pollinations service for Velicia v5 (OpenAI)
+        // Note: Pollinations currently implies text-only support via this endpoint style
+        // If attachments exist, we might need to fallback or warn, but for now we proceed with text.
+        const responseText = await sendToPollinations(text, history, CONFIG.SYSTEM_INSTRUCTION);
         return {
             text: responseText,
-            groundingMetadata: undefined 
+            groundingMetadata: undefined // Pollinations doesn't provide Google grounding metadata
         };
     }
 
-    // --- ROUTING LOGIC: GOOGLE GENERATIVE AI (GEN 1) ---
-    // Always re-initialize to ensure context/model freshness
-    await initializeGeminiChat(modelId, history);
+    // --- ROUTING LOGIC: GOOGLE GENAI ---
+    if (!chatSession || currentModel !== modelId) {
+        initializeGeminiChat(modelId);
+    }
 
     if (!chatSession) throw new Error("Chat session not initialized");
 
-    const currentParts: Part[] = [];
+    const currentParts: any[] = [];
     
-    // Handle multiple attachments for the current message (Gen 1 Style)
+    // Handle multiple attachments
     if (attachments && attachments.length > 0) {
         attachments.forEach(att => {
             const base64Data = att.content.split(',')[1]; 
@@ -146,19 +88,14 @@ export const sendMessageToGemini = async (
 
     while (attempt <= maxRetries) {
         try {
-            // Gen 1 SDK: sendMessage accepts string or Part[]
-            const payload = (attachments && attachments.length > 0) ? currentParts : text;
-            
-            const result = await chatSession.sendMessage(payload);
-            const response = await result.response;
-            const responseText = response.text();
-            
-            // Gen 1 Metadata extraction (Type casting 'any' because strict types might miss experimental fields)
-            const rawMetadata = (response.candidates?.[0] as any)?.groundingMetadata as any;
+            // Fix: sendMessage message parameter must be a string or Part[].
+            const response: GenerateContentResponse = await chatSession.sendMessage({ 
+              message: (attachments && attachments.length > 0) ? currentParts : text 
+            });
             
             return { 
-                text: responseText || "Maaf, tidak ada respons.",
-                groundingMetadata: rawMetadata
+                text: response.text || "Maaf, tidak ada respons.",
+                groundingMetadata: response.candidates?.[0]?.groundingMetadata as GroundingMetadata
             };
         } catch (error: any) {
             if (error.status === 503 || error.status === 429 || error.message?.includes('429')) {
@@ -177,19 +114,23 @@ export const sendMessageToGemini = async (
   } catch (error: any) {
     console.error("Service Error:", error);
     
+    // Check specific Pollinations error
     if (error.message.includes('Pollinations')) {
-        return { text: `⚠️ **Koneksi Eksternal Gagal**. ${error.message}` };
+        return { text: `⚠️ **Koneksi Jaringan OpenAI Gagal**. ${error.message}` };
     }
     
-    if (error.message?.includes('403') || error.message?.includes('PERMISSION_DENIED')) {
-        return { text: "⚠️ **Akses Ditolak**. Pastikan API Key Anda valid." };
+    if (error.message?.includes('403') || error.status === 'PERMISSION_DENIED') {
+         if (typeof window !== 'undefined' && (window as any).aistudio) {
+             try { await (window as any).aistudio.openSelectKey(); } catch (e) {}
+             return { text: "⚠️ **Akses Ditolak**. Silakan pilih API Key yang valid." };
+         }
     }
 
     if (error.message?.includes('429') || error.message?.includes('Quota exceeded')) {
         return { text: "⚠️ **Kuota Habis**. Mohon tunggu sebentar." };
     }
 
-    return { text: `⚠️ Maaf, terjadi kesalahan: ${error.message}` };
+    return { text: `⚠️ Maaf, terjadi kesalahan saat memproses permintaan. (${error.message})` };
   }
 };
 
