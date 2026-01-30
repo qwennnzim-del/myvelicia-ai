@@ -1,12 +1,5 @@
-
-export {};
-
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      GEMINI_API_KEY: string;
-      API_KEY: string;
-      [key: string]: string | undefined;
-    }
+declare namespace NodeJS {
+  interface ProcessEnv {
+    readonly API_KEY: string;
   }
 }
