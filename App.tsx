@@ -24,16 +24,40 @@ const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
 type AppView = 'landing' | 'app' | 'article';
 
 const App: React.FC = () => {
-  // --- VIEW STATE ---
-  const [currentView, setCurrentView] = useState<AppView>('landing');
-  const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null);
+  // --- VIEW STATE (Persisted) ---
+  const [currentView, setCurrentView] = useState<AppView>(() => {
+    if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('velicia_current_view');
+        if (saved === 'app' || saved === 'landing' || saved === 'article') {
+            return saved as AppView;
+        }
+    }
+    return 'landing';
+  });
+
+  const [selectedArticleId, setSelectedArticleId] = useState<number | null>(() => {
+    if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('velicia_article_id');
+        return saved ? parseInt(saved) : null;
+    }
+    return null;
+  });
+
   const [initialScrollTo, setInitialScrollTo] = useState<string | null>(null);
   const [isPageLoading, setIsPageLoading] = useState(false);
 
   // --- CHAT STATE ---
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<ChatSession[]>([]);
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  
+  // Persisted Active Chat ID
+  const [activeChatId, setActiveChatId] = useState<string | null>(() => {
+      if (typeof window !== 'undefined') {
+          return localStorage.getItem('velicia_active_chat_id');
+      }
+      return null;
+  });
+
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
   const [model, setModel] = useState<string>(ModelType.VELICIA_FLASH); 
@@ -55,11 +79,14 @@ const App: React.FC = () => {
       login: false
   });
 
-  // --- PERSISTENCE ---
+  // --- PERSISTENCE LOGIC ---
+  
+  // 1. Save Profile
   useEffect(() => {
     localStorage.setItem('velicia_profile', JSON.stringify(userProfile));
   }, [userProfile]);
 
+  // 2. Load History on Mount
   useEffect(() => {
     const savedHistory = localStorage.getItem('velicia_chat_history');
     if (savedHistory) {
@@ -71,9 +98,48 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // 3. Save History on Change
   useEffect(() => {
     localStorage.setItem('velicia_chat_history', JSON.stringify(history));
   }, [history]);
+
+  // 4. Save View State
+  useEffect(() => {
+    localStorage.setItem('velicia_current_view', currentView);
+  }, [currentView]);
+
+  // 5. Save Article ID
+  useEffect(() => {
+    if (selectedArticleId !== null) {
+        localStorage.setItem('velicia_article_id', selectedArticleId.toString());
+    } else {
+        localStorage.removeItem('velicia_article_id');
+    }
+  }, [selectedArticleId]);
+
+  // 6. Save Active Chat ID
+  useEffect(() => {
+    if (activeChatId) {
+        localStorage.setItem('velicia_active_chat_id', activeChatId);
+    } else {
+        localStorage.removeItem('velicia_active_chat_id');
+    }
+  }, [activeChatId]);
+
+  // 7. Restore Messages on Refresh
+  useEffect(() => {
+      // Only restore if we have an active ID, history is loaded, and messages are empty (refresh state)
+      if (activeChatId && history.length > 0 && messages.length === 0) {
+          const session = history.find(s => s.id === activeChatId);
+          if (session) {
+              setMessages(session.messages);
+          } else {
+              // If ID in localStorage refers to a non-existent session, clear it
+              setActiveChatId(null);
+          }
+      }
+  }, [history, activeChatId, messages.length]);
+
 
   // --- NAVIGATION HANDLERS ---
   const handlePageTransition = (callback: () => void) => {
