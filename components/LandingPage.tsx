@@ -93,10 +93,15 @@ const TRANSLATIONS = {
       subtitle: 'Para ahli dibalik kecerdasan buatan Indonesia.',
       members: [
         { role: 'CEO & Lead Engineer', desc: 'Pelopor pengembangan Velicia AI.' },
-        { role: 'AI Researcher', desc: 'Riset model multimodal kontekstual.' },
+        { role: 'AI Research Lead', desc: 'Riset model multimodal kontekstual.' },
         { role: 'Head of Operations', desc: 'Skalabilitas infrastruktur cloud.' },
-        { role: 'UX Designer', desc: 'Pengalaman interaksi AI intuitif.' },
-        { role: 'Sekretaris & Ops', desc: 'Koordinasi administrasi dan notulensi strategis.' }
+        { role: 'Lead UX Designer', desc: 'Pengalaman interaksi AI intuitif.' },
+        { role: 'Sekretaris & Compliance', desc: 'Koordinasi administrasi dan kepatuhan.' },
+        { role: 'Senior Backend Engineer', desc: 'Arsitektur sistem berkinerja tinggi.' },
+        { role: 'Data Scientist', desc: 'Analisis dan kurasi dataset lokal.' },
+        { role: 'Cloud Architect', desc: 'Manajemen server mandiri & keamanan.' },
+        { role: 'Community Manager', desc: 'Membangun ekosistem pengguna Velicia.' },
+        { role: 'Cyber Security Analyst', desc: 'Perlindungan data dan privasi pengguna.' }
       ]
     },
     faq: {
@@ -190,10 +195,15 @@ const TRANSLATIONS = {
       subtitle: 'Experts building Indonesia\'s AI future.',
       members: [
         { role: 'CEO & Lead Engineer', desc: 'Pioneer of Velicia AI development.' },
-        { role: 'AI Researcher', desc: 'Contextual multimodal model research.' },
+        { role: 'AI Research Lead', desc: 'Contextual multimodal model research.' },
         { role: 'Head of Operations', desc: 'Cloud infrastructure scalability.' },
-        { role: 'UX Designer', desc: 'Intuitive AI interaction experience.' },
-        { role: 'Secretary & Ops', desc: 'Administrative management and strategic minutes.' }
+        { role: 'Lead UX Designer', desc: 'Intuitive AI interaction experience.' },
+        { role: 'Secretary & Compliance', desc: 'Administrative coordination and compliance.' },
+        { role: 'Senior Backend Engineer', desc: 'High-performance system architecture.' },
+        { role: 'Data Scientist', desc: 'Local dataset analysis and curation.' },
+        { role: 'Cloud Architect', desc: 'Sovereign server management & security.' },
+        { role: 'Community Manager', desc: 'Building the Velicia user ecosystem.' },
+        { role: 'Cyber Security Analyst', desc: 'User data protection and privacy.' }
       ]
     },
     faq: {
@@ -395,11 +405,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
   };
 
   const teamMembers = [
-    { name: 'M Fariz', color: 'from-[#7928CA] to-[#FF0080]' },
-    { name: 'Sarah A', color: 'from-[#FF0080] to-[#FF4D4D]' },
-    { name: 'Andi W', color: 'from-[#0070F3] to-[#00DFD8]' },
-    { name: 'Riana P', color: 'from-[#F5A623] to-[#F76B1C]' },
-    { name: 'Dwi Putri', color: 'from-[#06b6d4] to-[#3b82f6]' } // Ensure Dwi Putri is here
+    { name: 'M. Fariz', color: 'from-[#7928CA] to-[#FF0080]' }, // Purple-Pink
+    { name: 'Sarah A.', color: 'from-[#FF0080] to-[#FF4D4D]' }, // Pink-Red
+    { name: 'Andi W.', color: 'from-[#0070F3] to-[#00DFD8]' }, // Blue-Cyan
+    { name: 'Riana P.', color: 'from-[#F5A623] to-[#F76B1C]' }, // Orange
+    { name: 'Dwi Putri', color: 'from-[#06b6d4] to-[#3b82f6]' }, // Cyan-Blue
+    { name: 'Budi S.', color: 'from-[#10B981] to-[#059669]' }, // Green
+    { name: 'Citra K.', color: 'from-[#8B5CF6] to-[#6366F1]' }, // Violet-Indigo
+    { name: 'Reza P.', color: 'from-[#EC4899] to-[#8B5CF6]' }, // Pink-Purple
+    { name: 'Nadia U.', color: 'from-[#F43F5E] to-[#BE123C]' }, // Rose
+    { name: 'Eko S.', color: 'from-[#3B82F6] to-[#1D4ED8]' }  // Blue
   ];
 
   const toggleFaq = (index: number) => {
@@ -624,7 +639,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
                     {t.team.subtitle}
                  </p>
               </div>
-              {/* Updated Grid for 5 members */}
+              {/* Updated Grid for 10 members (2 rows of 5 on MD+) */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                  {teamMembers.map((member, i) => (
                     <div key={i} className="group relative bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-2 flex flex-col items-center text-center">

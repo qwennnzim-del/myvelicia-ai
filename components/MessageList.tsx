@@ -504,68 +504,49 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
              </div>
           </div>
         ) : (
-           <div className="flex items-center justify-start w-full pl-0 mt-1 h-10 relative overflow-visible animate-in fade-in duration-500">
-                <div className="flex items-center gap-3">
-                    
-                    {/* Simplified Container */}
-                    <div className="relative w-8 h-8 flex items-center justify-center shrink-0">
-                        {/* OVERLAPPING ICONS FOR SMOOTH TRANSITION */}
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            
-                            {/* 1. Velicia / Thinking Icon */}
-                            <div className={`absolute transition-all duration-500 ease-out transform ${
-                                loadingState === 'thinking' || loadingState === 'idle' 
-                                ? 'opacity-100 scale-100 rotate-0' 
-                                : 'opacity-0 scale-50 -rotate-90'
-                            }`}>
-                                <Sparkles className="w-5 h-5 text-[#7928CA] animate-pulse" strokeWidth={2.5} />
-                            </div>
-
-                            {/* 2. Google / Searching Icon */}
-                            <div className={`absolute transition-all duration-500 ease-out transform ${
-                                loadingState === 'searching' 
-                                ? 'opacity-100 scale-100 rotate-0' 
-                                : 'opacity-0 scale-50 -rotate-90'
-                            }`}>
-                                <img 
-                                    src="https://img.icons8.com/?size=100&id=17949&format=png&color=000000" 
-                                    alt="Google" 
-                                    className="w-4 h-4 object-contain"
-                                />
-                            </div>
-
-                            {/* 3. YouTube Icon */}
-                            <div className={`absolute transition-all duration-500 ease-out transform ${
-                                loadingState === 'youtube_search' 
-                                ? 'opacity-100 scale-100 rotate-0' 
-                                : 'opacity-0 scale-50 -rotate-90'
-                            }`}>
-                                <img 
-                                    src="https://img.icons8.com/?size=100&id=19318&format=png&color=000000" 
-                                    alt="YouTube"
-                                    className="w-4 h-4 object-contain"
-                                />
-                            </div>
-
+           <div className="flex items-center justify-start w-full pl-0 mt-4 h-12 relative overflow-visible animate-in fade-in duration-500 gap-4">
+                {/* 
+                    New Loader Container: 
+                    Uses a fixed-size 40px box (w-10 h-10) as an anchor.
+                    The loader inside is 100px but scaled down to 0.4 (40px) to fit perfectly.
+                    Centered using flex and origin-center.
+                */}
+                <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center">
+                    <div className="transform scale-[0.4] origin-center">
+                        <div className="loader">
+                            <svg width="100" height="100" viewBox="0 0 100 100">
+                                <defs>
+                                <mask id="clipping">
+                                    <polygon points="0,0 100,0 100,100 0,100" fill="black"></polygon>
+                                    <polygon points="25,25 75,25 50,75" fill="white"></polygon>
+                                    <polygon points="50,25 75,75 25,75" fill="white"></polygon>
+                                    <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                                    <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                                    <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                                    <polygon points="35,35 65,35 50,65" fill="white"></polygon>
+                                </mask>
+                                </defs>
+                            </svg>
+                            <div className="box"></div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Text Label with Color Transition */}
-                    <div className={`transition-colors duration-700 ease-in-out ${
-                        loadingState === 'searching' 
-                        ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-red-500 to-yellow-500' 
-                        : loadingState === 'youtube_search'
-                        ? 'text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-400'
-                        : 'text-gray-400'
-                    }`}>
-                        {loadingState === 'searching' ? (
-                            <TypewriterLabel phrases={searchPhrases} key="search" />
-                        ) : loadingState === 'youtube_search' ? (
-                            <TypewriterLabel phrases={youtubePhrases} key="youtube" />
-                        ) : (
-                            <TypewriterLabel phrases={activePhrases} key="thinking" />
-                        )}
-                    </div>
+                {/* Text Label with Color Transition */}
+                <div className={`transition-colors duration-700 ease-in-out mt-1 ${
+                    loadingState === 'searching' 
+                    ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-red-500 to-yellow-500' 
+                    : loadingState === 'youtube_search'
+                    ? 'text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-400'
+                    : 'text-gray-400'
+                }`}>
+                    {loadingState === 'searching' ? (
+                        <TypewriterLabel phrases={searchPhrases} key="search" />
+                    ) : loadingState === 'youtube_search' ? (
+                        <TypewriterLabel phrases={youtubePhrases} key="youtube" />
+                    ) : (
+                        <TypewriterLabel phrases={activePhrases} key="thinking" />
+                    )}
                 </div>
            </div>
         )

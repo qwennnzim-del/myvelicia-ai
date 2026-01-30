@@ -192,7 +192,7 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack }) => {
               <span className="flex items-center gap-1"><Clock size={12}/> {article.readTime}</span>
            </div>
            
-           <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
+           <h1 className="text-3xl md:text-5xl font-black text-vivid-gradient mb-6 leading-tight tracking-tight pb-1">
              {article.title}
            </h1>
 
