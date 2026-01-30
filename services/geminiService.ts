@@ -2,6 +2,7 @@
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { Message, ModelType, GroundingMetadata, Attachment } from '../types';
 import { CONFIG } from '../config';
+import { sendToPollinations } from './pollinationsService';
 
 // Exported IMAGE_MODELS to fix the missing member error in MessageList.tsx
 export const IMAGE_MODELS = ['gemini-2.5-flash-image', 'gemini-3-pro-image-preview', 'imagen-4.0-generate-001'];
@@ -17,13 +18,19 @@ const initializeGeminiChat = (modelId: string, customSystemInstruction?: string)
   
   let instruction = customSystemInstruction || CONFIG.SYSTEM_INSTRUCTION;
 
+  // Configuration for specific models
   if (modelId === ModelType.VELICIA_PRO) {
     instruction = CONFIG.DEEP_REASONING_INSTRUCTION;
   }
   
+  // Mapping logic: Ensure 'velicia-v5' maps to a valid engine ID internally
+  // We use gemini-2.0-flash as the engine for v5 to provide O1-class speed and intelligence
+  // UPDATE: This acts as a fallback or initialization placeholder. Actual routing happens in sendMessageToGemini.
+  const actualModelId = (modelId === ModelType.VELICIA_V5) ? 'gemini-2.0-flash' : modelId;
+  
   // Use the requested model IDs directly as they are allowed
   chatSession = ai.chats.create({
-    model: modelId,
+    model: actualModelId,
     config: {
       systemInstruction: instruction,
       tools: [{ googleSearch: {} }],
@@ -39,6 +46,20 @@ export const sendMessageToGemini = async (
   attachments?: Attachment[]
 ): Promise<{ text: string; groundingMetadata?: GroundingMetadata }> => {
   try {
+    
+    // --- ROUTING LOGIC: POLLINATIONS.AI (OPENAI) ---
+    if (modelId === ModelType.VELICIA_V5) {
+        // Use the Pollinations service for Velicia v5 (OpenAI)
+        // Note: Pollinations currently implies text-only support via this endpoint style
+        // If attachments exist, we might need to fallback or warn, but for now we proceed with text.
+        const responseText = await sendToPollinations(text, history, CONFIG.SYSTEM_INSTRUCTION);
+        return {
+            text: responseText,
+            groundingMetadata: undefined // Pollinations doesn't provide Google grounding metadata
+        };
+    }
+
+    // --- ROUTING LOGIC: GOOGLE GENAI ---
     if (!chatSession || currentModel !== modelId) {
         initializeGeminiChat(modelId);
     }
@@ -92,6 +113,11 @@ export const sendMessageToGemini = async (
 
   } catch (error: any) {
     console.error("Service Error:", error);
+    
+    // Check specific Pollinations error
+    if (error.message.includes('Pollinations')) {
+        return { text: `⚠️ **Koneksi Jaringan OpenAI Gagal**. ${error.message}` };
+    }
     
     if (error.message?.includes('403') || error.status === 'PERMISSION_DENIED') {
          if (typeof window !== 'undefined' && (window as any).aistudio) {
