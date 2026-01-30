@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Paperclip, AudioLines, ArrowUp, ChevronUp, X, FileText, Image as ImageIcon, FileSpreadsheet, FileIcon } from 'lucide-react';
+import { Paperclip, AudioLines, ArrowUp, ChevronUp, X, FileText, Image as ImageIcon, FileSpreadsheet, FileIcon, Sparkles } from 'lucide-react';
 import { ModelOption, Attachment } from '../types';
 
 interface InputAreaProps {
@@ -13,7 +13,7 @@ interface InputAreaProps {
 
 const BrandIcon: React.FC<{ brand: string, className?: string }> = ({ className = "w-6 h-6" }) => {
   return (
-    <img src="/logoApp/logo-app.png" alt="Velicia" className={`${className} object-contain`} />
+    <Sparkles className={`${className} text-[#7928CA]`} strokeWidth={2.5} />
   );
 };
 

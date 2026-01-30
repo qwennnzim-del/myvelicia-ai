@@ -518,7 +518,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                                 ? 'opacity-100 scale-100 rotate-0' 
                                 : 'opacity-0 scale-50 -rotate-90'
                             }`}>
-                                <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-5 h-5 object-contain animate-pulse" />
+                                <Sparkles className="w-5 h-5 text-[#7928CA] animate-pulse" strokeWidth={2.5} />
                             </div>
 
                             {/* 2. Google / Searching Icon */}
