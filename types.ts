@@ -48,9 +48,12 @@ export interface UserProfile {
 
 export enum ModelType {
   VELICIA_PRO = 'gemini-2.5-flash',      // Deepthink & Reasoning
-  VELICIA_FLASH = 'gemini-2.5-flash-lite',    // Efficient & Smart
+  VELICIA_FLASH = 'gemini-2.0-flash',    // Efficient & Smart
   VELICIA_LITE = 'gemini-flash-latest',   // Fast & Low Latency
-  VELICIA_V5 = 'velicia-v5'              // OpenAI Class
+  VELICIA_V5 = 'velicia-v5',              // OpenAI Class
+  VELICIA_GPT4 = 'velicia-gpt4',
+  VELICIA_CLAUDE = 'velicia-claude',
+  VELICIA_MISTRAL = 'velicia-mistral'
 }
 
 export type BrandType = 'velicia';
@@ -68,6 +71,27 @@ export const DEFAULT_MODELS: ModelOption[] = [
     id: ModelType.VELICIA_V5, 
     label: 'Velicia v5 (OpenAI)', 
     description: 'Advanced O1 Reasoning', 
+    category: 'text',
+    brand: 'velicia'
+  },
+  { 
+    id: ModelType.VELICIA_GPT4,
+    label: 'Velicia GPT-4',
+    description: 'Complex Logic',
+    category: 'text',
+    brand: 'velicia'
+  },
+  { 
+    id: ModelType.VELICIA_CLAUDE,
+    label: 'Velicia Claude',
+    description: 'Human-like & Creative',
+    category: 'text',
+    brand: 'velicia'
+  },
+  { 
+    id: ModelType.VELICIA_MISTRAL,
+    label: 'Velicia Mistral',
+    description: 'Open Weights',
     category: 'text',
     brand: 'velicia'
   },
