@@ -16,6 +16,40 @@ export interface ArticleData {
 // Data Artikel Lengkap (Hardcoded untuk demo)
 export const BLOG_POSTS: ArticleData[] = [
   {
+    id: 3, // New ID for the latest article
+    title: "Peluncuran Velicia AI Asisten Cerdas Indonesia",
+    date: "28 Januari 2026",
+    author: "Dwi Putri (Sekretaris)",
+    readTime: "7 menit baca",
+    tag: "News",
+    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop",
+    content: `
+      <p class="lead">Hari ini, 28 Januari 2026, menjadi titik awal perjalanan ambisius kami. Dalam rapat strategis tertutup yang dihadiri oleh seluruh jajaran pengembang dan pemangku kepentingan, Velicia AI secara resmi diperkenalkan sebagai proyek unggulan nasional.</p>
+      
+      <h3>Hasil Rapat & Voting Internal</h3>
+      <p>Rapat yang dinotulensikan oleh tim sekretariat hari ini menghasilkan keputusan mutlak. Melalui proses voting yang demokratis namun ketat, nama <strong>"Velicia"</strong> dipilih karena merepresentasikan kecepatan (Velocity) dan kecerdasan (Intelligence) yang berakar pada identitas Indonesia.</p>
+
+      <p>Kami menyepakati visi bersama: <em>Membangun kedaulatan AI tanpa bergantung pada infrastruktur asing.</em></p>
+
+      <h3>Pengembangan & Roadmap</h3>
+      <p>Saat ini, Velicia berada dalam fase <strong>Alpha-Protocol</strong>. Tim teknis sedang fokus pada pembangunan arsitektur <em>neural network</em> yang mampu memproses konteks budaya tinggi (high-context culture) yang lazim ditemukan dalam interaksi masyarakat Nusantara.</p>
+
+      <h3>Mengapa Rilis Resmi Musim Semi 2028?</h3>
+      <p>Banyak yang bertanya, mengapa kami menargetkan rilis publik penuh (Grand Launching) pada <strong>Musim Semi 2028</strong>? Mengapa waktu pengembangannya begitu lama?</p>
+      
+      <p>Alasan kami logis dan berdasar pada komitmen kualitas:</p>
+      <ul>
+        <li><strong>Infrastruktur Mandiri (Sovereign Infrastructure):</strong> Kami tidak menyewa server GPU dari penyedia cloud raksasa global. Kami sedang membangun pusat data mandiri di tanah air untuk menjamin 100% keamanan data pengguna sesuai regulasi masa depan. Pembangunan fisik ini memakan waktu.</li>
+        <li><strong>Kurasi Dialek Nusantara:</strong> Velicia tidak hanya belajar Bahasa Indonesia baku. Kami sedang melatih model dengan dataset masif yang mencakup Bahasa Jawa, Sunda, Minang, dan bahasa daerah lainnya agar AI ini benar-benar inklusif. Proses pengumpulan dan validasi data ini membutuhkan waktu tahunan agar akurat.</li>
+        <li><strong>Kepatuhan Etika & Safety:</strong> Kami menerapkan protokol <em>Red Teaming</em> yang sangat ketat untuk memastikan Velicia bebas dari bias berbahaya dan halusinasi informasi sebelum dilepas ke publik luas.</li>
+      </ul>
+
+      <blockquote>"Kami tidak berlomba untuk menjadi yang tercepat rilis, tetapi kami berlomba untuk menjadi yang paling mengerti Indonesia." — Notulensi Rapat Strategis, 28 Jan 2026.</blockquote>
+      
+      <p>Kami memohon dukungan dan kesabaran seluruh masyarakat Indonesia. Penantian hingga 2028 akan terbayar dengan hadirnya teknologi yang benar-benar milik kita.</p>
+    `
+  },
+  {
     id: 0,
     title: "Visi Kedaulatan Digital: Mengapa AI Mandiri Penting?",
     date: "12 Oktober 2025",
@@ -99,6 +133,25 @@ export const BLOG_POSTS: ArticleData[] = [
   }
 ];
 
+const AuthorCard: React.FC<{ author: string, role: string }> = ({ author, role }) => (
+  <div className="mt-12 p-6 bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-3xl flex items-center gap-5 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+    <div className="absolute -top-6 -right-6 p-2 opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-700">
+       <img src="/logoApp/logo-app.png" className="h-32 w-auto" alt="Watermark" />
+    </div>
+    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-black text-2xl z-10 shadow-lg shadow-blue-200">
+       {author.charAt(0)}
+    </div>
+    <div className="z-10">
+       <div className="flex items-center gap-2 mb-1">
+         <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+         <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Penulis Resmi</span>
+       </div>
+       <h3 className="text-xl font-black text-gray-900 leading-none mb-1.5">{author}</h3>
+       <p className="text-sm font-bold text-gray-500">{role}</p>
+    </div>
+  </div>
+);
+
 interface ArticlePageProps {
   articleId: number;
   onBack: () => void;
@@ -123,8 +176,7 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack }) => {
             <span className="font-bold text-sm">Kembali</span>
          </button>
          <div className="flex items-center gap-2">
-            <img src="/logoApp/logo-app.png" alt="Logo" className="w-6 h-6 object-contain" />
-            <span className="font-bold tracking-tight hidden md:block">Velicia Blog</span>
+            <img src="/logoApp/logo-app.png" alt="Logo" className="h-8 w-auto object-contain" />
          </div>
          <button className="p-2 text-gray-400 hover:text-[#7928CA] transition-colors">
             <Share2 size={20} />
@@ -173,6 +225,11 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack }) => {
            <div dangerouslySetInnerHTML={{ __html: article.content }} />
         </article>
 
+        {/* Author Card Component - Only for the specific launch article or all */}
+        {article.id === 3 && (
+            <AuthorCard author="Dwi Putri" role="Sekretaris & Operasional" />
+        )}
+
         {/* Footer Artikel */}
         <div className="mt-16 pt-10 border-t border-gray-100">
            <h3 className="text-xl font-bold mb-6">Artikel Lainnya</h3>
@@ -182,10 +239,8 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack }) => {
                     key={post.id} 
                     onClick={() => {
                         window.scrollTo(0,0);
-                        // Trigger reload logic handled by parent via props if needed, 
-                        // but for simplicity we rely on the parent re-rendering or using links.
-                        // Since this is a simple component, we might need a way to switch article.
-                        // For now, let's just use the onBack to go home.
+                        // Trigger reload via generic prop update by parent re-render for simplicity
+                        // In a real router, navigate(id)
                     }}
                     className="flex gap-4 p-4 rounded-2xl border border-gray-100 hover:border-gray-300 hover:bg-gray-50 transition-all text-left group"
                  >

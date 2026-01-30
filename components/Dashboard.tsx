@@ -10,9 +10,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onModelSelect }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4 animate-in fade-in duration-700">
       
-      {/* Optimized Logo: Smaller size */}
+      {/* Optimized Logo: Larger, cleaner display */}
       <div className="mb-6 transform hover:scale-105 transition-transform duration-500">
-        <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-16 h-16 object-contain drop-shadow-sm" />
+        <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-20 w-auto object-contain drop-shadow-sm" />
       </div>
       
       <h2 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">Selamat datang di Velicia.ai</h2>

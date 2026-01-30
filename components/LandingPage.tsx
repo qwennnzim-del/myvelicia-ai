@@ -4,7 +4,7 @@ import {
   MessageSquare, Search, PenTool, Image as ImageIcon, 
   FileText, Globe, Play, Menu, X, 
   ChevronDown, Star, Layout, Sparkles, Smartphone, Monitor, Chrome, Brain, Mail, Briefcase, Zap,
-  Linkedin, Github, Twitter, Calendar, ArrowRight
+  Linkedin, Github, Twitter, Calendar, ArrowRight, BarChart3, ShieldCheck
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -31,9 +31,9 @@ const TRANSLATIONS = {
       startBtn: 'Mulai Sekarang',
       viewUniverse: 'Universe',
       disclaimer: 'Gratis selamanya • Tanpa kartu kredit',
-      mockupText: 'Halo! Ada yang bisa saya bantu?',
+      mockupText: 'Halo! Ada yang bisa saya bantu hari ini?',
       mockupPrompt: 'Jelaskan kemampuan utamamu.',
-      mockupResponse: 'Saya menyediakan kecerdasan multimodal tingkat lanjut, penalaran cepat, dan pemahaman konteks mendalam.',
+      mockupResponse: 'Saya Velicia, asisten cerdas yang dirancang dengan arsitektur lokal.',
       mockupPowered: 'Velicia Engine'
     },
     blog: {
@@ -41,6 +41,12 @@ const TRANSLATIONS = {
       readMore: 'Baca',
       viewAll: 'Lihat Semua',
       articles: [
+        {
+          id: 3,
+          title: "Peluncuran Velicia AI 2026",
+          desc: "Pengumuman resmi, hasil rapat, dan roadmap menuju 2028.",
+          tag: "News"
+        },
         {
           id: 0,
           title: "Visi Kedaulatan Digital",
@@ -52,12 +58,6 @@ const TRANSLATIONS = {
           title: "Optimasi Alur Kerja",
           desc: "Hemat waktu dengan algoritma ekstraksi informasi cerdas kami.",
           tag: "Tips"
-        },
-        {
-          id: 2,
-          title: "Pemrosesan Bahasa Lokal",
-          desc: "Memahami dialek dan konteks budaya Indonesia lebih baik.",
-          tag: "Tech"
         }
       ]
     },
@@ -95,7 +95,8 @@ const TRANSLATIONS = {
         { role: 'CEO & Lead Engineer', desc: 'Pelopor pengembangan Velicia AI.' },
         { role: 'AI Researcher', desc: 'Riset model multimodal kontekstual.' },
         { role: 'Head of Operations', desc: 'Skalabilitas infrastruktur cloud.' },
-        { role: 'UX Designer', desc: 'Pengalaman interaksi AI intuitif.' }
+        { role: 'UX Designer', desc: 'Pengalaman interaksi AI intuitif.' },
+        { role: 'Sekretaris & Ops', desc: 'Koordinasi administrasi dan notulensi strategis.' }
       ]
     },
     faq: {
@@ -127,9 +128,9 @@ const TRANSLATIONS = {
       startBtn: 'Start Now',
       viewUniverse: 'Universe',
       disclaimer: 'Free forever • No credit card',
-      mockupText: 'Hello! How can I assist you?',
+      mockupText: 'Hello! How can I assist you today?',
       mockupPrompt: 'Explain your core capabilities.',
-      mockupResponse: 'I provide advanced multimodal intelligence, rapid reasoning, and deep context understanding.',
+      mockupResponse: 'I am Velicia, a smart assistant designed with local architecture.',
       mockupPowered: 'Velicia Engine'
     },
     blog: {
@@ -137,6 +138,12 @@ const TRANSLATIONS = {
       readMore: 'Read',
       viewAll: 'View All',
       articles: [
+         {
+          id: 3,
+          title: "Velicia AI Launch 2026",
+          desc: "Official announcement, meeting results, and roadmap to 2028.",
+          tag: "News"
+        },
         {
           id: 0,
           title: "Digital Sovereignty Vision",
@@ -148,12 +155,6 @@ const TRANSLATIONS = {
           title: "Workflow Optimization",
           desc: "Save time with our intelligent information extraction algorithms.",
           tag: "Tips"
-        },
-        {
-          id: 2,
-          title: "Local Language Processing",
-          desc: "Understanding Indonesian dialects and cultural contexts better.",
-          tag: "Tech"
         }
       ]
     },
@@ -191,7 +192,8 @@ const TRANSLATIONS = {
         { role: 'CEO & Lead Engineer', desc: 'Pioneer of Velicia AI development.' },
         { role: 'AI Researcher', desc: 'Contextual multimodal model research.' },
         { role: 'Head of Operations', desc: 'Cloud infrastructure scalability.' },
-        { role: 'UX Designer', desc: 'Intuitive AI interaction experience.' }
+        { role: 'UX Designer', desc: 'Intuitive AI interaction experience.' },
+        { role: 'Secretary & Ops', desc: 'Administrative management and strategic minutes.' }
       ]
     },
     faq: {
@@ -216,7 +218,7 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
   useEffect(() => {
     const timer = setInterval(() => {
       setStep((prev) => (prev + 1) % 5);
-    }, 4000);
+    }, 4500);
     return () => clearInterval(timer);
   }, [t]); 
 
@@ -242,6 +244,11 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
              <div className="h-1.5 w-full bg-gray-100 rounded-full"></div>
              <div className="h-1.5 w-3/4 bg-gray-100 rounded-full"></div>
              <div className="h-1.5 w-5/6 bg-gray-100 rounded-full"></div>
+             <div className="h-1.5 w-2/3 bg-gray-100 rounded-full"></div>
+          </div>
+          <div className="mt-8 pt-4 border-t border-gray-50">
+             <div className="w-8 h-8 rounded-full bg-purple-100 mb-2"></div>
+             <div className="h-1.5 w-1/2 bg-gray-100 rounded-full"></div>
           </div>
         </div>
 
@@ -249,12 +256,24 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
           ref={scrollRef}
           className="flex-1 p-4 md:p-6 flex flex-col overflow-y-auto no-scrollbar scroll-smooth"
         >
-          <div className="flex gap-3 mb-6 max-w-[90%] animate-in fade-in duration-500">
-            <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-8 h-8 object-contain shrink-0" />
+          <div className="flex gap-3 mb-2 max-w-[90%] animate-in fade-in duration-500">
+            <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-8 w-auto object-contain shrink-0" />
             <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
               <p className="text-xs md:text-sm font-medium text-gray-800">{t.hero.mockupText}</p>
             </div>
           </div>
+
+          {/* Suggestion Chips - Visual Components */}
+          {step === 0 && (
+             <div className="flex gap-2 ml-11 mb-6 animate-in fade-in slide-in-from-left-4 duration-700">
+                <span className="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-[10px] font-bold text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer flex items-center gap-1">
+                   <Sparkles size={10} className="text-yellow-500"/> Ide Kreatif
+                </span>
+                <span className="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-[10px] font-bold text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer flex items-center gap-1">
+                   <BarChart3 size={10} className="text-blue-500"/> Analisis
+                </span>
+             </div>
+          )}
 
           {step >= 1 && (
             <div className="flex gap-3 mb-6 flex-row-reverse self-end max-w-fit animate-in slide-in-from-bottom-4 duration-500">
@@ -269,7 +288,7 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
 
           {step === 2 && (
             <div className="flex gap-3 mb-6 animate-in fade-in duration-300">
-              <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-8 h-8 object-contain shrink-0 animate-pulse" />
+              <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-8 w-auto object-contain shrink-0 animate-pulse" />
               <div className="flex gap-1.5 mt-3">
                 <div className="w-1.5 h-1.5 bg-[#7928CA] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
                 <div className="w-1.5 h-1.5 bg-[#FF0080] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -279,19 +298,49 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
           )}
 
           {step >= 3 && (
-            <div className="flex gap-3 mb-6 max-w-[90%] animate-in slide-in-from-bottom-4 duration-700">
-              <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-8 h-8 object-contain shrink-0" />
-              <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
-                <p className="text-xs md:text-sm font-medium text-gray-800 leading-relaxed">
-                  {t.hero.mockupResponse}
-                </p>
-                {step >= 4 && (
-                   <div className="mt-2 pt-2 border-t border-gray-50 animate-in fade-in duration-1000">
-                      <div className="flex items-center gap-1.5 text-[9px] font-bold text-[#7928CA] uppercase tracking-widest">
-                         <Zap size={10} /> {t.hero.mockupPowered}
+            <div className="flex gap-3 mb-6 max-w-[95%] animate-in slide-in-from-bottom-4 duration-700">
+              <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-8 w-auto object-contain shrink-0" />
+              <div className="flex flex-col gap-2">
+                  <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100">
+                    <p className="text-xs md:text-sm font-medium text-gray-800 leading-relaxed">
+                      {t.hero.mockupResponse}
+                    </p>
+                  </div>
+                  
+                  {/* Rich Component inside Response */}
+                  <div className="p-3 bg-white rounded-xl border border-purple-100 shadow-sm w-full max-w-[220px] animate-in fade-in zoom-in-95 duration-500 delay-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="p-1 bg-purple-50 rounded-lg"><Zap size={12} className="text-purple-600" /></div>
+                        <span className="text-[10px] font-bold text-gray-900 uppercase tracking-wide">Velicia Capabilities</span>
                       </div>
-                   </div>
-                )}
+                      
+                      <div className="space-y-2">
+                          <div>
+                             <div className="flex justify-between text-[9px] font-bold text-gray-500 mb-0.5">
+                                <span>Context</span>
+                                <span>98%</span>
+                             </div>
+                             <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
+                                <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-[98%] rounded-full"></div>
+                             </div>
+                          </div>
+                          <div>
+                             <div className="flex justify-between text-[9px] font-bold text-gray-500 mb-0.5">
+                                <span>Speed</span>
+                                <span>120ms</span>
+                             </div>
+                             <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
+                                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full w-[92%] rounded-full"></div>
+                             </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  {step >= 4 && (
+                    <div className="mt-1 flex items-center gap-1.5 text-[9px] font-bold text-[#7928CA] uppercase tracking-widest animate-in fade-in duration-500">
+                        <ShieldCheck size={10} /> {t.hero.mockupPowered}
+                    </div>
+                  )}
               </div>
             </div>
           )}
@@ -322,12 +371,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
   };
 
   const blogImages = [
+    "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop", // Meeting/Launch image
     "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2000&auto=format&fit=crop"
   ];
 
-  const blogDates = ["12 Okt", "08 Okt", "05 Okt"];
+  const blogDates = ["28 Jan", "12 Okt", "08 Okt"];
 
   const professions = [
     { id: 'Entrepreneur', label: lang === 'id' ? 'Bisnis' : 'Business', icon: <Briefcase size={14}/> },
@@ -349,7 +398,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
     { name: 'M Fariz', color: 'from-[#7928CA] to-[#FF0080]' },
     { name: 'Sarah A', color: 'from-[#FF0080] to-[#FF4D4D]' },
     { name: 'Andi W', color: 'from-[#0070F3] to-[#00DFD8]' },
-    { name: 'Riana P', color: 'from-[#F5A623] to-[#F76B1C]' }
+    { name: 'Riana P', color: 'from-[#F5A623] to-[#F76B1C]' },
+    { name: 'Dwi Putri', color: 'from-[#06b6d4] to-[#3b82f6]' } // Ensure Dwi Putri is here
   ];
 
   const toggleFaq = (index: number) => {
@@ -363,8 +413,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
       <div className={`fixed inset-0 bg-white z-[60] flex flex-col transition-all duration-300 ${mobileMenuOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}`}>
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
              <div className="flex items-center gap-2">
-                 <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-6 h-6 object-contain" />
-                 <span className="text-lg font-bold tracking-tight text-gray-900">Velicia</span>
+                 <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-8 w-auto object-contain" />
              </div>
              <button onClick={() => setMobileMenuOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
                  <X size={20} />
@@ -396,8 +445,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md border-b border-gray-100 py-2' : 'bg-transparent py-4'}`}>
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-            <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-8 h-8 object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
-            <span className="text-xl font-bold tracking-tight text-gray-900">Velicia</span>
+            <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-10 w-auto object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
           </div>
 
           <div className="hidden md:flex items-center gap-4">
@@ -576,17 +624,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
                     {t.team.subtitle}
                  </p>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {/* Updated Grid for 5 members */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                  {teamMembers.map((member, i) => (
                     <div key={i} className="group relative bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-2 flex flex-col items-center text-center">
                         <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${member.color} mb-6 flex items-center justify-center text-white shadow-lg transform transition-transform group-hover:rotate-6`}>
                              <Brain size={24} />
                         </div>
                         <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
-                        <p className={`text-[9px] font-bold tracking-widest uppercase mb-4 text-transparent bg-clip-text bg-gradient-to-r ${member.color}`}>
-                           {t.team.members[i].role.split(' ')[0]}...
+                        {/* Increased font size for role visibility as requested */}
+                        <p className={`text-[10px] font-bold tracking-widest uppercase mb-4 text-transparent bg-clip-text bg-gradient-to-r ${member.color}`}>
+                           {t.team.members[i]?.role}
                         </p>
-                        <p className="text-gray-400 font-medium text-xs leading-relaxed italic opacity-80 line-clamp-3">"{t.team.members[i].desc}"</p>
+                        <p className="text-gray-400 font-medium text-xs leading-relaxed italic opacity-80 line-clamp-3">"{t.team.members[i]?.desc}"</p>
                     </div>
                  ))}
               </div>
@@ -617,8 +667,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
       <footer className="py-12 border-t border-gray-100 bg-gray-50">
           <div className="max-w-6xl mx-auto px-6 text-center">
               <div className="flex items-center justify-center gap-3 mb-6">
-                <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="w-8 h-8 object-contain opacity-80" />
-                <span className="text-2xl font-black text-gray-800 tracking-tight">Velicia</span>
+                <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-12 w-auto object-contain opacity-80" />
               </div>
               <p className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">
                 &copy; 2026 VELICIA AI TECHNOLOGIES. <br/> 
