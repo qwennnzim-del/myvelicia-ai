@@ -64,15 +64,15 @@ export interface ModelOption {
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
     id: ModelType.GEN2_V2_5, 
-    label: 'Gen2 V2.5', 
-    description: 'Gemini 3 Flash Preview', 
+    label: 'Gen2 v2.0', 
+    description: 'Penalaran & Pemecahan Masalah', 
     category: 'text',
     brand: 'velicia'
   },
   { 
     id: ModelType.GEN2_V1_0, 
     label: 'Gen2 v1.0', 
-    description: 'Fastest Gemini Flash', 
+    description: 'Cepat & Efisien', 
     category: 'text',
     brand: 'velicia'
   }
