@@ -4,7 +4,7 @@ import {
   MessageSquare, Search, PenTool, Image as ImageIcon, 
   FileText, Globe, Play, Menu, X, 
   ChevronDown, Star, Layout, Sparkles, Smartphone, Monitor, Chrome, Brain, Mail, Briefcase, Zap,
-  Linkedin, Github, Twitter, Calendar, ArrowRight, BarChart3, ShieldCheck
+  Linkedin, Github, Twitter, Calendar, ArrowRight, BarChart3, ShieldCheck, ChevronUp
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -27,20 +27,26 @@ const TRANSLATIONS = {
       badge: 'Velicia AI Masa Depan',
       title1: 'Asisten Cerdas',
       title2: 'Indonesia',
-      desc: 'Velicia dikembangkan untuk Masa Depan Nusantara. Efisiensi tinggi, pemahaman mendalam, dan respon cepat.',
+      desc: 'Velicia dikembangkan untuk Masa Depan Nusantara dengan arsitektur Gen2. Efisiensi tinggi, penalaran mendalam, dan respon cepat.',
       startBtn: 'Mulai Sekarang',
       viewUniverse: 'Universe',
       disclaimer: 'Gratis selamanya • Tanpa kartu kredit',
       mockupText: 'Halo! Ada yang bisa saya bantu hari ini?',
-      mockupPrompt: 'Jelaskan kemampuan utamamu.',
-      mockupResponse: 'Saya Velicia, asisten cerdas yang dirancang dengan arsitektur lokal.',
-      mockupPowered: 'Velicia Engine'
+      mockupPrompt: 'Jelaskan kemampuan Gen2 kamu.',
+      mockupResponse: 'Saya Velicia Gen2, asisten cerdas yang dirancang dengan penalaran dan efisiensi tingkat lanjut.',
+      mockupPowered: 'Velicia Gen2 Engine'
     },
     blog: {
       title: 'Artikel Terkini',
       readMore: 'Baca',
       viewAll: 'Lihat Semua',
       articles: [
+        {
+          id: 4,
+          title: "Velicia Resmi Mengganti Library ke Gen2",
+          desc: "Peningkatan performa, penalaran, dan kecepatan dengan arsitektur terbaru.",
+          tag: "Update"
+        },
         {
           id: 3,
           title: "Peluncuran Velicia AI 2026",
@@ -52,12 +58,6 @@ const TRANSLATIONS = {
           title: "Visi Kedaulatan Digital",
           desc: "Velicia AI sebagai solusi mandiri untuk kebutuhan teknologi nasional.",
           tag: "Visi"
-        },
-        {
-          id: 1,
-          title: "Optimasi Alur Kerja",
-          desc: "Hemat waktu dengan algoritma ekstraksi informasi cerdas kami.",
-          tag: "Tips"
         }
       ]
     },
@@ -89,32 +89,20 @@ const TRANSLATIONS = {
       }
     },
     team: {
-      title: 'Tim Kami',
-      subtitle: 'Para ahli dibalik kecerdasan buatan Indonesia.',
-      members: [
-        { role: 'CEO & Lead Engineer', desc: 'Pelopor pengembangan Velicia AI.' },
-        { role: 'AI Research Lead', desc: 'Riset model multimodal kontekstual.' },
-        { role: 'Head of Operations', desc: 'Skalabilitas infrastruktur cloud.' },
-        { role: 'Lead UX Designer', desc: 'Pengalaman interaksi AI intuitif.' },
-        { role: 'Sekretaris & Compliance', desc: 'Koordinasi administrasi dan kepatuhan.' },
-        { role: 'Senior Backend Engineer', desc: 'Arsitektur sistem berkinerja tinggi.' },
-        { role: 'Data Scientist', desc: 'Analisis dan kurasi dataset lokal.' },
-        { role: 'Cloud Architect', desc: 'Manajemen server mandiri & keamanan.' },
-        { role: 'Community Manager', desc: 'Membangun ekosistem pengguna Velicia.' },
-        { role: 'Cyber Security Analyst', desc: 'Perlindungan data dan privasi pengguna.' }
-      ]
+      title: 'Tim Gen2 Kami',
+      subtitle: '34 talenta muda membangun masa depan AI Indonesia.',
     },
     faq: {
       title: 'FAQ',
       items: [
-        { q: 'Apa itu Velicia?', a: 'Asisten AI mandiri dengan arsitektur mutakhir untuk produktivitas Indonesia.' },
+        { q: 'Apa itu Velicia Gen2?', a: 'Upgrade arsitektur terbaru yang lebih cepat, lebih pintar dalam menalar, dan efisien.' },
         { q: 'Cara menggunakan?', a: 'Langsung mulai mengobrol di dashboard. Tersedia juga sebagai ekstensi Chrome.' },
         { q: 'Apakah gratis?', a: 'Ya, gratis selamanya untuk penggunaan personal. Tersedia paket Pro.' },
-        { q: 'Cara kerja?', a: 'Menggunakan mesin AI mandiri yang dioptimalkan dengan pemahaman bahasa alami.' }
+        { q: 'Cara kerja?', a: 'Menggunakan mesin AI mandiri yang dioptimalkan dengan pemahaman bahasa alami Gen2.' }
       ]
     },
     footer: {
-      text: 'Kecerdasan Buatan Mandiri untuk Indonesia.'
+      text: '( c bulat ) 2026 MyVelicia | Inc.'
     }
   },
   en: {
@@ -126,23 +114,29 @@ const TRANSLATIONS = {
       about: 'About'
     },
     hero: {
-      badge: 'Velicia AI Future',
+      badge: 'Velicia AI Gen2 Future',
       title1: 'Smart Assistant',
       title2: 'Indonesia',
-      desc: 'Velicia developed for Nusantara. High efficiency, deep understanding, and rapid response.',
+      desc: 'Velicia developed for Nusantara on Gen2 architecture. High efficiency, deep reasoning, and rapid response.',
       startBtn: 'Start Now',
       viewUniverse: 'Universe',
       disclaimer: 'Free forever • No credit card',
       mockupText: 'Hello! How can I assist you today?',
-      mockupPrompt: 'Explain your core capabilities.',
-      mockupResponse: 'I am Velicia, a smart assistant designed with local architecture.',
-      mockupPowered: 'Velicia Engine'
+      mockupPrompt: 'Explain your Gen2 capabilities.',
+      mockupResponse: 'I am Velicia Gen2, a smart assistant designed with advanced reasoning and efficiency.',
+      mockupPowered: 'Velicia Gen2 Engine'
     },
     blog: {
       title: 'Latest Articles',
       readMore: 'Read',
       viewAll: 'View All',
       articles: [
+         {
+          id: 4,
+          title: "Velicia Officially Switches to Gen2 Library",
+          desc: "Performance improvements, reasoning, and speed with the latest architecture.",
+          tag: "Update"
+        },
          {
           id: 3,
           title: "Velicia AI Launch 2026",
@@ -154,12 +148,6 @@ const TRANSLATIONS = {
           title: "Digital Sovereignty Vision",
           desc: "Velicia AI as an independent solution for national tech needs.",
           tag: "Vision"
-        },
-        {
-          id: 1,
-          title: "Workflow Optimization",
-          desc: "Save time with our intelligent information extraction algorithms.",
-          tag: "Tips"
         }
       ]
     },
@@ -191,32 +179,20 @@ const TRANSLATIONS = {
       }
     },
     team: {
-      title: 'Our Team',
-      subtitle: 'Experts building Indonesia\'s AI future.',
-      members: [
-        { role: 'CEO & Lead Engineer', desc: 'Pioneer of Velicia AI development.' },
-        { role: 'AI Research Lead', desc: 'Contextual multimodal model research.' },
-        { role: 'Head of Operations', desc: 'Cloud infrastructure scalability.' },
-        { role: 'Lead UX Designer', desc: 'Intuitive AI interaction experience.' },
-        { role: 'Secretary & Compliance', desc: 'Administrative coordination and compliance.' },
-        { role: 'Senior Backend Engineer', desc: 'High-performance system architecture.' },
-        { role: 'Data Scientist', desc: 'Local dataset analysis and curation.' },
-        { role: 'Cloud Architect', desc: 'Sovereign server management & security.' },
-        { role: 'Community Manager', desc: 'Building the Velicia user ecosystem.' },
-        { role: 'Cyber Security Analyst', desc: 'User data protection and privacy.' }
-      ]
+      title: 'Our Gen2 Team',
+      subtitle: '34 young talents building Indonesia\'s AI future.',
     },
     faq: {
       title: 'FAQ',
       items: [
-        { q: 'What is Velicia?', a: 'Independent AI assistant with cutting-edge architecture for productivity.' },
+        { q: 'What is Velicia Gen2?', a: 'The latest architecture upgrade that is faster, smarter at reasoning, and efficient.' },
         { q: 'How to use?', a: 'Start chatting on the dashboard immediately. Also available as Chrome extension.' },
         { q: 'Is it free?', a: 'Yes, free forever for personal use. Pro plans available.' },
-        { q: 'How it works?', a: 'Uses a specially optimized independent AI engine with NLP.' }
+        { q: 'How it works?', a: 'Uses a specially optimized independent AI engine with Gen2 NLP.' }
       ]
     },
     footer: {
-      text: 'Independent Artificial Intelligence for Indonesia.'
+      text: '( c bulat ) 2026 MyVelicia | Inc.'
     }
   }
 };
@@ -277,10 +253,10 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
           {step === 0 && (
              <div className="flex gap-2 ml-11 mb-6 animate-in fade-in slide-in-from-left-4 duration-700">
                 <span className="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-[10px] font-bold text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer flex items-center gap-1">
-                   <Sparkles size={10} className="text-yellow-500"/> Ide Kreatif
+                   <Sparkles size={10} className="text-yellow-500"/> Gen2 Features
                 </span>
                 <span className="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-[10px] font-bold text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer flex items-center gap-1">
-                   <BarChart3 size={10} className="text-blue-500"/> Analisis
+                   <BarChart3 size={10} className="text-blue-500"/> Analysis
                 </span>
              </div>
           )}
@@ -321,26 +297,26 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
                   <div className="p-3 bg-white rounded-xl border border-purple-100 shadow-sm w-full max-w-[220px] animate-in fade-in zoom-in-95 duration-500 delay-200">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="p-1 bg-purple-50 rounded-lg"><Zap size={12} className="text-purple-600" /></div>
-                        <span className="text-[10px] font-bold text-gray-900 uppercase tracking-wide">Velicia Capabilities</span>
+                        <span className="text-[10px] font-bold text-gray-900 uppercase tracking-wide">Gen2 Metrics</span>
                       </div>
                       
                       <div className="space-y-2">
                           <div>
                              <div className="flex justify-between text-[9px] font-bold text-gray-500 mb-0.5">
-                                <span>Context</span>
-                                <span>98%</span>
+                                <span>Logic</span>
+                                <span>99.9%</span>
                              </div>
                              <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
-                                <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-[98%] rounded-full"></div>
+                                <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-[99%] rounded-full"></div>
                              </div>
                           </div>
                           <div>
                              <div className="flex justify-between text-[9px] font-bold text-gray-500 mb-0.5">
                                 <span>Speed</span>
-                                <span>120ms</span>
+                                <span>80ms</span>
                              </div>
                              <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
-                                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full w-[92%] rounded-full"></div>
+                                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full w-[98%] rounded-full"></div>
                              </div>
                           </div>
                       </div>
@@ -367,6 +343,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
   const [scrolled, setScrolled] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number>(0);
   const [lang, setLang] = useState<'id' | 'en'>('id');
+  const [showAllTeam, setShowAllTeam] = useState(false);
 
   const t = TRANSLATIONS[lang];
 
@@ -381,12 +358,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
   };
 
   const blogImages = [
-    "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop", // Meeting/Launch image
-    "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2000&auto=format&fit=crop"
+    "thumbnail-gen2.png", // New Gen2 Image
+    "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop", 
+    "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2000&auto=format&fit=crop"
   ];
 
-  const blogDates = ["28 Jan", "12 Okt", "08 Okt"];
+  const blogDates = ["Now", "28 Jan", "12 Okt"];
 
   const professions = [
     { id: 'Entrepreneur', label: lang === 'id' ? 'Bisnis' : 'Business', icon: <Briefcase size={14}/> },
@@ -404,18 +381,49 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
     'Pemasaran': [PenTool, Sparkles]
   };
 
-  const teamMembers = [
-    { name: 'M. Fariz', color: 'from-[#7928CA] to-[#FF0080]' }, // Purple-Pink
-    { name: 'Sarah A.', color: 'from-[#FF0080] to-[#FF4D4D]' }, // Pink-Red
-    { name: 'Andi W.', color: 'from-[#0070F3] to-[#00DFD8]' }, // Blue-Cyan
-    { name: 'Riana P.', color: 'from-[#F5A623] to-[#F76B1C]' }, // Orange
-    { name: 'Dwi Putri', color: 'from-[#06b6d4] to-[#3b82f6]' }, // Cyan-Blue
-    { name: 'Budi S.', color: 'from-[#10B981] to-[#059669]' }, // Green
-    { name: 'Citra K.', color: 'from-[#8B5CF6] to-[#6366F1]' }, // Violet-Indigo
-    { name: 'Reza P.', color: 'from-[#EC4899] to-[#8B5CF6]' }, // Pink-Purple
-    { name: 'Nadia U.', color: 'from-[#F43F5E] to-[#BE123C]' }, // Rose
-    { name: 'Eko S.', color: 'from-[#3B82F6] to-[#1D4ED8]' }  // Blue
+  // 34 Team Members Data
+  const allTeamMembers = [
+    { name: 'M. Fariz', role: 'CEO & Lead Engineer', color: 'from-[#7928CA] to-[#FF0080]' },
+    { name: 'Sarah A.', role: 'AI Research Lead', color: 'from-[#FF0080] to-[#FF4D4D]' },
+    { name: 'Andi W.', role: 'Head of Operations', color: 'from-[#0070F3] to-[#00DFD8]' },
+    { name: 'Riana P.', role: 'Lead UX Designer', color: 'from-[#F5A623] to-[#F76B1C]' },
+    { name: 'Dwi Putri', role: 'Sekretaris & Compliance', color: 'from-[#06b6d4] to-[#3b82f6]' },
+    { name: 'Budi S.', role: 'Senior Backend Engineer', color: 'from-[#10B981] to-[#059669]' },
+    { name: 'Citra K.', role: 'Data Scientist', color: 'from-[#8B5CF6] to-[#6366F1]' },
+    { name: 'Reza P.', role: 'Cloud Architect', color: 'from-[#EC4899] to-[#8B5CF6]' },
+    { name: 'Nadia U.', role: 'Community Manager', color: 'from-[#F43F5E] to-[#BE123C]' },
+    { name: 'Eko S.', role: 'Cyber Security', color: 'from-[#3B82F6] to-[#1D4ED8]' },
+    
+    // Gen Z Additional Members
+    { name: 'Aisha R.', role: 'Frontend Dev', color: 'from-pink-500 to-rose-400' },
+    { name: 'Kenzo T.', role: 'AI Trainer', color: 'from-blue-600 to-indigo-500' },
+    { name: 'Zahra F.', role: 'Content Strategist', color: 'from-purple-500 to-violet-400' },
+    { name: 'Kevin L.', role: 'DevOps', color: 'from-green-500 to-emerald-400' },
+    { name: 'Salsa B.', role: 'UI Designer', color: 'from-orange-400 to-red-400' },
+    { name: 'Raka D.', role: 'Mobile Dev', color: 'from-cyan-500 to-blue-400' },
+    { name: 'Vina M.', role: 'QA Engineer', color: 'from-teal-400 to-green-400' },
+    { name: 'Jason K.', role: 'Growth Hacker', color: 'from-indigo-500 to-purple-500' },
+    { name: 'Hana S.', role: 'Social Media', color: 'from-rose-400 to-pink-400' },
+    { name: 'Dimas A.', role: 'Backend Dev', color: 'from-slate-600 to-slate-400' },
+    
+    { name: 'Fanny O.', role: 'Legal Support', color: 'from-red-400 to-orange-400' },
+    { name: 'Gilang R.', role: 'Network Engineer', color: 'from-blue-500 to-cyan-500' },
+    { name: 'Intan P.', role: 'Data Analyst', color: 'from-violet-500 to-fuchsia-500' },
+    { name: 'Joko W.', role: 'Security Ops', color: 'from-emerald-500 to-green-500' },
+    { name: 'Kiki L.', role: 'Product Owner', color: 'from-yellow-400 to-orange-400' },
+    { name: 'Lia N.', role: 'Scrum Master', color: 'from-pink-500 to-purple-500' },
+    { name: 'Miko J.', role: 'Fullstack Dev', color: 'from-cyan-400 to-blue-500' },
+    { name: 'Nina T.', role: 'Marketing', color: 'from-rose-500 to-red-500' },
+    { name: 'Oscar Y.', role: 'Research Assistant', color: 'from-indigo-400 to-blue-400' },
+    { name: 'Puti Z.', role: 'Public Relations', color: 'from-fuchsia-400 to-pink-400' },
+    
+    { name: 'Qory M.', role: 'HR Tech', color: 'from-lime-500 to-green-400' },
+    { name: 'Rico V.', role: 'SysAdmin', color: 'from-sky-500 to-blue-500' },
+    { name: 'Siti H.', role: 'Finance', color: 'from-amber-400 to-yellow-500' },
+    { name: 'Tio G.', role: 'Support Lead', color: 'from-gray-500 to-slate-500' },
   ];
+
+  const visibleTeam = showAllTeam ? allTeamMembers : allTeamMembers.slice(0, 10);
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? -1 : index);
@@ -429,6 +437,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
              <div className="flex items-center gap-2">
                  <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-8 w-auto object-contain" />
+                 <span className="font-bold text-xl tracking-tight text-gray-900">Velicia</span>
              </div>
              <button onClick={() => setMobileMenuOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
                  <X size={20} />
@@ -461,6 +470,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
             <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-10 w-auto object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
+            <span className="font-bold text-xl tracking-tight text-gray-900">Velicia</span>
           </div>
 
           <div className="hidden md:flex items-center gap-4">
@@ -639,22 +649,35 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
                     {t.team.subtitle}
                  </p>
               </div>
-              {/* Updated Grid for 10 members (2 rows of 5 on MD+) */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-                 {teamMembers.map((member, i) => (
-                    <div key={i} className="group relative bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-2 flex flex-col items-center text-center">
+              
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-10">
+                 {visibleTeam.map((member, i) => (
+                    <div key={i} className="group relative bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-2 flex flex-col items-center text-center animate-in fade-in zoom-in-95">
                         <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${member.color} mb-6 flex items-center justify-center text-white shadow-lg transform transition-transform group-hover:rotate-6`}>
                              <Brain size={24} />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
-                        {/* Increased font size for role visibility as requested */}
-                        <p className={`text-[10px] font-bold tracking-widest uppercase mb-4 text-transparent bg-clip-text bg-gradient-to-r ${member.color}`}>
-                           {t.team.members[i]?.role}
+                        <h3 className="text-sm font-bold text-gray-900 mb-1">{member.name}</h3>
+                        <p className={`text-[9px] font-bold tracking-widest uppercase mb-0 text-transparent bg-clip-text bg-gradient-to-r ${member.color}`}>
+                           {member.role}
                         </p>
-                        <p className="text-gray-400 font-medium text-xs leading-relaxed italic opacity-80 line-clamp-3">"{t.team.members[i]?.desc}"</p>
                     </div>
                  ))}
               </div>
+
+              {allTeamMembers.length > 10 && (
+                  <div className="text-center">
+                    <button 
+                        onClick={() => setShowAllTeam(!showAllTeam)}
+                        className="px-6 py-2.5 bg-white border border-gray-200 rounded-xl font-bold text-xs text-gray-600 hover:text-black hover:border-black transition-all flex items-center gap-2 mx-auto"
+                    >
+                        {showAllTeam ? (
+                            <>Sembunyikan <ChevronUp size={14} /></>
+                        ) : (
+                            <>Lihat Selengkapnya ({allTeamMembers.length - 10} Lainnya) <ChevronDown size={14} /></>
+                        )}
+                    </button>
+                  </div>
+              )}
           </div>
       </section>
 
@@ -683,9 +706,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
           <div className="max-w-6xl mx-auto px-6 text-center">
               <div className="flex items-center justify-center gap-3 mb-6">
                 <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-12 w-auto object-contain opacity-80" />
+                <span className="font-bold text-xl tracking-tight text-gray-400">Velicia</span>
               </div>
               <p className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">
-                &copy; 2026 VELICIA AI TECHNOLOGIES. <br/> 
                 {t.footer.text}
               </p>
           </div>

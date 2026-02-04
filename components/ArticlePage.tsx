@@ -1,6 +1,6 @@
 
-import React, { useEffect } from 'react';
-import { ArrowLeft, Calendar, User, Share2, Clock, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, Calendar, User, Share2, Clock, ChevronRight, Check } from 'lucide-react';
 
 export interface ArticleData {
   id: number;
@@ -16,7 +16,34 @@ export interface ArticleData {
 // Data Artikel Lengkap (Hardcoded untuk demo)
 export const BLOG_POSTS: ArticleData[] = [
   {
-    id: 3, // New ID for the latest article
+      id: 4, // Gen2 Update Article
+      title: "Velicia Resmi Mengganti Library ke Gen2: Era Baru Kecerdasan AI",
+      date: "Hari Ini",
+      author: "M. Fariz (Lead Engineer)",
+      readTime: "3 menit baca",
+      tag: "Update",
+      image: "thumbnail-gen2.png", // Ensure this image is in your public folder
+      content: `
+        <p class="lead">Kami dengan bangga mengumumkan bahwa per hari ini, Velicia AI telah sepenuhnya bermigrasi ke arsitektur <strong>Gen2</strong>. Ini bukan sekadar pembaruan versi, melainkan transformasi fundamental pada mesin kecerdasan kami.</p>
+
+        <h3>Apa yang Baru di Gen2?</h3>
+        <p>Gen2 membawa peningkatan drastis dalam tiga aspek utama:</p>
+        <ul>
+            <li><strong>Deep Reasoning (Penalaran Mendalam):</strong> Velicia kini mampu memecahkan masalah kompleks dengan melakukan proses "berpikir" sebelum menjawab, menghasilkan solusi yang lebih logis dan terstruktur.</li>
+            <li><strong>Kecepatan Eksekusi:</strong> Latensi berkurang hingga 40%. Jawaban kini hadir hampir instan tanpa mengorbankan kualitas.</li>
+            <li><strong>Efisiensi Token:</strong> Pemrosesan konteks yang lebih hemat memori, memungkinkan percakapan panjang yang lebih koheren tanpa "lupa" detail awal.</li>
+        </ul>
+
+        <h3>Dampak Bagi Pengguna</h3>
+        <p>Bagi pengguna setia kami, ini berarti pengalaman yang lebih mulus. Baik Anda menggunakan Velicia untuk coding, penulisan kreatif, atau analisis data, Anda akan merasakan respons yang lebih tajam dan manusiawi.</p>
+
+        <blockquote>"Gen2 adalah langkah besar menuju visi kami menciptakan AI yang tidak hanya menjawab, tetapi juga memahami." — Tim Pengembang Velicia.</blockquote>
+
+        <p>Selamat mencoba pengalaman baru ini di dashboard Velicia Anda sekarang!</p>
+      `
+  },
+  {
+    id: 3, 
     title: "Peluncuran Velicia AI Asisten Cerdas Indonesia",
     date: "28 Januari 2026",
     author: "Dwi Putri (Sekretaris)",
@@ -33,20 +60,8 @@ export const BLOG_POSTS: ArticleData[] = [
 
       <h3>Pengembangan & Roadmap</h3>
       <p>Saat ini, Velicia berada dalam fase <strong>Alpha-Protocol</strong>. Tim teknis sedang fokus pada pembangunan arsitektur <em>neural network</em> yang mampu memproses konteks budaya tinggi (high-context culture) yang lazim ditemukan dalam interaksi masyarakat Nusantara.</p>
-
-      <h3>Mengapa Rilis Resmi Musim Semi 2028?</h3>
-      <p>Banyak yang bertanya, mengapa kami menargetkan rilis publik penuh (Grand Launching) pada <strong>Musim Semi 2028</strong>? Mengapa waktu pengembangannya begitu lama?</p>
       
-      <p>Alasan kami logis dan berdasar pada komitmen kualitas:</p>
-      <ul>
-        <li><strong>Infrastruktur Mandiri (Sovereign Infrastructure):</strong> Kami tidak menyewa server GPU dari penyedia cloud raksasa global. Kami sedang membangun pusat data mandiri di tanah air untuk menjamin 100% keamanan data pengguna sesuai regulasi masa depan. Pembangunan fisik ini memakan waktu.</li>
-        <li><strong>Kurasi Dialek Nusantara:</strong> Velicia tidak hanya belajar Bahasa Indonesia baku. Kami sedang melatih model dengan dataset masif yang mencakup Bahasa Jawa, Sunda, Minang, dan bahasa daerah lainnya agar AI ini benar-benar inklusif. Proses pengumpulan dan validasi data ini membutuhkan waktu tahunan agar akurat.</li>
-        <li><strong>Kepatuhan Etika & Safety:</strong> Kami menerapkan protokol <em>Red Teaming</em> yang sangat ketat untuk memastikan Velicia bebas dari bias berbahaya dan halusinasi informasi sebelum dilepas ke publik luas.</li>
-      </ul>
-
       <blockquote>"Kami tidak berlomba untuk menjadi yang tercepat rilis, tetapi kami berlomba untuk menjadi yang paling mengerti Indonesia." — Notulensi Rapat Strategis, 28 Jan 2026.</blockquote>
-      
-      <p>Kami memohon dukungan dan kesabaran seluruh masyarakat Indonesia. Penantian hingga 2028 akan terbayar dengan hadirnya teknologi yang benar-benar milik kita.</p>
     `
   },
   {
@@ -63,72 +78,7 @@ export const BLOG_POSTS: ArticleData[] = [
       <h3>Tantangan Era Digital</h3>
       <p>Ketergantungan pada penyedia layanan AI asing membawa risiko tersendiri, mulai dari privasi data hingga bias budaya. Model bahasa besar (LLM) yang dilatih dengan data barat seringkali gagal menangkap nuansa lokal, etika, dan konteks sosial masyarakat Indonesia.</p>
       
-      <p>Velicia dibangun dengan filosofi <strong>"Dari Indonesia, Untuk Indonesia"</strong>. Kami tidak hanya sekadar membungkus API asing (wrapper), tetapi mengembangkan arsitektur yang dioptimalkan untuk kebutuhan spesifik infrastruktur dan budaya kita.</p>
-
-      <h3>3 Pilar Kedaulatan Data Velicia</h3>
-      <ul>
-        <li><strong>Lokalisasi Data:</strong> Memastikan pemrosesan data sensitif tetap berada dalam yurisdiksi hukum Indonesia, mendukung kepatuhan terhadap UU PDP (Pelindungan Data Pribadi).</li>
-        <li><strong>Efisiensi Komputasi:</strong> Algoritma yang dirancang untuk berjalan optimal bahkan pada infrastruktur dengan resource terbatas, mengurangi biaya operasional bagi UMKM.</li>
-        <li><strong>Kemandirian Intelektual:</strong> Mengurangi bias barat dalam pengambilan keputusan otomatis dengan dataset yang dikurasi dari literatur dan sumber daya lokal.</li>
-      </ul>
-
-      <h3>Masa Depan AI Nusantara</h3>
-      <p>Visi kami adalah menciptakan ekosistem di mana teknologi bekerja untuk manusia, bukan sebaliknya. Dengan Velicia, kami berharap dapat memberdayakan talenta digital lokal untuk berinovasi tanpa batasan akses atau biaya yang mencekik.</p>
-      
-      <blockquote>"Teknologi terbaik adalah yang tidak terasa asing, namun terasa seperti perpanjangan dari diri kita sendiri."</blockquote>
-      
-      <p>Mari bergabung dalam perjalanan menuju kedaulatan digital yang sesungguhnya.</p>
-    `
-  },
-  {
-    id: 1,
-    title: "Optimasi Alur Kerja: Hemat Waktu dengan Ekstraksi Cerdas",
-    date: "08 Oktober 2025",
-    author: "Sarah A. (Product)",
-    readTime: "4 menit baca",
-    tag: "Tips",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2000&auto=format&fit=crop",
-    content: `
-      <p class="lead">Berapa jam yang Anda habiskan setiap hari hanya untuk membaca dokumen panjang dan mencari poin penting? Velicia mengubah cara Anda bekerja dengan fitur Ekstraksi Dokumen Cerdas.</p>
-
-      <h3>Masalah: Informasi Berlebih</h3>
-      <p>Profesional modern dibanjiri dengan informasi. Laporan tahunan, kontrak hukum, hingga jurnal ilmiah menumpuk di meja kerja digital kita. Membaca semuanya secara manual tidak lagi efisien.</p>
-
-      <h3>Solusi: Analisis Kontekstual</h3>
-      <p>Berbeda dengan pencarian kata kunci biasa (Ctrl+F), Velicia memahami <em>konteks</em>. Ketika Anda mengunggah PDF dan bertanya "Apa risiko terbesar proyek ini?", Velicia tidak hanya mencari kata "risiko", tetapi menganalisis implikasi dari setiap paragraf.</p>
-
-      <h3>Kasus Penggunaan Nyata</h3>
-      <ul>
-        <li><strong>HRD:</strong> Menyaring ratusan CV untuk menemukan kandidat dengan kualifikasi spesifik dalam hitungan detik.</li>
-        <li><strong>Legal:</strong> Menemukan klausul yang berpotensi merugikan dalam draf kontrak setebal 50 halaman.</li>
-        <li><strong>Mahasiswa:</strong> Merangkum jurnal internasional kompleks menjadi poin-poin yang mudah dipahami bahasa Indonesia.</li>
-      </ul>
-
-      <p>Dengan mengotomatisasi proses pembacaan dan ekstraksi, Anda bisa mengalihkan energi mental Anda untuk hal yang lebih penting: <strong>Pengambilan Keputusan Strategis</strong>.</p>
-    `
-  },
-  {
-    id: 2,
-    title: "Pemrosesan Bahasa Lokal: Memahami Nuansa Indonesia",
-    date: "05 Oktober 2025",
-    author: "Andi W. (AI Researcher)",
-    readTime: "6 menit baca",
-    tag: "Tech",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000&auto=format&fit=crop",
-    content: `
-      <p class="lead">Bahasa Indonesia itu unik. Ada bahasa baku, bahasa gaul, hingga percampuran dengan bahasa daerah. Tantangan inilah yang coba dipecahkan oleh tim riset Velicia.</p>
-
-      <h3>Tokenisasi yang Efisien</h3>
-      <p>Model AI global seringkali tidak efisien dalam memproses Bahasa Indonesia karena cara mereka memecah kata (tokenisasi) didasarkan pada Bahasa Inggris. Ini membuat penggunaan API asing menjadi lebih mahal dan lambat bagi pengguna Indonesia.</p>
-      
-      <p>Velicia menggunakan <em>custom tokenizer</em> yang dilatih khusus dengan korpus Bahasa Indonesia. Hasilnya? Pemrosesan yang 30% lebih cepat dan penggunaan memori yang lebih hemat.</p>
-
-      <h3>Menangani Konteks Informal</h3>
-      <p>Coba bayangkan kalimat ini: <em>"Gk bisa gitu dong, kemaren kan udh deal."</em></p>
-      <p>Model standar mungkin bingung dengan singkatan dan struktur kalimat tersebut. Velicia dilatih untuk memahami konteks percakapan sehari-hari, membuatnya menjadi asisten yang lebih luwes dan tidak kaku seperti robot.</p>
-
-      <h3>Multibahasa Daerah</h3>
-      <p>Kami sedang dalam tahap eksperimental untuk memasukkan pemahaman terhadap bahasa daerah utama (Jawa, Sunda) agar Velicia bisa benar-benar menjadi asisten bagi seluruh nusantara. Ini adalah langkah kecil untuk melestarikan kekayaan budaya kita di era digital.</p>
+      <p>Velicia dibangun dengan filosofi <strong>"Dari Indonesia, Untuk Indonesia"</strong>.</p>
     `
   }
 ];
@@ -159,10 +109,32 @@ interface ArticlePageProps {
 
 const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack }) => {
   const article = BLOG_POSTS.find(p => p.id === articleId) || BLOG_POSTS[0];
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [articleId]);
+
+  const handleShare = async () => {
+      const shareData = {
+          title: article.title,
+          text: `Baca artikel ini di Velicia AI: ${article.title}`,
+          url: window.location.href // In a real app this would be the permalink
+      };
+
+      if (navigator.share) {
+          try {
+              await navigator.share(shareData);
+          } catch (err) {
+              console.log('Error sharing', err);
+          }
+      } else {
+          // Fallback
+          navigator.clipboard.writeText(`${article.title} - Baca di Velicia AI`);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+      }
+  };
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 pb-20">
@@ -177,9 +149,13 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack }) => {
          </button>
          <div className="flex items-center gap-2">
             <img src="/logoApp/logo-app.png" alt="Logo" className="h-8 w-auto object-contain" />
+            <span className="font-bold text-lg tracking-tight text-gray-900">Velicia</span>
          </div>
-         <button className="p-2 text-gray-400 hover:text-[#7928CA] transition-colors">
-            <Share2 size={20} />
+         <button 
+            onClick={handleShare}
+            className="p-2 text-gray-400 hover:text-[#7928CA] transition-colors relative"
+         >
+            {copied ? <Check size={20} className="text-green-500"/> : <Share2 size={20} />}
          </button>
       </nav>
 
@@ -239,8 +215,6 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack }) => {
                     key={post.id} 
                     onClick={() => {
                         window.scrollTo(0,0);
-                        // Trigger reload via generic prop update by parent re-render for simplicity
-                        // In a real router, navigate(id)
                     }}
                     className="flex gap-4 p-4 rounded-2xl border border-gray-100 hover:border-gray-300 hover:bg-gray-50 transition-all text-left group"
                  >

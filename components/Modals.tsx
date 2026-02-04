@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Save, Trash2, Globe, User, LogIn, Mail, Lock, HelpCircle } from 'lucide-react';
+import { X, Save, Trash2, Globe, User, LogIn, Mail, Lock, HelpCircle, CheckCircle, AlertTriangle } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface ModalProps {
@@ -40,6 +40,13 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, language, setLanguage, onClearHistory }) => {
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
+  // Reset state on open
+  useEffect(() => {
+    if (isOpen) setIsConfirmingDelete(false);
+  }, [isOpen]);
+
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Pengaturan">
       <div className="space-y-6">
@@ -62,18 +69,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, l
         </div>
         
         <div className="pt-6 border-t border-gray-100">
-          <label className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 block">Data</label>
-          <button 
-            onClick={() => {
-              if(window.confirm('Apakah Anda yakin ingin menghapus semua riwayat chat?')) {
-                onClearHistory();
-                onClose();
-              }
-            }}
-            className="w-full p-4 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
-          >
-            <Trash2 size={18} /> Hapus Semua Riwayat
-          </button>
+          <label className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 block">Data & Privasi</label>
+          
+          {!isConfirmingDelete ? (
+            <button 
+                onClick={() => setIsConfirmingDelete(true)}
+                className="w-full p-4 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
+            >
+                <Trash2 size={18} /> Hapus Semua Riwayat
+            </button>
+          ) : (
+            <div className="bg-red-50 border border-red-100 rounded-xl p-4 animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center gap-3 mb-3 text-red-700 font-bold text-sm">
+                    <AlertTriangle size={18} />
+                    Konfirmasi Penghapusan
+                </div>
+                <p className="text-xs text-red-600/80 mb-4 font-medium">Tindakan ini tidak dapat dibatalkan. Semua percakapan Anda akan hilang permanen.</p>
+                <div className="flex gap-2">
+                    <button 
+                        onClick={() => setIsConfirmingDelete(false)}
+                        className="flex-1 py-2 bg-white text-gray-600 font-bold text-xs rounded-lg border border-gray-200 hover:bg-gray-50"
+                    >
+                        Batal
+                    </button>
+                    <button 
+                        onClick={() => {
+                            onClearHistory();
+                            onClose();
+                        }}
+                        className="flex-1 py-2 bg-red-600 text-white font-bold text-xs rounded-lg hover:bg-red-700 shadow-sm"
+                    >
+                        Ya, Hapus
+                    </button>
+                </div>
+            </div>
+          )}
         </div>
       </div>
     </BaseModal>
@@ -152,21 +182,20 @@ export const HelpModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
       <div className="space-y-4">
         <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
           <h4 className="font-bold text-blue-900 mb-2 flex items-center gap-2"><HelpCircle size={16}/> Apa itu Velicia?</h4>
-          <p className="text-sm text-blue-800 leading-relaxed">Velicia adalah asisten AI yang dirancang untuk membantu produktivitas Anda dengan konteks lokal Indonesia yang kuat.</p>
+          <p className="text-sm text-blue-800 leading-relaxed">Velicia adalah asisten AI mandiri yang dirancang untuk membantu produktivitas Anda dengan arsitektur Gen2 yang optimal untuk Indonesia.</p>
         </div>
 
         <div className="space-y-2">
             <h4 className="font-bold text-gray-900">Tips Penggunaan</h4>
             <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                <li>Gunakan <strong>Velicia Pro</strong> untuk analisis mendalam dan penalaran kompleks.</li>
-                <li>Gunakan <strong>Velicia Flash</strong> untuk chat cepat sehari-hari.</li>
+                <li>Gunakan <strong>Velicia Gen2 v2.0</strong> untuk penalaran mendalam dan masalah kompleks.</li>
+                <li>Gunakan <strong>Velicia Gen2 v1.0</strong> untuk kecepatan dan efisiensi sehari-hari.</li>
                 <li>Anda dapat mengunggah gambar dan dokumen PDF untuk dianalisis.</li>
-                <li>Gunakan fitur "Bantuan" ini jika Anda bingung.</li>
             </ul>
         </div>
         
         <div className="pt-4 border-t border-gray-100 text-center">
-            <p className="text-xs text-gray-400">Versi 1.0.0 • support@velicia.ai</p>
+            <p className="text-xs text-gray-400">Versi Gen2 • support@velicia.ai</p>
         </div>
       </div>
     </BaseModal>
