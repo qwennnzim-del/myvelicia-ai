@@ -102,7 +102,7 @@ const TRANSLATIONS = {
       ]
     },
     footer: {
-      text: '( c bulat ) 2026 MyVelicia | Inc.'
+      text: '© 2026 MyVelicia | Inc.'
     }
   },
   en: {
@@ -192,7 +192,7 @@ const TRANSLATIONS = {
       ]
     },
     footer: {
-      text: '( c bulat ) 2026 MyVelicia | Inc.'
+      text: '© 2026 MyVelicia | Inc.'
     }
   }
 };
@@ -358,7 +358,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
   };
 
   const blogImages = [
-    "thumbnail-gen2.png", // New Gen2 Image
+    "/logoApp/thumbnail-gen2.png", // Corrected Path
     "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop", 
     "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2000&auto=format&fit=crop"
   ];

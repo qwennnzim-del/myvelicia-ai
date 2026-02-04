@@ -22,7 +22,7 @@ export const BLOG_POSTS: ArticleData[] = [
       author: "M. Fariz (Lead Engineer)",
       readTime: "3 menit baca",
       tag: "Update",
-      image: "thumbnail-gen2.png", // Ensure this image is in your public folder
+      image: "/logoApp/thumbnail-gen2.png", // Corrected path
       content: `
         <p class="lead">Kami dengan bangga mengumumkan bahwa per hari ini, Velicia AI telah sepenuhnya bermigrasi ke arsitektur <strong>Gen2</strong>. Ini bukan sekadar pembaruan versi, melainkan transformasi fundamental pada mesin kecerdasan kami.</p>
 

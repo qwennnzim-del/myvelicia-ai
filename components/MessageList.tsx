@@ -312,10 +312,10 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
             {msg.role === Role.MODEL ? (
                <div className="relative w-full">
                  
-                 {/* --- NEW: Velicia Header Logo --- */}
-                 <div className="flex items-center gap-2 mb-2 ml-1 animate-in fade-in duration-300">
-                     <img src="/logoApp/logo-app.png" alt="Velicia" className="w-5 h-5 object-contain" />
-                     <span className="text-sm font-bold text-gray-900 tracking-tight">Velicia</span>
+                 {/* --- NEW: Velicia Header Logo (Optimized Size) --- */}
+                 <div className="flex items-center gap-2.5 mb-3 ml-1 animate-in fade-in duration-300">
+                     <img src="/logoApp/logo-app.png" alt="Velicia" className="w-7 h-7 object-contain drop-shadow-sm" />
+                     <span className="text-sm md:text-base font-bold text-gray-900 tracking-tight">Velicia</span>
                  </div>
 
                  {/* === SEPARATE COMPONENT: CHAIN OF THOUGHT === */}
