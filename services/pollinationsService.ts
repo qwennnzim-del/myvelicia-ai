@@ -4,7 +4,8 @@ import { Message, Role } from '../types';
 export const sendToPollinations = async (
   text: string,
   history: Message[],
-  systemInstruction: string
+  systemInstruction: string,
+  modelId: string = 'velicia-v5'
 ): Promise<string> => {
   try {
     // 1. Format Messages for OpenAI-style API
@@ -23,6 +24,13 @@ export const sendToPollinations = async (
     // 2. Random Seed for variety (optional but good for uniqueness)
     const seed = Math.floor(Math.random() * 1000000);
 
+    // Map modelId to Pollinations model
+    let modelName = 'openai';
+    if (modelId.includes('gpt4')) modelName = 'openai'; 
+    else if (modelId.includes('claude')) modelName = 'claude';
+    else if (modelId.includes('mistral')) modelName = 'mistral';
+    else if (modelId.includes('v5')) modelName = 'openai';
+
     // 3. Call Pollinations API
     // Endpoint: https://text.pollinations.ai/
     const response = await fetch('https://text.pollinations.ai/', {
@@ -32,7 +40,7 @@ export const sendToPollinations = async (
       },
       body: JSON.stringify({
         messages: messages,
-        model: 'openai', // This requests the OpenAI model via Pollinations
+        model: modelName, 
         seed: seed,
         jsonMode: false
       }),
