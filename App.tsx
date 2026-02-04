@@ -60,7 +60,7 @@ const App: React.FC = () => {
 
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
-  const [model, setModel] = useState<string>(ModelType.VELICIA_FLASH); 
+  const [model, setModel] = useState<string>(ModelType.GEN2_V2_5); 
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
 
   // --- USER & SETTINGS STATE ---
@@ -350,7 +350,7 @@ const App: React.FC = () => {
   };
 
   const handleModelSelectFromDashboard = (type: 'text' | 'image') => {
-    setModel(ModelType.VELICIA_FLASH);
+    setModel(ModelType.GEN2_V2_5);
   };
 
   // --- MODAL HANDLERS ---
