@@ -44,6 +44,12 @@ const TRANSLATIONS = {
       viewAll: 'Lihat Semua',
       articles: [
         {
+          id: 5,
+          title: "Team Velicia Himbau Bahaya WiFi Publik terhadap Data Transaksi",
+          desc: "M. Fariz (Lead Engineer) jelaskan alur pencurian data via WiFi publik.",
+          tag: "Security"
+        },
+        {
           id: 4,
           title: "Velicia Resmi Mengganti Library ke Gen2",
           desc: "Peningkatan performa, penalaran, dan kecepatan dengan arsitektur terbaru.",
@@ -54,12 +60,6 @@ const TRANSLATIONS = {
           title: "Peluncuran Velicia AI 2026",
           desc: "Pengumuman resmi, hasil rapat, dan roadmap menuju 2028.",
           tag: "News"
-        },
-        {
-          id: 0,
-          title: "Visi Kedaulatan Digital",
-          desc: "Velicia AI sebagai solusi mandiri untuk kebutuhan teknologi nasional.",
-          tag: "Visi"
         }
       ]
     },
@@ -134,6 +134,12 @@ const TRANSLATIONS = {
       viewAll: 'View All',
       articles: [
          {
+          id: 5,
+          title: "Team Velicia Warns of Public WiFi Dangers for Transactions",
+          desc: "M. Fariz (Lead Engineer) explains data theft flow via public WiFi.",
+          tag: "Security"
+        },
+         {
           id: 4,
           title: "Velicia Officially Switches to Gen2 Library",
           desc: "Performance improvements, reasoning, and speed with the latest architecture.",
@@ -144,12 +150,6 @@ const TRANSLATIONS = {
           title: "Velicia AI Launch 2026",
           desc: "Official announcement, meeting results, and roadmap to 2028.",
           tag: "News"
-        },
-        {
-          id: 0,
-          title: "Digital Sovereignty Vision",
-          desc: "Velicia AI as an independent solution for national tech needs.",
-          tag: "Vision"
         }
       ]
     },
@@ -382,12 +382,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
   };
 
   const blogImages = [
-    "/logoApp/thumbnail-gen2.png", // Corrected Path
-    "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop", 
-    "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2000&auto=format&fit=crop"
+    "/logoApp/thumbnail-himbau.png", // New Article
+    "/logoApp/thumbnail-gen2.png", 
+    "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop"
   ];
 
-  const blogDates = ["Now", "28 Jan", "12 Okt"];
+  const blogDates = ["Now", "Yesterday", "28 Jan"];
 
   const professions = [
     { id: 'Entrepreneur', label: language === 'id' ? 'Bisnis' : 'Business', icon: <Briefcase size={14}/> },
