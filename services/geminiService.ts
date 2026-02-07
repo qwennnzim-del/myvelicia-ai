@@ -1,7 +1,7 @@
 
 import { GoogleGenAI, Chat, Part, Modality } from "@google/genai";
-import { Message, ModelType, GroundingMetadata, Attachment, Role } from '../types';
-import { CONFIG } from '../config';
+import { Message, ModelType, GroundingMetadata, Attachment, Role } from '@/types';
+import { CONFIG } from '@/config';
 
 // Exported IMAGE_MODELS
 export const IMAGE_MODELS = ['gemini-2.5-flash-image', 'gemini-3-pro-image-preview', 'imagen-4.0-generate-001', 'nano-banana-pro-preview'];
