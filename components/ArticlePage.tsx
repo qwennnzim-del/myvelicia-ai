@@ -16,6 +16,45 @@ export interface ArticleData {
 // Data Artikel Lengkap (Hardcoded untuk demo)
 export const BLOG_POSTS: ArticleData[] = [
   {
+      id: 6,
+      title: "Tutorial: Cara Mengatasi Limit Kuota & Mendapatkan Akses Unlimited",
+      date: "Baru Saja",
+      author: "M. Fariz (Lead Engineer)",
+      readTime: "2 menit baca",
+      tag: "Tips",
+      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop",
+      content: `
+        <p class="lead">Sering mendapati pesan <em>"Service Busy"</em> atau <em>"Quota Exceeded"</em>? Jangan khawatir. Velicia didesain untuk tetap gratis, namun karena tingginya pengguna, kuota publik (Shared Pool) terkadang habis. Berikut adalah 2 cara ampuh untuk mengatasinya.</p>
+
+        <h3>Cara 1: Ganti ke Model "Velicia Unlimited" (Paling Mudah)</h3>
+        <p>Kami menyediakan model khusus yang tidak menggunakan kuota Google Gemini, melainkan jalur server independen. Model ini <strong>100% Gratis & Unlimited</strong>.</p>
+        
+        <p><strong>Caranya:</strong></p>
+        <ul>
+            <li>Pada kolom chat, klik tombol selector model (di sebelah kiri tombol kirim/file).</li>
+            <li>Pilih opsi <strong>"Velicia Unlimited"</strong>.</li>
+            <li>Selesai! Anda bisa chat sepuasnya tanpa batasan waktu atau kuota.</li>
+        </ul>
+        <p><em>Catatan: Model ini sangat cepat tetapi mungkin tidak secerdas Gen2 dalam hal penalaran logika yang sangat kompleks (Deep Reasoning).</em></p>
+
+        <h3>Cara 2: Gunakan "Personal API Key" (Untuk Gen2 Pro)</h3>
+        <p>Jika Anda tetap ingin menggunakan kecerdasan tinggi dari model <strong>Gen2</strong> namun terkena limit, Anda bisa menggunakan API Key milik Anda sendiri (gratis dari Google).</p>
+        
+        <p><strong>Langkah-langkah:</strong></p>
+        <ol>
+            <li>Kunjungi <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> dan login dengan akun Google Anda.</li>
+            <li>Klik tombol <strong>"Create API Key"</strong>.</li>
+            <li>Salin (Copy) kode kunci tersebut.</li>
+            <li>Di Velicia, buka <strong>Settings</strong> (Menu Sidebar -> Settings).</li>
+            <li>Pilih opsi <strong>"Pakai API Key Sendiri"</strong> dan tempel (Paste) kuncinya.</li>
+        </ol>
+
+        <p>Dengan cara ini, Anda menggunakan kuota pribadi Anda (yang sangat besar dan gratis) langsung dari Google, sehingga tidak perlu berebut kuota dengan pengguna Velicia lainnya.</p>
+
+        <blockquote>"Velicia dibuat untuk memberdayakan, bukan membatasi. Pilih metode yang paling sesuai dengan kebutuhan produktivitas Anda." — M. Fariz.</blockquote>
+      `
+  },
+  {
       id: 5,
       title: "Team Velicia Menghimbau Bahaya WiFi Publik terhadap Data Transaksi & M-Banking",
       date: "Hari Ini",
@@ -245,7 +284,7 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack, onReadArti
         </article>
 
         {/* Author Card Component - For specific articles */}
-        {(article.id === 3 || article.id === 5 || article.id === 4) && (
+        {(article.id === 3 || article.id === 5 || article.id === 4 || article.id === 6) && (
             <AuthorCard 
               author={article.id === 3 ? "Dwi Putri" : "M. Fariz"} 
               role={article.id === 3 ? "Sekretaris & Operasional" : "Lead Engineer"} 

@@ -44,8 +44,14 @@ const TRANSLATIONS = {
       viewAll: 'Lihat Semua',
       articles: [
         {
+          id: 6,
+          title: "Cara Mengatasi Limit Kuota & Akses Unlimited",
+          desc: "Panduan lengkap mendapatkan akses tanpa batas di Velicia.",
+          tag: "Tips"
+        },
+        {
           id: 5,
-          title: "Team Velicia Himbau Bahaya WiFi Publik terhadap Data Transaksi",
+          title: "Team Velicia Himbau Bahaya WiFi Publik",
           desc: "M. Fariz (Lead Engineer) jelaskan alur pencurian data via WiFi publik.",
           tag: "Security"
         },
@@ -54,12 +60,6 @@ const TRANSLATIONS = {
           title: "Velicia Resmi Mengganti Library ke Gen2",
           desc: "Peningkatan performa, penalaran, dan kecepatan dengan arsitektur terbaru.",
           tag: "Update"
-        },
-        {
-          id: 3,
-          title: "Peluncuran Velicia AI 2026",
-          desc: "Pengumuman resmi, hasil rapat, dan roadmap menuju 2028.",
-          tag: "News"
         }
       ]
     },
@@ -134,8 +134,14 @@ const TRANSLATIONS = {
       viewAll: 'View All',
       articles: [
          {
+          id: 6,
+          title: "How to Overcome Quota Limits & Get Unlimited Access",
+          desc: "Complete guide to getting unlimited access in Velicia.",
+          tag: "Tips"
+        },
+         {
           id: 5,
-          title: "Team Velicia Warns of Public WiFi Dangers for Transactions",
+          title: "Team Velicia Warns of Public WiFi Dangers",
           desc: "M. Fariz (Lead Engineer) explains data theft flow via public WiFi.",
           tag: "Security"
         },
@@ -144,12 +150,6 @@ const TRANSLATIONS = {
           title: "Velicia Officially Switches to Gen2 Library",
           desc: "Performance improvements, reasoning, and speed with the latest architecture.",
           tag: "Update"
-        },
-         {
-          id: 3,
-          title: "Velicia AI Launch 2026",
-          desc: "Official announcement, meeting results, and roadmap to 2028.",
-          tag: "News"
         }
       ]
     },
@@ -382,12 +382,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
   };
 
   const blogImages = [
-    "/logoApp/thumbnail-himbau.png", // New Article
-    "/logoApp/thumbnail-gen2.png", 
-    "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop", // New Article
+    "/logoApp/thumbnail-himbau.png", 
+    "/logoApp/thumbnail-gen2.png"
   ];
 
-  const blogDates = ["Now", "Yesterday", "28 Jan"];
+  const blogDates = ["Now", "Today", "Yesterday"];
 
   const professions = [
     { id: 'Entrepreneur', label: language === 'id' ? 'Bisnis' : 'Business', icon: <Briefcase size={14}/> },
