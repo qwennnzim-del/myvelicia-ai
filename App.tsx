@@ -7,11 +7,12 @@ import InputArea from '@/components/InputArea';
 import Dashboard from '@/components/Dashboard';
 import Sidebar from '@/components/Sidebar';
 import ArticlePage from '@/components/ArticlePage';
-import HelpPage from '@/components/HelpPage'; // Import HelpPage
+import HelpPage from '@/components/HelpPage'; 
 import Onboarding, { OnboardingStep } from '@/components/Onboarding'; 
-import { SettingsModal, ProfileModal, LoginModal } from '@/components/Modals'; // Removed HelpModal
+import { SettingsModal, ProfileModal, LoginModal } from '@/components/Modals'; 
 import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from '@/types';
-import { sendMessageToGemini } from '@/services/geminiService';
+import { sendToPollinations } from '@/services/pollinationsService'; // Main Service
+import { CONFIG } from '@/config';
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   const [progress, setProgress] = useState(0);
@@ -23,13 +24,11 @@ const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
     if (isLoading) {
       setVisible(true);
       setProgress(0);
-      // Sedikit delay agar transisi CSS dari 0 ke 90% terdeteksi
       timeout = setTimeout(() => {
         setProgress(90); 
       }, 50);
     } else {
-      setProgress(100); // Selesaikan ke 100% saat selesai
-      // Tunggu animasi selesai sedikit baru hilangkan
+      setProgress(100); 
       timeout = setTimeout(() => {
         setVisible(false);
         setProgress(0);
@@ -41,23 +40,16 @@ const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
 
   return (
     <div className={`fixed top-0 left-0 right-0 z-[9999] transition-opacity duration-300 pointer-events-none ${visible ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Background track */}
       <div className="h-[4px] w-full bg-gray-100/10 overflow-visible">
-        {/* Colorful Glowing Bar */}
         <div 
           className="h-full relative shadow-[0_0_20px_rgba(255,0,128,0.6)]"
           style={{
             width: `${progress}%`,
-            // Gradient: Ungu -> Pink -> Kuning Emas
             background: 'linear-gradient(90deg, #7928CA 0%, #FF0080 50%, #FFD700 100%)',
-            // Transisi lebih cepat (1.2s) dengan easing yang snappy
             transition: isLoading ? 'width 1200ms cubic-bezier(0.2, 0.8, 0.2, 1)' : 'width 200ms ease-out',
           }}
         >
-            {/* Efek "Kepala Cahaya" (Head Glow) yang lebih besar */}
             <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-[120px] h-[30px] bg-gradient-to-l from-white/90 via-white/40 to-transparent blur-[8px]" />
-            
-            {/* Titik Putih Terang di Ujung */}
             <div className="absolute right-0 top-0 bottom-0 w-[4px] bg-white shadow-[0_0_25px_5px_rgba(255,255,255,0.9)] rounded-full" />
         </div>
       </div>
@@ -122,7 +114,7 @@ const APP_TRANSLATIONS = {
         },
         {
             title: "Pilih Kecerdasan",
-            description: "Ganti model AI di sini. Pilih Gen2 v2.0 untuk penalaran mendalam atau v1.0 untuk kecepatan.",
+            description: "Ganti model AI di sini. Gunakan model premium (GPT-4o) dengan Secret Key Pollinations.",
             targetId: "tour-model-selector",
             position: "top"
         },
@@ -195,7 +187,7 @@ const APP_TRANSLATIONS = {
         },
         {
             title: "Choose Intelligence",
-            description: "Switch AI models here. Choose Gen2 v2.0 for deep reasoning or v1.0 for speed.",
+            description: "Switch AI models here. Use premium models (GPT-4o) with your Pollinations Secret Key.",
             targetId: "tour-model-selector",
             position: "top"
         },
@@ -217,7 +209,7 @@ const APP_TRANSLATIONS = {
 
 
 // Define View States
-type AppView = 'landing' | 'app' | 'article' | 'help'; // Added 'help'
+type AppView = 'landing' | 'app' | 'article' | 'help'; 
 
 const App: React.FC = () => {
   // --- VIEW STATE (Persisted) ---
@@ -256,7 +248,9 @@ const App: React.FC = () => {
 
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
-  const [model, setModel] = useState<string>(ModelType.GEN2_V2_5); 
+  
+  // Default Model
+  const [model, setModel] = useState<string>(ModelType.POLLINATIONS_GPT4O); 
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
 
   // --- USER & SETTINGS STATE ---
@@ -272,20 +266,16 @@ const App: React.FC = () => {
       settings: false,
       profile: false,
       login: false
-      // Removed 'help' from modal state
   });
   
   // --- ONBOARDING STATE ---
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // --- PERSISTENCE LOGIC ---
-  
-  // 1. Save Profile
   useEffect(() => {
     localStorage.setItem('velicia_profile', JSON.stringify(userProfile));
   }, [userProfile]);
 
-  // 2. Load History on Mount
   useEffect(() => {
     const savedHistory = localStorage.getItem('velicia_chat_history');
     if (savedHistory) {
@@ -297,17 +287,14 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // 3. Save History on Change
   useEffect(() => {
     localStorage.setItem('velicia_chat_history', JSON.stringify(history));
   }, [history]);
 
-  // 4. Save View State
   useEffect(() => {
     localStorage.setItem('velicia_current_view', currentView);
   }, [currentView]);
 
-  // 5. Save Article ID
   useEffect(() => {
     if (selectedArticleId !== null) {
         localStorage.setItem('velicia_article_id', selectedArticleId.toString());
@@ -316,7 +303,6 @@ const App: React.FC = () => {
     }
   }, [selectedArticleId]);
 
-  // 6. Save Active Chat ID
   useEffect(() => {
     if (activeChatId) {
         localStorage.setItem('velicia_active_chat_id', activeChatId);
@@ -325,7 +311,6 @@ const App: React.FC = () => {
     }
   }, [activeChatId]);
 
-  // 7. Restore Messages on Refresh
   useEffect(() => {
       if (activeChatId && history.length > 0 && messages.length === 0) {
           const session = history.find(s => s.id === activeChatId);
@@ -341,10 +326,8 @@ const App: React.FC = () => {
   // --- NAVIGATION HANDLERS ---
   const handlePageTransition = (callback: () => void) => {
     setIsPageLoading(true);
-    // User requested faster animation: 1.2 seconds (1200ms)
     setTimeout(() => {
       callback();
-      // Short buffer before hiding to ensure 100% completion visual
       setTimeout(() => setIsPageLoading(false), 200); 
     }, 1200);
   };
@@ -357,16 +340,6 @@ const App: React.FC = () => {
   };
 
   const handleEnterApp = async () => {
-    try {
-        const win = window as any;
-        if (win.aistudio) {
-            const hasKey = await win.aistudio.hasSelectedApiKey();
-            if (!hasKey) {
-                await win.aistudio.openSelectKey();
-            }
-        }
-    } catch (e) { console.error("API Key Selection Error:", e); }
-
     handlePageTransition(() => {
       setCurrentView('app');
       setInitialScrollTo(null);
@@ -394,12 +367,8 @@ const App: React.FC = () => {
      });
   };
 
-  // New: Back logic from Help Page
   const handleBackFromHelp = () => {
       handlePageTransition(() => {
-          // If came from landing, go back to landing. If from app (sidebar), go back to app.
-          // For simplicity, default to App since it's mostly accessed from Sidebar.
-          // Or check previous view logic if needed. 
           setCurrentView('app'); 
       });
   };
@@ -416,7 +385,6 @@ const App: React.FC = () => {
     }
   };
 
-  // New: Handle opening Help Page
   const handleOpenHelpPage = () => {
       setIsSidebarOpen(false);
       handlePageTransition(() => {
@@ -500,47 +468,31 @@ const App: React.FC = () => {
     setIsAILoading(true);
     setLoadingState('thinking'); 
 
-    const lowerText = text.toLowerCase();
-    const hasAttachments = attachments && attachments.length > 0;
-    
-    const youtubeKeywords = ['youtube', 'video', 'nonton', 'watch', 'clip', 'cuplikan', 'trailer', 'film'];
-    const isYoutubeIntent = youtubeKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
-    
-    const searchKeywords = [
-        'siapa', 'kapan', 'dimana', 'berapa', 'terbaru', 'berita', 'hari ini', 'sekarang', 
-        'news', 'latest', 'price', 'who', 'when', 'where', 'search', 'cari', 'info', 
-        'live', 'realtime', 'gaza', 'israel', 'gempa', 'cuaca', 'skor', 'hasil', 'profil',
-        'biografi', 'saham', 'kurs', 'rupiah', 'dollar', 'jadwal', 'klasemen', 'pemilu',
-        'presiden', 'menteri', 'kebijakan', 'uu', 'hukum', 'kasus', 'viral', 'trending'
-    ];
-    const isGeneralSearch = searchKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
-
-    let searchToggleInterval: ReturnType<typeof setInterval> | undefined;
-    let initialSearchTimeout: ReturnType<typeof setTimeout> | undefined;
-
-    if (isYoutubeIntent || isGeneralSearch) {
-        initialSearchTimeout = setTimeout(() => {
-            const searchType = isYoutubeIntent ? 'youtube_search' : 'searching';
-            setLoadingState(searchType);
-            searchToggleInterval = setInterval(() => {
-                setLoadingState(currentState => 
-                    (currentState === 'searching' || currentState === 'youtube_search') ? 'thinking' : searchType
-                );
-            }, 2500); 
-        }, 1500); 
-    }
-
     try {
-      const response = await sendMessageToGemini(text, selectedModel, historyMessages, attachments);
+      let responseText = "";
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Get API Key: Prioritize LocalStorage, Fallback to Environment Variable
+      const apiKey = localStorage.getItem('velicia_user_api_key') || process.env.POLLINATIONS_API_KEY;
+      
+      // Use Pollinations Service
+      responseText = await sendToPollinations(
+          text, 
+          historyMessages, 
+          CONFIG.SYSTEM_INSTRUCTION, 
+          selectedModel,
+          apiKey,
+          attachments
+      );
+      
+      await new Promise(resolve => setTimeout(resolve, 800));
 
       const newModelMessage: Message = {
         id: (Date.now() + 1).toString(), 
         role: Role.MODEL,
-        text: response.text,
+        text: responseText,
         timestamp: Date.now(),
-        groundingMetadata: response.groundingMetadata
+        // Grounding metadata is not supported by Pollinations directly in this implementation
+        groundingMetadata: undefined
       };
       
       const updatedMessages = [...historyMessages, newModelMessage];
@@ -567,8 +519,6 @@ const App: React.FC = () => {
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
-      if (initialSearchTimeout) clearTimeout(initialSearchTimeout);
-      if (searchToggleInterval) clearInterval(searchToggleInterval);
       setIsAILoading(false);
       setLoadingState('idle');
     }
@@ -587,13 +537,13 @@ const App: React.FC = () => {
   };
 
   const handleModelSelectFromDashboard = (type: 'text' | 'image') => {
-    setModel(ModelType.GEN2_V2_5);
+    setModel(ModelType.POLLINATIONS_GPT4O);
   };
 
   // --- MODAL HANDLERS ---
   const toggleModal = (key: keyof typeof modals) => {
       setModals(prev => ({ ...prev, [key]: !prev[key] }));
-      setIsSidebarOpen(false); // Close sidebar when opening modal
+      setIsSidebarOpen(false); 
   };
 
   const handleLogin = () => {
@@ -681,7 +631,7 @@ const App: React.FC = () => {
                     
                     onOpenSettings={() => toggleModal('settings')}
                     onOpenProfile={() => toggleModal('profile')}
-                    onOpenHelp={handleOpenHelpPage} // Trigger Page instead of Modal
+                    onOpenHelp={handleOpenHelpPage} 
                     onLogin={handleLogin}
                     translations={APP_TRANSLATIONS[language]}
                 />
