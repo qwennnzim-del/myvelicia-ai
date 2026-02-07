@@ -2,8 +2,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Message, Role } from '../types';
 import ReactMarkdown from 'react-markdown';
-import { IMAGE_MODELS } from '../services/geminiService';
-import { Copy, ThumbsUp, Share2, Edit2, Check, ExternalLink, Globe, Play, Youtube, FileText, Brain, ChevronDown, Sparkles, Cpu } from 'lucide-react';
+import { IMAGE_MODELS, generateSpeechFromGemini } from '../services/geminiService';
+import { Copy, ThumbsUp, Share2, Edit2, Check, ExternalLink, Globe, Play, Youtube, FileText, Brain, ChevronDown, Cpu, Volume2, StopCircle, Loader2, Download, Image as ImageIcon } from 'lucide-react';
 
 interface MessageListProps {
   messages: Message[];
@@ -11,6 +11,7 @@ interface MessageListProps {
   loadingState?: 'idle' | 'thinking' | 'searching' | 'youtube_search';
   currentModel: string;
   onEditMessage: (messageId: string, newText: string) => void;
+  translations: any;
 }
 
 // --- Helper: Extract YouTube ID ---
@@ -19,6 +20,54 @@ const getYoutubeId = (url: string) => {
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
 };
+
+// --- Helper: Clean Markdown for Speech ---
+const cleanMarkdownForSpeech = (text: string) => {
+  // Remove bold/italic markers
+  let clean = text.replace(/(\*\*|__)(.*?)\1/g, '$2');
+  clean = clean.replace(/(\*|_)(.*?)\1/g, '$2');
+  // Remove headers
+  clean = clean.replace(/^#+\s+/gm, '');
+  // Remove code blocks
+  clean = clean.replace(/```[\s\S]*?```/g, 'Code block omitted.');
+  clean = clean.replace(/`([^`]+)`/g, '$1');
+  // Remove links
+  clean = clean.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  // Remove images
+  clean = clean.replace(/!\[.*?\]\(.*?\)/g, '');
+  return clean;
+};
+
+// --- Helper: Decode Base64 to Uint8Array ---
+function base64ToUint8Array(base64: string) {
+    const binaryString = atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+}
+
+// --- Helper: Decode PCM Data to AudioBuffer ---
+async function pcmToAudioBuffer(
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number = 24000, // Gemini TTS defaults
+  numChannels: number = 1
+): Promise<AudioBuffer> {
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
+}
 
 // --- Helper: Robust Chain of Thought Parsing ---
 const parseChainOfThought = (text: string) => {
@@ -62,7 +111,7 @@ const parseChainOfThought = (text: string) => {
 };
 
 // --- Component: Thinking Box (CoT) ---
-const ThinkingBox: React.FC<{ thought: string }> = ({ thought }) => {
+const ThinkingBox: React.FC<{ thought: string, labels: any }> = ({ thought, labels }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   // Calculate a fake "duration" based on thought length
@@ -82,8 +131,8 @@ const ThinkingBox: React.FC<{ thought: string }> = ({ thought }) => {
            <Brain size={14} />
         </div>
         <div className="flex flex-col items-start text-left">
-            <span className="leading-none">Proses Berpikir</span>
-            <span className="text-[9px] opacity-60 font-medium mt-0.5">{duration} detik</span>
+            <span className="leading-none">{labels.thinkingProcess}</span>
+            <span className="text-[9px] opacity-60 font-medium mt-0.5">{duration}s</span>
         </div>
         <ChevronDown size={14} className={`ml-auto md:ml-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -96,7 +145,7 @@ const ThinkingBox: React.FC<{ thought: string }> = ({ thought }) => {
         <div className="bg-[#F8F9FA] rounded-xl border border-gray-200/80 p-4 text-xs font-mono text-gray-700 leading-relaxed shadow-inner overflow-x-auto relative">
            <div className="absolute top-0 left-0 w-1 h-full bg-purple-500/20"></div>
            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200/60 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-              <Cpu size={12} /> Log Analisis
+              <Cpu size={12} /> {labels.analysisLog}
            </div>
            <ReactMarkdown>{thought}</ReactMarkdown>
         </div>
@@ -161,12 +210,20 @@ const TypewriterLabel: React.FC<{ phrases: string[] }> = ({ phrases }) => {
   );
 };
 
-const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingState = 'idle', currentModel, onEditMessage }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingState = 'idle', currentModel, onEditMessage, translations }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [likedMessages, setLikedMessages] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  
+  // Audio State
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [audioLoadingId, setAudioLoadingId] = useState<string | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
+
+  const t = translations.messageList;
 
   useEffect(() => {
     // Delay scroll slightly to account for animations
@@ -175,30 +232,23 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
     }, 100);
   }, [messages, isLoading, editingId, loadingState]); 
 
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+        if (sourceNodeRef.current) {
+            sourceNodeRef.current.stop();
+        }
+        if (audioContextRef.current) {
+            audioContextRef.current.close();
+        }
+    };
+  }, []);
+
   const isImageModel = IMAGE_MODELS.includes(currentModel) || currentModel.startsWith('flux');
 
-  const thinkingPhrases = [
-    "Berfikir...",
-    "Analisis prompt...",
-    "Mengidentifikasi...",
-    "Menyusun jawaban...",
-    "Mencari jawaban akurat...",
-    "Menyampaikan hasil..."
-  ];
-  
-  const searchPhrases = [
-    "Menghubungkan ke Google...",
-    "Mencari informasi...",
-    "Menelusuri situs...",
-    "Informasi ditemukan!"
-  ];
-
-  const youtubePhrases = [
-    "Menghubungkan ke YouTube...",
-    "Mencari video relevan...",
-    "Mengambil cuplikan...",
-    "Video ditemukan!"
-  ];
+  const thinkingPhrases = t.thinking;
+  const searchPhrases = t.searching;
+  const youtubePhrases = t.youtube;
   
   const activePhrases = thinkingPhrases;
 
@@ -227,6 +277,85 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
       console.error('Failed to copy', err);
+    }
+  };
+
+  const handleDownloadImage = (src: string) => {
+    const link = document.createElement('a');
+    link.href = src;
+    link.download = `velicia-generated-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const stopAudio = () => {
+    if (sourceNodeRef.current) {
+        sourceNodeRef.current.stop();
+        sourceNodeRef.current = null;
+    }
+    setSpeakingId(null);
+    setAudioLoadingId(null);
+  };
+
+  const handleSpeak = async (text: string, id: string) => {
+    // If currently loading this specific message, do nothing (or could cancel)
+    if (audioLoadingId === id) return;
+
+    // If currently speaking this message, stop it.
+    if (speakingId === id) {
+        stopAudio();
+        return;
+    }
+
+    // Stop any other playback
+    stopAudio();
+
+    // Start loading state
+    setAudioLoadingId(id);
+
+    try {
+        const cleanText = cleanMarkdownForSpeech(text);
+        
+        // Call Gemini Service
+        const base64Audio = await generateSpeechFromGemini(cleanText);
+        
+        if (!base64Audio) {
+            throw new Error("No audio data returned");
+        }
+
+        // Initialize AudioContext if needed (User interaction required first time)
+        if (!audioContextRef.current) {
+            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+        }
+        
+        if (audioContextRef.current.state === 'suspended') {
+            await audioContextRef.current.resume();
+        }
+
+        const audioCtx = audioContextRef.current;
+        const rawBytes = base64ToUint8Array(base64Audio);
+        const audioBuffer = await pcmToAudioBuffer(rawBytes, audioCtx);
+
+        // Play Audio
+        const source = audioCtx.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioCtx.destination);
+        
+        source.onended = () => {
+            setSpeakingId(null);
+            sourceNodeRef.current = null;
+        };
+
+        sourceNodeRef.current = source;
+        source.start();
+        
+        setSpeakingId(id);
+    } catch (error) {
+        console.error("Failed to play audio:", error);
+        alert("Gagal memutar audio. Pastikan API Key valid atau coba lagi nanti.");
+    } finally {
+        setAudioLoadingId(null);
     }
   };
 
@@ -319,7 +448,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                  </div>
 
                  {/* === SEPARATE COMPONENT: CHAIN OF THOUGHT === */}
-                 {hasThought && <ThinkingBox thought={thought} />}
+                 {hasThought && <ThinkingBox thought={thought} labels={t} />}
 
                  {/* === SEPARATE COMPONENT: FINAL ANSWER === */}
                  <div className={`prose prose-slate max-w-none 
@@ -338,7 +467,37 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                    animate-in fade-in slide-in-from-bottom-2 duration-1000 fill-mode-both
                    ${hasThought ? 'delay-500' : ''} 
                    `}>
-                    <ReactMarkdown>{answer}</ReactMarkdown>
+                    <ReactMarkdown
+                        components={{
+                            // Custom Image Renderer with Download Button
+                            img: ({node, ...props}) => (
+                                <div className="relative group inline-block max-w-full">
+                                    <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <button 
+                                            onClick={() => props.src && handleDownloadImage(props.src)}
+                                            className="bg-black/50 hover:bg-black/80 text-white p-2 rounded-lg backdrop-blur-sm transition-colors shadow-sm"
+                                            title="Download Image"
+                                        >
+                                            <Download size={16} />
+                                        </button>
+                                    </div>
+                                    <img 
+                                        {...props} 
+                                        className="rounded-2xl shadow-md my-2 max-w-full w-auto max-h-[500px] object-cover border border-gray-100" 
+                                        loading="lazy"
+                                    />
+                                    <div className="absolute bottom-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="bg-black/40 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1.5">
+                                            <ImageIcon size={12} className="text-white"/>
+                                            <span className="text-[10px] font-bold text-white uppercase tracking-wide">Banana Pro 3</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        }}
+                    >
+                        {answer}
+                    </ReactMarkdown>
                  </div>
                  
                  {/* GROUNDING SOURCES */}
@@ -346,7 +505,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                     <div className="mt-4 pt-3 border-t border-gray-100 animate-in fade-in duration-1000 delay-700">
                         <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-gray-700">
                              <div className="p-1 bg-blue-50 rounded-full"><Globe size={12} className="text-blue-600"/></div>
-                             <span>Sumber Penelusuran</span>
+                             <span>{t.source}</span>
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {msg.groundingMetadata.groundingChunks.map((chunk, idx) => {
@@ -416,24 +575,43 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
 
                  <div className="flex items-center gap-2 mt-3 pt-1 animate-in fade-in duration-700 delay-1000">
                     <button 
+                        onClick={() => handleSpeak(answer, msg.id)}
+                        disabled={audioLoadingId !== null && audioLoadingId !== msg.id}
+                        className={`flex items-center gap-1 text-[10px] font-medium transition-colors p-1 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed
+                            ${speakingId === msg.id ? 'text-purple-600 bg-purple-50' : 'text-gray-400 hover:text-gray-600'}
+                        `}
+                        title={speakingId === msg.id ? t.stop : t.listen}
+                    >
+                        {audioLoadingId === msg.id ? (
+                            <Loader2 size={12} className="animate-spin text-purple-600" />
+                        ) : speakingId === msg.id ? (
+                            <StopCircle size={12} className="fill-current"/> 
+                        ) : (
+                            <Volume2 size={12} />
+                        )}
+                        
+                        {audioLoadingId === msg.id ? "Loading..." : speakingId === msg.id ? t.stop : t.listen}
+                    </button>
+
+                    <button 
                         onClick={() => handleCopy(msg.text, msg.id)}
                         className="flex items-center gap-1 text-[10px] font-medium text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
-                        title="Salin pesan"
+                        title={t.copy}
                     >
                         {copiedId === msg.id ? <Check size={12} className="text-green-500"/> : <Copy size={12} />}
-                        {copiedId === msg.id ? "Disalin" : "Salin"}
+                        {copiedId === msg.id ? t.copied : t.copy}
                     </button>
                     <button 
                         onClick={() => handleLike(msg.id)}
                         className={`flex items-center gap-1 text-[10px] font-medium transition-colors p-1 rounded-md hover:bg-gray-100 ${likedMessages.has(msg.id) ? 'text-pink-600' : 'text-gray-400 hover:text-gray-600'}`}
-                        title="Suka"
+                        title={t.like}
                     >
                         <ThumbsUp size={12} className={likedMessages.has(msg.id) ? 'fill-current' : ''} />
                     </button>
                     <button 
                         onClick={() => handleShare(msg.text)}
                         className="flex items-center gap-1 text-[10px] font-medium text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
-                        title="Bagikan"
+                        title={t.share}
                     >
                         <Share2 size={12} />
                     </button>
@@ -456,14 +634,14 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                            onClick={handleCancelEdit}
                            className="px-2 py-1 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
                         >
-                           Batal
+                           {t.cancel}
                         </button>
                         <button 
                            onClick={() => handleSaveEdit(msg.id)}
                            disabled={!editText.trim() || editText === msg.text}
                            className="px-2 py-1 text-xs font-bold text-white bg-black hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                           Simpan
+                           {t.save}
                         </button>
                      </div>
                   </div>
@@ -477,7 +655,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                          <button 
                             onClick={() => handleStartEdit(msg)}
                             className="absolute -left-7 top-1/2 -translate-y-1/2 p-1 text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
-                            title="Edit pesan"
+                            title={t.edit}
                          >
                             <Edit2 size={12} />
                          </button>
@@ -505,7 +683,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                   <span></span><span></span><span></span><span></span>
                 </div>
                 <div className="absolute bottom-4 left-0 right-0 text-center text-[10px] font-semibold text-gray-400 tracking-wider uppercase animate-pulse">
-                  Generating Vision...
+                  {t.generatingVision}
                 </div>
              </div>
           </div>
@@ -541,7 +719,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                 {/* Text Label with Color Transition */}
                 <div className={`transition-colors duration-700 ease-in-out mt-1 ${
                     loadingState === 'searching' 
-                    ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-red-500 to-yellow-500' 
+                    ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#4285F4] via-[#DB4437] to-[#F4B400]' 
                     : loadingState === 'youtube_search'
                     ? 'text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-400'
                     : 'text-gray-400'

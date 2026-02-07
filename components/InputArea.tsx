@@ -9,6 +9,7 @@ interface InputAreaProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
   availableModels: ModelOption[];
+  translations: any;
 }
 
 const BrandIcon: React.FC<{ brand: string, className?: string }> = ({ className = "w-6 h-6" }) => {
@@ -22,7 +23,8 @@ const InputArea: React.FC<InputAreaProps> = ({
   isLoading, 
   selectedModel, 
   onModelChange,
-  availableModels 
+  availableModels,
+  translations
 }) => {
   const [text, setText] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -31,6 +33,8 @@ const InputArea: React.FC<InputAreaProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const t = translations.input;
 
   const activeModelOption = availableModels.find(m => m.id === selectedModel);
   const activeModelLabel = activeModelOption?.label || selectedModel;
@@ -66,7 +70,7 @@ const InputArea: React.FC<InputAreaProps> = ({
     const remainingSlots = maxFiles - attachments.length;
     
     if (remainingSlots <= 0) {
-        alert("Maksimal 5 file sekaligus.");
+        alert(t.maxFiles);
         return;
     }
 
@@ -152,11 +156,12 @@ const InputArea: React.FC<InputAreaProps> = ({
 
         <div className={`px-3 pb-1 ${attachments.length > 0 ? 'pt-1' : 'pt-2'}`}>
           <textarea
+            id="tour-input"
             ref={textareaRef}
             value={text}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            placeholder={attachments.length > 0 ? "Ketik pesan..." : "Ketik pesan ke Velicia..."}
+            placeholder={attachments.length > 0 ? t.placeholderFile : t.placeholder}
             disabled={isLoading}
             rows={1}
             className="w-full resize-none text-gray-800 placeholder-gray-400 bg-transparent border-none focus:ring-0 focus:outline-none text-sm max-h-[120px] overflow-y-auto no-scrollbar"
@@ -168,6 +173,7 @@ const InputArea: React.FC<InputAreaProps> = ({
           <div className="flex items-center gap-1 md:gap-2">
             <div className="relative" ref={menuRef}>
                 <button
+                    id="tour-model-selector"
                     onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
                     className="flex items-center space-x-1.5 hover:bg-gray-100 text-gray-700 py-1.5 px-2.5 rounded-full transition-all border border-gray-100 bg-gradient-to-r from-purple-50/50 to-pink-50/50"
                 >
@@ -209,7 +215,7 @@ const InputArea: React.FC<InputAreaProps> = ({
           </div>
 
           <div className="flex items-center gap-1 md:gap-2">
-            <button onClick={handleTriggerFile} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 md:p-2 transition-colors relative" title="Upload File">
+            <button id="tour-attachments" onClick={handleTriggerFile} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1.5 md:p-2 transition-colors relative" title="Upload File">
               <Paperclip className="w-4 h-4 md:w-[18px] md:h-[18px]" strokeWidth={2} />
               {attachments.length > 0 && (
                   <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>

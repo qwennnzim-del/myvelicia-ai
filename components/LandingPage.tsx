@@ -11,6 +11,8 @@ interface LandingPageProps {
   onEnterApp: () => void;
   onReadArticle: (id: number) => void;
   initialScrollTo?: string | null;
+  language: 'id' | 'en';
+  setLanguage: (lang: 'id' | 'en') => void;
 }
 
 // --- TRANSLATIONS DATA ---
@@ -24,7 +26,7 @@ const TRANSLATIONS = {
       about: 'Tentang'
     },
     hero: {
-      badge: 'Velicia AI Masa Depan',
+      badge: 'Partner Cerdas Masa Depan',
       title1: 'Asisten Cerdas',
       title2: 'Indonesia',
       desc: 'Velicia dikembangkan untuk Masa Depan Nusantara dengan arsitektur Gen2. Efisiensi tinggi, penalaran mendalam, dan respon cepat.',
@@ -114,7 +116,7 @@ const TRANSLATIONS = {
       about: 'About'
     },
     hero: {
-      badge: 'Velicia AI Gen2 Future',
+      badge: 'Your Future Smart Partner',
       title1: 'Smart Assistant',
       title2: 'Indonesia',
       desc: 'Velicia developed for Nusantara on Gen2 architecture. High efficiency, deep reasoning, and rapid response.',
@@ -337,24 +339,46 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
   );
 };
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, language, setLanguage }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeProfession, setActiveProfession] = useState('Entrepreneur');
   const [scrolled, setScrolled] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number>(0);
-  const [lang, setLang] = useState<'id' | 'en'>('id');
   const [showAllTeam, setShowAllTeam] = useState(false);
+  
+  // State for Blog Animation
+  const [blogVisible, setBlogVisible] = useState(false);
+  const blogSectionRef = useRef<HTMLElement>(null);
 
-  const t = TRANSLATIONS[lang];
+  const t = TRANSLATIONS[language]; // Use prop language
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+  // Intersection Observer for Blog Section
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setBlogVisible(true);
+          observer.disconnect(); // Trigger once
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (blogSectionRef.current) {
+      observer.observe(blogSectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const toggleLanguage = () => {
-    setLang(prev => prev === 'id' ? 'en' : 'id');
+    setLanguage(language === 'id' ? 'en' : 'id'); // Use prop setLanguage
   };
 
   const blogImages = [
@@ -366,11 +390,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
   const blogDates = ["Now", "28 Jan", "12 Okt"];
 
   const professions = [
-    { id: 'Entrepreneur', label: lang === 'id' ? 'Bisnis' : 'Business', icon: <Briefcase size={14}/> },
-    { id: 'Konsultan', label: lang === 'id' ? 'Konsultan' : 'Consultant', icon: <Monitor size={14}/> },
-    { id: 'Peneliti', label: lang === 'id' ? 'Riset' : 'Research', icon: <Search size={14}/> },
-    { id: 'Pengembang', label: lang === 'id' ? 'Dev' : 'Dev', icon: <Brain size={14}/> },
-    { id: 'Pemasaran', label: lang === 'id' ? 'Marketing' : 'Marketing', icon: <Sparkles size={14}/> },
+    { id: 'Entrepreneur', label: language === 'id' ? 'Bisnis' : 'Business', icon: <Briefcase size={14}/> },
+    { id: 'Konsultan', label: language === 'id' ? 'Konsultan' : 'Consultant', icon: <Monitor size={14}/> },
+    { id: 'Peneliti', label: language === 'id' ? 'Riset' : 'Research', icon: <Search size={14}/> },
+    { id: 'Pengembang', label: language === 'id' ? 'Dev' : 'Dev', icon: <Brain size={14}/> },
+    { id: 'Pemasaran', label: language === 'id' ? 'Marketing' : 'Marketing', icon: <Sparkles size={14}/> },
   ];
 
   const professionIcons: Record<string, React.ElementType[]> = {
@@ -474,7 +498,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-             {['Features', 'Pricing', 'About'].map((item) => (
+             {[t.nav.features, t.nav.pricing, t.nav.about].map((item) => (
                 <button key={item} className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{item}</button>
              ))}
              <div className="w-px h-4 bg-gray-200 mx-2"></div>
@@ -501,10 +525,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
         <div className="hero-glow"></div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <div className="relative inline-block rounded-full bg-black shadow-lg mx-auto overflow-hidden px-8 py-2">
-                <div className="btn-shine text-xs md:text-sm">{t.hero.badge}</div>
-              </div>
+          <div className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <span className="text-[11px] md:text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 uppercase tracking-[0.2em]">
+                 {t.hero.badge}
+              </span>
           </div>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 tracking-tighter animate-in fade-in slide-in-from-bottom-6 duration-1000 mb-6 leading-[1.1]">
@@ -557,12 +581,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle }) 
       </section>
 
       {/* --- BLOG SECTION --- */}
-      <section className="py-20 bg-[#FAFAFA] relative overflow-hidden">
+      <section ref={blogSectionRef} className="py-20 bg-[#FAFAFA] relative overflow-hidden">
          <div className="max-w-6xl mx-auto px-6">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-12 text-center tracking-tight">{t.blog.title}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {t.blog.articles.map((article, i) => (
-                    <div key={i} className="bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group">
+                    <div 
+                        key={i} 
+                        className={`bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group ${blogVisible ? 'animate-in fade-in slide-in-from-bottom-10 opacity-100' : 'opacity-0'}`}
+                        style={{ animationFillMode: 'both', animationDelay: `${i * 150}ms`, animationDuration: '800ms' }}
+                    >
                         <div className="h-48 w-full overflow-hidden relative">
                              <img 
                                 src={blogImages[i]} 

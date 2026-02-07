@@ -21,19 +21,23 @@ interface SidebarProps {
   onOpenProfile: () => void;
   onOpenHelp: () => void;
   onLogin: () => void;
+  translations: any; // Accept translations object
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
     isOpen, onClose, onNewChat, onNavigate, 
     history, activeChatId, onSelectChat, onDeleteChat,
     userProfile,
-    onOpenSettings, onOpenProfile, onOpenHelp, onLogin
+    onOpenSettings, onOpenProfile, onOpenHelp, onLogin,
+    translations
 }) => {
   
   const handleNavigation = (id: string) => {
     onNavigate(id);
     onClose();
   };
+
+  const t = translations.sidebar;
 
   return (
     <>
@@ -66,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gray-900 text-white rounded-xl hover:bg-black transition-all shadow-md hover:shadow-lg active:scale-95 group"
             >
                 <MessageSquarePlus size={18} className="group-hover:-translate-y-0.5 transition-transform" />
-                <span className="font-semibold">Chat Baru</span>
+                <span className="font-semibold">{t.newChat}</span>
             </button>
         </div>
 
@@ -74,16 +78,16 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex-1 overflow-y-auto py-2 px-3 flex flex-col gap-1 no-scrollbar">
             
             <div className="px-3 mb-2 mt-2 flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Navigasi</span>
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t.nav}</span>
             </div>
 
             {/* Navigation Links */}
-            <button onClick={() => handleNavigation('home')} className="sidebar-link"><LayoutGrid size={16} /> Utama</button>
-            <button onClick={() => handleNavigation('features')} className="sidebar-link"><Layers size={16} /> Fitur</button>
-            <button onClick={() => handleNavigation('blog')} className="sidebar-link"><BookOpen size={16} /> Blog</button>
+            <button onClick={() => handleNavigation('home')} className="sidebar-link"><LayoutGrid size={16} /> {t.home}</button>
+            <button onClick={() => handleNavigation('features')} className="sidebar-link"><Layers size={16} /> {t.features}</button>
+            <button onClick={() => handleNavigation('blog')} className="sidebar-link"><BookOpen size={16} /> {t.blog}</button>
 
             <div className="px-3 mb-2 mt-6 flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Riwayat Chat</span>
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t.history}</span>
             </div>
 
             {/* Chat History List */}
@@ -91,7 +95,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {history.length === 0 ? (
                     <div className="px-4 py-8 text-center">
                         <History size={24} className="mx-auto text-gray-300 mb-2" />
-                        <p className="text-xs text-gray-400 font-medium">Belum ada riwayat percakapan.</p>
+                        <p className="text-xs text-gray-400 font-medium">{t.emptyHistory}</p>
                     </div>
                 ) : (
                     history.slice().reverse().map((session) => (
@@ -129,16 +133,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <div className="flex flex-col items-start overflow-hidden">
                     <span className="text-xs font-bold text-gray-900 truncate w-full text-left">{userProfile.name}</span>
-                    <span className="text-[10px] text-gray-500 truncate w-full text-left">{userProfile.bio || 'Pengguna Velicia'}</span>
+                    <span className="text-[10px] text-gray-500 truncate w-full text-left">{userProfile.bio || t.welcome}</span>
                 </div>
             </button>
 
             <div className="grid grid-cols-2 gap-2 mt-1">
                 <button onClick={onOpenSettings} className="flex items-center justify-center gap-2 p-2.5 text-gray-600 bg-white border border-gray-200 hover:border-purple-300 hover:text-purple-600 rounded-xl font-bold text-xs transition-colors">
-                    <Settings size={14} /> Atur
+                    <Settings size={14} /> {t.settings}
                 </button>
                 <button onClick={onOpenHelp} className="flex items-center justify-center gap-2 p-2.5 text-gray-600 bg-white border border-gray-200 hover:border-purple-300 hover:text-purple-600 rounded-xl font-bold text-xs transition-colors">
-                    <CircleHelp size={14} /> Info
+                    <CircleHelp size={14} /> {t.info}
                 </button>
             </div>
 
@@ -146,7 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 onClick={onLogin}
                 className={`flex items-center justify-center gap-2 w-full p-3 rounded-xl font-bold text-sm transition-colors mt-1 ${userProfile.isLoggedIn ? 'text-red-600 hover:bg-red-50' : 'bg-black text-white hover:bg-gray-800 shadow-md'}`}
             >
-                <LogIn size={16} /> {userProfile.isLoggedIn ? 'Keluar' : 'Masuk / Daftar'}
+                <LogIn size={16} /> {userProfile.isLoggedIn ? t.logout : t.login}
             </button>
         </div>
 

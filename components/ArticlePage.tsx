@@ -105,9 +105,10 @@ const AuthorCard: React.FC<{ author: string, role: string }> = ({ author, role }
 interface ArticlePageProps {
   articleId: number;
   onBack: () => void;
+  onReadArticle: (id: number) => void; // New prop for navigation
 }
 
-const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack }) => {
+const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack, onReadArticle }) => {
   const article = BLOG_POSTS.find(p => p.id === articleId) || BLOG_POSTS[0];
   const [copied, setCopied] = useState(false);
 
@@ -215,6 +216,7 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack }) => {
                     key={post.id} 
                     onClick={() => {
                         window.scrollTo(0,0);
+                        onReadArticle(post.id); // Call the navigation function
                     }}
                     className="flex gap-4 p-4 rounded-2xl border border-gray-100 hover:border-gray-300 hover:bg-gray-50 transition-all text-left group"
                  >

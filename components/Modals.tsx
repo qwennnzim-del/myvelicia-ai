@@ -175,33 +175,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, pro
   );
 };
 
-// --- HELP MODAL ---
-export const HelpModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-  return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Bantuan">
-      <div className="space-y-4">
-        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-          <h4 className="font-bold text-blue-900 mb-2 flex items-center gap-2"><HelpCircle size={16}/> Apa itu Velicia?</h4>
-          <p className="text-sm text-blue-800 leading-relaxed">Velicia adalah asisten AI mandiri yang dirancang untuk membantu produktivitas Anda dengan arsitektur Gen2 yang optimal untuk Indonesia.</p>
-        </div>
-
-        <div className="space-y-2">
-            <h4 className="font-bold text-gray-900">Tips Penggunaan</h4>
-            <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
-                <li>Gunakan <strong>Velicia Gen2 v2.0</strong> untuk penalaran mendalam dan masalah kompleks.</li>
-                <li>Gunakan <strong>Velicia Gen2 v1.0</strong> untuk kecepatan dan efisiensi sehari-hari.</li>
-                <li>Anda dapat mengunggah gambar dan dokumen PDF untuk dianalisis.</li>
-            </ul>
-        </div>
-        
-        <div className="pt-4 border-t border-gray-100 text-center">
-            <p className="text-xs text-gray-400">Versi Gen2 • support@velicia.ai</p>
-        </div>
-      </div>
-    </BaseModal>
-  );
-};
-
 // --- LOGIN MODAL ---
 export const LoginModal: React.FC<{ isOpen: boolean; onClose: () => void; onLogin: () => void }> = ({ isOpen, onClose, onLogin }) => {
   return (

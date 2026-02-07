@@ -6,9 +6,11 @@ interface HeaderProps {
   onNewChat: () => void;
   onMenuClick: () => void; // Restored sidebar trigger
   user: { name: string; initial: string } | null;
+  translations: any;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNewChat, onMenuClick, user }) => {
+const Header: React.FC<HeaderProps> = ({ onNewChat, onMenuClick, user, translations }) => {
+  const t = translations.header;
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-[#FAFAFA]/90 backdrop-blur-md flex items-center justify-between px-4 md:px-6 z-50 transition-all duration-300 border-b border-transparent">
       
@@ -30,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, onMenuClick, user }) => {
                 {user.initial}
              </div>
              <div className="hidden sm:block">
-                 <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider leading-none mb-0.5">Welcome</p>
+                 <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider leading-none mb-0.5">{t.welcome}</p>
                  <p className="text-xs font-bold text-gray-900 leading-none">{user.name}</p>
              </div>
           </div>
@@ -41,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, onMenuClick, user }) => {
       <button 
         onClick={onNewChat}
         className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center hover:bg-white bg-white/50 border border-gray-200/50 rounded-full transition-all text-gray-600 active:scale-95 shadow-sm hover:shadow-md hover:border-gray-200 hover:text-[#7C3AED]"
-        title="New Chat"
+        title={t.newChat}
       >
         <MessageCirclePlus size={18} strokeWidth={2.5} />
       </button>
