@@ -1,17 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
-import LandingPage from './components/LandingPage';
-import Header from './components/Header';
-import MessageList from './components/MessageList';
-import InputArea from './components/InputArea';
-import Dashboard from './components/Dashboard';
-import Sidebar from './components/Sidebar';
-import ArticlePage from './components/ArticlePage';
-import HelpPage from './components/HelpPage'; // Import HelpPage
-import Onboarding, { OnboardingStep } from './components/Onboarding'; 
-import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; // Removed HelpModal
-import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
-import { sendMessageToGemini } from './services/geminiService';
+import LandingPage from '@/components/LandingPage';
+import Header from '@/components/Header';
+import MessageList from '@/components/MessageList';
+import InputArea from '@/components/InputArea';
+import Dashboard from '@/components/Dashboard';
+import Sidebar from '@/components/Sidebar';
+import ArticlePage from '@/components/ArticlePage';
+import HelpPage from '@/components/HelpPage'; // Import HelpPage
+import Onboarding, { OnboardingStep } from '@/components/Onboarding'; 
+import { SettingsModal, ProfileModal, LoginModal } from '@/components/Modals'; // Removed HelpModal
+import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from '@/types';
+import { sendMessageToGemini } from '@/services/geminiService';
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   const [progress, setProgress] = useState(0);
