@@ -11,15 +11,13 @@ export const sendToPollinations = async (
 ): Promise<string> => {
   try {
     // 1. Prepare Messages
-    // Pollinations with Secret supports OpenAI format (which handles images too for GPT-4o)
-    
     const messages: any[] = [];
 
     // Add System Instruction
     messages.push({ role: 'system', content: systemInstruction });
 
     // Format History
-    // Limit context to prevent token overflow, generally safe with premium models to send more
+    // Limit context to prevent token overflow
     const cleanHistory = history.filter(msg => msg.text && !msg.text.startsWith('⚠️')).slice(-15);
 
     for (const msg of cleanHistory) {
@@ -45,21 +43,20 @@ export const sendToPollinations = async (
         }
     }
 
-    // Add current message if not in history yet (depending on how App.tsx handles it)
-    // Assuming App.tsx passes history INCLUDING the new user message, we are good.
-    // But if sending 'text' separately, we might need to verify logic. 
-    // Usually App.tsx adds user message to history state before calling this.
-
     // 2. Configure Endpoint & Headers
-    // If user has a secret key, we use the OpenAI-compatible endpoint which is more robust
-    const endpoint = 'https://text.pollinations.ai/openai/chat/completions';
+    // UPDATE: Menggunakan endpoint yang lebih stabil untuk Browser/CORS
+    // Pilihan 1 (Standard Proxy): https://text.pollinations.ai/openai
+    // Pilihan 2 (User Discovery): https://gen.pollinations.ai/v1/chat/completions
+    // Kita gunakan https://text.pollinations.ai/openai karena lebih ramah CORS untuk web app.
+    
+    const endpoint = 'https://text.pollinations.ai/openai';
     
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
     };
 
     if (apiKey) {
-        // Pass the Pollinations Secret
+        // Pass the Pollinations Secret (Bearer Token)
         headers['Authorization'] = `Bearer ${apiKey}`;
     }
 
@@ -72,10 +69,10 @@ export const sendToPollinations = async (
       headers: headers,
       body: JSON.stringify({
         messages: messages,
-        model: modelId, 
+        model: modelId, // 'openai' maps to GPT-4o in Pollinations
         seed: seed,
         temperature: 0.7,
-        max_tokens: 4096 // Allow long responses
+        max_tokens: 4096
       }),
     });
 
@@ -97,10 +94,12 @@ export const sendToPollinations = async (
 
     const data = await response.json();
     
-    // Extract content from OpenAI format
+    // Extract content (Pollinations /openai endpoint returns OpenAI format)
     const responseText = data.choices?.[0]?.message?.content;
     
     if (!responseText) {
+        // Fallback check if response format is direct text (rare for /openai endpoint but possible)
+        if (typeof data === 'string') return data;
         throw new Error("Respons kosong dari server AI.");
     }
 
@@ -109,8 +108,9 @@ export const sendToPollinations = async (
   } catch (error: any) {
     console.error("Pollinations Service Error:", error);
     
+    // Error 'Failed to fetch' biasanya masalah CORS atau URL salah
     if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-         throw new Error("Koneksi internet tidak stabil. Periksa koneksi Anda.");
+         throw new Error("Gagal terhubung ke Server Pollinations (CORS/Network). Pastikan URL Endpoint benar.");
     }
 
     throw new Error(error.message || "Gagal terhubung ke layanan Pollinations.");
