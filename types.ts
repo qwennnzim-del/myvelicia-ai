@@ -38,6 +38,7 @@ export interface ChatSession {
   title: string;
   messages: Message[];
   timestamp: number;
+  lastModelId?: string; // Track which model was used
 }
 
 export interface UserProfile {
@@ -48,7 +49,8 @@ export interface UserProfile {
 
 export enum ModelType {
   GEN2_V2_5 = 'gemini-3-flash-preview',
-  GEN2_V1_0 = 'gemini-flash-latest'
+  GEN2_V1_0 = 'gemini-flash-latest',
+  BANANA_PRO_3 = 'gemini-2.5-flash-image' // Mapped to Flash Image for free tier compatibility
 }
 
 export type BrandType = 'velicia';
@@ -74,6 +76,13 @@ export const DEFAULT_MODELS: ModelOption[] = [
     label: 'Gen2 v1.0', 
     description: 'Cepat & Efisien', 
     category: 'text',
+    brand: 'velicia'
+  },
+  {
+    id: ModelType.BANANA_PRO_3, 
+    label: 'Banana Pro 3', 
+    description: 'Edit & Buat Foto Presisi', 
+    category: 'image', 
     brand: 'velicia'
   }
 ];

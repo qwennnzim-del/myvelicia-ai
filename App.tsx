@@ -7,28 +7,224 @@ import InputArea from './components/InputArea';
 import Dashboard from './components/Dashboard';
 import Sidebar from './components/Sidebar';
 import ArticlePage from './components/ArticlePage';
-import { SettingsModal, ProfileModal, HelpModal, LoginModal } from './components/Modals';
+import HelpPage from './components/HelpPage'; // Import HelpPage
+import Onboarding, { OnboardingStep } from './components/Onboarding'; 
+import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; // Removed HelpModal
 import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
 import { sendMessageToGemini } from './services/geminiService';
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
-  if (!isLoading) return null;
+  const [progress, setProgress] = useState(0);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (isLoading) {
+      setVisible(true);
+      setProgress(0);
+      // Sedikit delay agar transisi CSS dari 0 ke 90% terdeteksi
+      timeout = setTimeout(() => {
+        setProgress(90); 
+      }, 50);
+    } else {
+      setProgress(100); // Selesaikan ke 100% saat selesai
+      // Tunggu animasi selesai sedikit baru hilangkan
+      timeout = setTimeout(() => {
+        setVisible(false);
+        setProgress(0);
+      }, 400);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [isLoading]);
+
   return (
-    <div className="top-loading-bar">
-      <div className="top-loading-bar-inner"></div>
+    <div className={`fixed top-0 left-0 right-0 z-[9999] transition-opacity duration-300 pointer-events-none ${visible ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Background track */}
+      <div className="h-[4px] w-full bg-gray-100/10 overflow-visible">
+        {/* Colorful Glowing Bar */}
+        <div 
+          className="h-full relative shadow-[0_0_20px_rgba(255,0,128,0.6)]"
+          style={{
+            width: `${progress}%`,
+            // Gradient: Ungu -> Pink -> Kuning Emas
+            background: 'linear-gradient(90deg, #7928CA 0%, #FF0080 50%, #FFD700 100%)',
+            // Transisi lebih cepat (1.2s) dengan easing yang snappy
+            transition: isLoading ? 'width 1200ms cubic-bezier(0.2, 0.8, 0.2, 1)' : 'width 200ms ease-out',
+          }}
+        >
+            {/* Efek "Kepala Cahaya" (Head Glow) yang lebih besar */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-[120px] h-[30px] bg-gradient-to-l from-white/90 via-white/40 to-transparent blur-[8px]" />
+            
+            {/* Titik Putih Terang di Ujung */}
+            <div className="absolute right-0 top-0 bottom-0 w-[4px] bg-white shadow-[0_0_25px_5px_rgba(255,255,255,0.9)] rounded-full" />
+        </div>
+      </div>
     </div>
   );
 };
 
+// --- TRANSLATIONS FOR APP ---
+const APP_TRANSLATIONS = {
+  id: {
+    sidebar: {
+      nav: 'Navigasi',
+      home: 'Utama',
+      features: 'Fitur',
+      blog: 'Blog',
+      history: 'Riwayat Chat',
+      emptyHistory: 'Belum ada riwayat percakapan.',
+      newChat: 'Chat Baru',
+      settings: 'Atur',
+      info: 'Panduan', // Changed from Info
+      login: 'Masuk / Daftar',
+      logout: 'Keluar',
+      welcome: 'Pengguna Velicia'
+    },
+    dashboard: {
+      welcome: 'Selamat datang di Velicia.ai',
+      subtitle: 'Asisten cerdas Anda untuk obrolan, kreativitas, dan produktivitas tanpa batas.',
+      chatBtn: 'Chat AI'
+    },
+    input: {
+      placeholder: 'Ketik pesan ke Velicia...',
+      placeholderFile: 'Ketik pesan...',
+      maxFiles: 'Maksimal 5 file sekaligus.'
+    },
+    messageList: {
+      thinking: ["Berfikir...", "Analisis prompt...", "Mengidentifikasi...", "Menyusun jawaban...", "Mencari jawaban akurat...", "Menyampaikan hasil..."],
+      searching: ["Menghubungkan ke Google...", "Mencari informasi...", "Menelusuri situs...", "Informasi ditemukan!"],
+      youtube: ["Menghubungkan ke YouTube...", "Mencari video relevan...", "Mengambil cuplikan...", "Video ditemukan!"],
+      generatingVision: 'Generating Vision...',
+      source: 'Sumber Penelusuran',
+      listen: 'Dengar',
+      stop: 'Stop',
+      copy: 'Salin',
+      copied: 'Disalin',
+      like: 'Suka',
+      share: 'Bagikan',
+      edit: 'Edit pesan',
+      save: 'Simpan',
+      cancel: 'Batal',
+      thinkingProcess: 'Proses Berpikir',
+      analysisLog: 'Log Analisis'
+    },
+    header: {
+        welcome: 'Selamat Datang',
+        newChat: 'Chat Baru'
+    },
+    onboarding: [
+        {
+            title: "Selamat Datang di Velicia",
+            description: "Mari kita jelajahi fitur-fitur utama untuk memaksimalkan pengalaman AI Anda. Hanya butuh 30 detik!",
+            targetId: undefined // Center
+        },
+        {
+            title: "Pilih Kecerdasan",
+            description: "Ganti model AI di sini. Pilih Gen2 v2.0 untuk penalaran mendalam atau v1.0 untuk kecepatan.",
+            targetId: "tour-model-selector",
+            position: "top"
+        },
+        {
+            title: "Upload File & Gambar",
+            description: "Velicia bisa melihat! Unggah gambar atau dokumen untuk dianalisis langsung.",
+            targetId: "tour-attachments",
+            position: "top"
+        },
+        {
+            title: "Mulai Percakapan",
+            description: "Ketik pertanyaan Anda di sini. Velicia siap membantu tugas coding, menulis, hingga analisis data.",
+            targetId: "tour-input",
+            position: "top"
+        }
+    ]
+  },
+  en: {
+    sidebar: {
+      nav: 'Navigation',
+      home: 'Home',
+      features: 'Features',
+      blog: 'Blog',
+      history: 'Chat History',
+      emptyHistory: 'No conversation history.',
+      newChat: 'New Chat',
+      settings: 'Settings',
+      info: 'Guide', // Changed from Info
+      login: 'Login / Sign Up',
+      logout: 'Logout',
+      welcome: 'Velicia User'
+    },
+    dashboard: {
+      welcome: 'Welcome to Velicia.ai',
+      subtitle: 'Your intelligent assistant for chat, creativity, and boundless productivity.',
+      chatBtn: 'AI Chat'
+    },
+    input: {
+      placeholder: 'Type a message to Velicia...',
+      placeholderFile: 'Type a message...',
+      maxFiles: 'Maximum 5 files at once.'
+    },
+    messageList: {
+      thinking: ["Thinking...", "Analyzing prompt...", "Identifying...", "Composing answer...", "Seeking accurate answer...", "Delivering result..."],
+      searching: ["Connecting to Google...", "Searching information...", "Browsing sites...", "Information found!"],
+      youtube: ["Connecting to YouTube...", "Searching relevant videos...", "Fetching clips...", "Video found!"],
+      generatingVision: 'Generating Vision...',
+      source: 'Search Sources',
+      listen: 'Listen',
+      stop: 'Stop',
+      copy: 'Copy',
+      copied: 'Copied',
+      like: 'Like',
+      share: 'Share',
+      edit: 'Edit message',
+      save: 'Save',
+      cancel: 'Cancel',
+      thinkingProcess: 'Thinking Process',
+      analysisLog: 'Analysis Log'
+    },
+    header: {
+        welcome: 'Welcome',
+        newChat: 'New Chat'
+    },
+    onboarding: [
+        {
+            title: "Welcome to Velicia",
+            description: "Let's explore the key features to maximize your AI experience. It only takes 30 seconds!",
+            targetId: undefined
+        },
+        {
+            title: "Choose Intelligence",
+            description: "Switch AI models here. Choose Gen2 v2.0 for deep reasoning or v1.0 for speed.",
+            targetId: "tour-model-selector",
+            position: "top"
+        },
+        {
+            title: "Upload Files & Images",
+            description: "Velicia can see! Upload images or documents for instant analysis.",
+            targetId: "tour-attachments",
+            position: "top"
+        },
+        {
+            title: "Start Chatting",
+            description: "Type your query here. Velicia is ready to help with coding, writing, and data analysis.",
+            targetId: "tour-input",
+            position: "top"
+        }
+    ]
+  }
+};
+
+
 // Define View States
-type AppView = 'landing' | 'app' | 'article';
+type AppView = 'landing' | 'app' | 'article' | 'help'; // Added 'help'
 
 const App: React.FC = () => {
   // --- VIEW STATE (Persisted) ---
   const [currentView, setCurrentView] = useState<AppView>(() => {
     if (typeof window !== 'undefined') {
         const saved = localStorage.getItem('velicia_current_view');
-        if (saved === 'app' || saved === 'landing' || saved === 'article') {
+        if (saved === 'app' || saved === 'landing' || saved === 'article' || saved === 'help') {
             return saved as AppView;
         }
     }
@@ -75,9 +271,12 @@ const App: React.FC = () => {
   const [modals, setModals] = useState({
       settings: false,
       profile: false,
-      help: false,
       login: false
+      // Removed 'help' from modal state
   });
+  
+  // --- ONBOARDING STATE ---
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // --- PERSISTENCE LOGIC ---
   
@@ -128,13 +327,11 @@ const App: React.FC = () => {
 
   // 7. Restore Messages on Refresh
   useEffect(() => {
-      // Only restore if we have an active ID, history is loaded, and messages are empty (refresh state)
       if (activeChatId && history.length > 0 && messages.length === 0) {
           const session = history.find(s => s.id === activeChatId);
           if (session) {
               setMessages(session.messages);
           } else {
-              // If ID in localStorage refers to a non-existent session, clear it
               setActiveChatId(null);
           }
       }
@@ -144,14 +341,22 @@ const App: React.FC = () => {
   // --- NAVIGATION HANDLERS ---
   const handlePageTransition = (callback: () => void) => {
     setIsPageLoading(true);
+    // User requested faster animation: 1.2 seconds (1200ms)
     setTimeout(() => {
       callback();
-      setTimeout(() => setIsPageLoading(false), 500); 
-    }, 800);
+      // Short buffer before hiding to ensure 100% completion visual
+      setTimeout(() => setIsPageLoading(false), 200); 
+    }, 1200);
+  };
+
+  const checkOnboarding = () => {
+      const hasOnboarded = localStorage.getItem('velicia_has_onboarded');
+      if (!hasOnboarded) {
+          setTimeout(() => setShowOnboarding(true), 1000);
+      }
   };
 
   const handleEnterApp = async () => {
-    // API Key Check
     try {
         const win = window as any;
         if (win.aistudio) {
@@ -165,9 +370,16 @@ const App: React.FC = () => {
     handlePageTransition(() => {
       setCurrentView('app');
       setInitialScrollTo(null);
+      checkOnboarding();
     });
   };
   
+  useEffect(() => {
+      if (currentView === 'app') {
+          checkOnboarding();
+      }
+  }, [currentView]);
+
   const handleReadArticle = (id: number) => {
     handlePageTransition(() => {
         setSelectedArticleId(id);
@@ -181,6 +393,16 @@ const App: React.FC = () => {
         setSelectedArticleId(null);
      });
   };
+
+  // New: Back logic from Help Page
+  const handleBackFromHelp = () => {
+      handlePageTransition(() => {
+          // If came from landing, go back to landing. If from app (sidebar), go back to app.
+          // For simplicity, default to App since it's mostly accessed from Sidebar.
+          // Or check previous view logic if needed. 
+          setCurrentView('app'); 
+      });
+  };
   
   const handleNavigateFromSidebar = (sectionId: string) => {
     setIsSidebarOpen(false);
@@ -192,6 +414,19 @@ const App: React.FC = () => {
     } else {
         setInitialScrollTo(sectionId);
     }
+  };
+
+  // New: Handle opening Help Page
+  const handleOpenHelpPage = () => {
+      setIsSidebarOpen(false);
+      handlePageTransition(() => {
+          setCurrentView('help');
+      });
+  };
+
+  const finishOnboarding = () => {
+      setShowOnboarding(false);
+      localStorage.setItem('velicia_has_onboarded', 'true');
   };
 
   // --- CHAT LOGIC ---
@@ -252,7 +487,6 @@ const App: React.FC = () => {
     let currentMessages = [...messages, newUserMessage];
     setMessages(currentMessages);
 
-    // If no active chat, create one now
     if (!activeChatId) {
         createNewSession(newUserMessage);
     } else {
@@ -269,11 +503,16 @@ const App: React.FC = () => {
     const lowerText = text.toLowerCase();
     const hasAttachments = attachments && attachments.length > 0;
     
-    // Check intents
     const youtubeKeywords = ['youtube', 'video', 'nonton', 'watch', 'clip', 'cuplikan', 'trailer', 'film'];
     const isYoutubeIntent = youtubeKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
     
-    const searchKeywords = ['siapa', 'kapan', 'dimana', 'berapa', 'terbaru', 'berita', 'hari ini', 'sekarang', 'news', 'latest', 'price', 'who', 'when', 'where', 'search', 'cari', 'info', 'live', 'realtime', 'gaza', 'israel', 'gempa', 'cuaca', 'skor', 'hasil'];
+    const searchKeywords = [
+        'siapa', 'kapan', 'dimana', 'berapa', 'terbaru', 'berita', 'hari ini', 'sekarang', 
+        'news', 'latest', 'price', 'who', 'when', 'where', 'search', 'cari', 'info', 
+        'live', 'realtime', 'gaza', 'israel', 'gempa', 'cuaca', 'skor', 'hasil', 'profil',
+        'biografi', 'saham', 'kurs', 'rupiah', 'dollar', 'jadwal', 'klasemen', 'pemilu',
+        'presiden', 'menteri', 'kebijakan', 'uu', 'hukum', 'kasus', 'viral', 'trending'
+    ];
     const isGeneralSearch = searchKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
 
     let searchToggleInterval: ReturnType<typeof setInterval> | undefined;
@@ -307,13 +546,11 @@ const App: React.FC = () => {
       const updatedMessages = [...historyMessages, newModelMessage];
       setMessages(updatedMessages);
       
-      // Update session explicitly here to ensure AI response is saved
       if (activeChatId) {
           setHistory(prev => prev.map(session => 
               session.id === activeChatId ? { ...session, messages: updatedMessages } : session
           ));
       } else {
-         // Fallback if ID wasn't set (shouldn't happen due to createNewSession above)
          const lastSession = history[history.length - 1];
          if (lastSession) {
              setHistory(prev => prev.map(s => s.id === lastSession.id ? { ...s, messages: updatedMessages } : s));
@@ -391,10 +628,6 @@ const App: React.FC = () => {
             profile={userProfile}
             onSave={setUserProfile}
         />
-        <HelpModal 
-            isOpen={modals.help}
-            onClose={() => toggleModal('help')}
-        />
         <LoginModal 
             isOpen={modals.login}
             onClose={() => toggleModal('login')}
@@ -406,7 +639,9 @@ const App: React.FC = () => {
                 <LandingPage 
                     onEnterApp={handleEnterApp} 
                     onReadArticle={handleReadArticle}
-                    initialScrollTo={initialScrollTo} 
+                    initialScrollTo={initialScrollTo}
+                    language={language}
+                    setLanguage={setLanguage}
                 />
             </div>
         )}
@@ -415,9 +650,17 @@ const App: React.FC = () => {
             <div className="min-h-screen bg-white">
                 <ArticlePage 
                     articleId={selectedArticleId} 
-                    onBack={handleBackToLanding} 
+                    onBack={handleBackToLanding}
+                    onReadArticle={handleReadArticle} 
                 />
             </div>
+        )}
+
+        {currentView === 'help' && (
+            <HelpPage 
+                onBack={handleBackFromHelp}
+                language={language}
+            />
         )}
 
         {currentView === 'app' && (
@@ -438,24 +681,33 @@ const App: React.FC = () => {
                     
                     onOpenSettings={() => toggleModal('settings')}
                     onOpenProfile={() => toggleModal('profile')}
-                    onOpenHelp={() => toggleModal('help')}
+                    onOpenHelp={handleOpenHelpPage} // Trigger Page instead of Modal
                     onLogin={handleLogin}
+                    translations={APP_TRANSLATIONS[language]}
                 />
                 
                 <Header 
                     onNewChat={handleNewChat} 
                     onMenuClick={() => setIsSidebarOpen(true)} 
                     user={userProfile.isLoggedIn ? { name: userProfile.name, initial: userProfile.name.charAt(0) } : null} 
+                    translations={APP_TRANSLATIONS[language]}
                 />
                 
                 <main className="flex-1 w-full max-w-5xl mx-auto pt-20 overflow-y-auto no-scrollbar relative flex flex-col scroll-smooth">
                     <div className="flex-1 px-4 md:px-6 py-4">
                         {messages.length === 0 ? (
                             <div className="h-full flex items-center justify-center">
-                                <Dashboard onModelSelect={handleModelSelectFromDashboard} />
+                                <Dashboard onModelSelect={handleModelSelectFromDashboard} translations={APP_TRANSLATIONS[language]} />
                             </div>
                         ) : (
-                            <MessageList messages={messages} isLoading={isAILoading} loadingState={loadingState} currentModel={model} onEditMessage={handleEditMessage} />
+                            <MessageList 
+                                messages={messages} 
+                                isLoading={isAILoading} 
+                                loadingState={loadingState} 
+                                currentModel={model} 
+                                onEditMessage={handleEditMessage} 
+                                translations={APP_TRANSLATIONS[language]}
+                            />
                         )}
                     </div>
                 </main>
@@ -467,8 +719,16 @@ const App: React.FC = () => {
                         selectedModel={model} 
                         onModelChange={setModel} 
                         availableModels={availableModels} 
+                        translations={APP_TRANSLATIONS[language]}
                     />
                 </div>
+
+                <Onboarding 
+                    isOpen={showOnboarding}
+                    steps={APP_TRANSLATIONS[language].onboarding as OnboardingStep[]}
+                    onComplete={finishOnboarding}
+                    onSkip={finishOnboarding}
+                />
             </div>
         )}
     </>

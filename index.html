@@ -14,24 +14,58 @@
     <title>Velicia.ai - Intelligent AI Assistant Indonesia</title>
     <meta name="title" content="Velicia.ai - Intelligent AI Assistant Indonesia">
     <meta name="description" content="Velicia.ai adalah asisten AI mandiri yang ahli dalam AI dan Web Development. Solusi produktivitas cerdas masa depan.">
+    <meta name="keywords" content="AI Indonesia, Asisten AI, Velicia, Chatbot Indonesia, Artificial Intelligence, Gen2 AI, Teknologi Lokal">
+    <meta name="author" content="Velicia Team">
 
     <!-- Favicon / Logo di Browser Tab & Pencarian Google -->
     <link rel="icon" type="image/png" href="/logoApp/logo-app.png" />
     <link rel="apple-touch-icon" href="/logoApp/logo-app.png" />
 
-    <!-- Open Graph / Facebook / WhatsApp (Agar logo muncul saat link dishare) -->
+    <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://velicia.ai/" />
     <meta property="og:title" content="Velicia.ai - Intelligent AI Assistant Indonesia" />
     <meta property="og:description" content="Velicia.ai adalah asisten AI mandiri yang ahli dalam AI dan Web Development. Solusi produktivitas cerdas masa depan." />
-    <meta property="og:image" content="/logoApp/logo-app.png" />
+    <meta property="og:image" content="https://velicia.ai/logoApp/logo-app.png" />
+    <meta property="og:site_name" content="Velicia AI" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://velicia.ai/" />
     <meta property="twitter:title" content="Velicia.ai - Intelligent AI Assistant Indonesia" />
     <meta property="twitter:description" content="Velicia.ai adalah asisten AI mandiri yang ahli dalam AI dan Web Development. Solusi produktivitas cerdas masa depan." />
-    <meta property="twitter:image" content="/logoApp/logo-app.png" />
+    <meta property="twitter:image" content="https://velicia.ai/logoApp/logo-app.png" />
+    
+    <!-- STRUCTURED DATA (JSON-LD) - Kunci agar logo muncul di Google Search -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Velicia.ai",
+      "alternateName": ["Velicia", "Velicia AI"],
+      "url": "https://velicia.ai",
+      "logo": "https://velicia.ai/logoApp/logo-app.png",
+      "description": "Velicia.ai adalah asisten AI mandiri yang ahli dalam AI dan Web Development. Solusi produktivitas cerdas masa depan.",
+      "sameAs": [
+        "https://twitter.com/velicia_ai",
+        "https://linkedin.com/company/velicia-ai"
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Velicia.ai",
+      "url": "https://velicia.ai",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://velicia.ai/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -333,7 +367,8 @@
     "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
     "vite": "https://esm.sh/vite@^7.3.1",
     "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "@google/genai": "https://esm.sh/@google/genai@^1.38.0"
+    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+    "path": "https://esm.sh/path@^0.12.7"
   }
 }
 </script>
