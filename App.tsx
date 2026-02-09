@@ -1,18 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
-import LandingPage from '@/components/LandingPage';
-import Header from '@/components/Header';
-import MessageList from '@/components/MessageList';
-import InputArea from '@/components/InputArea';
-import Dashboard from '@/components/Dashboard';
-import Sidebar from '@/components/Sidebar';
-import ArticlePage from '@/components/ArticlePage';
-import HelpPage from '@/components/HelpPage'; 
-import Onboarding, { OnboardingStep } from '@/components/Onboarding'; 
-import { SettingsModal, ProfileModal, LoginModal } from '@/components/Modals'; 
-import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from '@/types';
-import { sendToPollinations } from '@/services/pollinationsService'; // Main Service
-import { CONFIG } from '@/config';
+import LandingPage from './components/LandingPage';
+import Header from './components/Header';
+import MessageList from './components/MessageList';
+import InputArea from './components/InputArea';
+import Dashboard from './components/Dashboard';
+import Sidebar from './components/Sidebar';
+import ArticlePage from './components/ArticlePage';
+import HelpPage from './components/HelpPage'; 
+import Onboarding, { OnboardingStep } from './components/Onboarding'; 
+import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; 
+import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
+import { sendMessageToGemini } from './services/geminiService';
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   const [progress, setProgress] = useState(0);
@@ -69,7 +68,7 @@ const APP_TRANSLATIONS = {
       emptyHistory: 'Belum ada riwayat percakapan.',
       newChat: 'Chat Baru',
       settings: 'Atur',
-      info: 'Panduan', // Changed from Info
+      info: 'Panduan', 
       login: 'Masuk / Daftar',
       logout: 'Keluar',
       welcome: 'Pengguna Velicia'
@@ -110,11 +109,11 @@ const APP_TRANSLATIONS = {
         {
             title: "Selamat Datang di Velicia",
             description: "Mari kita jelajahi fitur-fitur utama untuk memaksimalkan pengalaman AI Anda. Hanya butuh 30 detik!",
-            targetId: undefined // Center
+            targetId: undefined 
         },
         {
             title: "Pilih Kecerdasan",
-            description: "Ganti model AI di sini. Gunakan model premium (GPT-4o) dengan Secret Key Pollinations.",
+            description: "Ganti model AI di sini. Pilih Gen2 v2.0 untuk penalaran mendalam atau v1.0 untuk kecepatan.",
             targetId: "tour-model-selector",
             position: "top"
         },
@@ -142,7 +141,7 @@ const APP_TRANSLATIONS = {
       emptyHistory: 'No conversation history.',
       newChat: 'New Chat',
       settings: 'Settings',
-      info: 'Guide', // Changed from Info
+      info: 'Guide',
       login: 'Login / Sign Up',
       logout: 'Logout',
       welcome: 'Velicia User'
@@ -187,7 +186,7 @@ const APP_TRANSLATIONS = {
         },
         {
             title: "Choose Intelligence",
-            description: "Switch AI models here. Use premium models (GPT-4o) with your Pollinations Secret Key.",
+            description: "Switch AI models here. Choose Gen2 v2.0 for deep reasoning or v1.0 for speed.",
             targetId: "tour-model-selector",
             position: "top"
         },
@@ -208,7 +207,6 @@ const APP_TRANSLATIONS = {
 };
 
 
-// Define View States
 type AppView = 'landing' | 'app' | 'article' | 'help'; 
 
 const App: React.FC = () => {
@@ -238,7 +236,6 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<ChatSession[]>([]);
   
-  // Persisted Active Chat ID
   const [activeChatId, setActiveChatId] = useState<string | null>(() => {
       if (typeof window !== 'undefined') {
           return localStorage.getItem('velicia_active_chat_id');
@@ -248,9 +245,7 @@ const App: React.FC = () => {
 
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
-  
-  // Default Model
-  const [model, setModel] = useState<string>(ModelType.POLLINATIONS_GPT4O); 
+  const [model, setModel] = useState<string>(ModelType.GEN2_V2_5); 
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
 
   // --- USER & SETTINGS STATE ---
@@ -340,6 +335,7 @@ const App: React.FC = () => {
   };
 
   const handleEnterApp = async () => {
+    // Simplified Entry Logic: No window.aistudio checks
     handlePageTransition(() => {
       setCurrentView('app');
       setInitialScrollTo(null);
@@ -468,31 +464,47 @@ const App: React.FC = () => {
     setIsAILoading(true);
     setLoadingState('thinking'); 
 
+    const lowerText = text.toLowerCase();
+    const hasAttachments = attachments && attachments.length > 0;
+    
+    const youtubeKeywords = ['youtube', 'video', 'nonton', 'watch', 'clip', 'cuplikan', 'trailer', 'film'];
+    const isYoutubeIntent = youtubeKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
+    
+    const searchKeywords = [
+        'siapa', 'kapan', 'dimana', 'berapa', 'terbaru', 'berita', 'hari ini', 'sekarang', 
+        'news', 'latest', 'price', 'who', 'when', 'where', 'search', 'cari', 'info', 
+        'live', 'realtime', 'gaza', 'israel', 'gempa', 'cuaca', 'skor', 'hasil', 'profil',
+        'biografi', 'saham', 'kurs', 'rupiah', 'dollar', 'jadwal', 'klasemen', 'pemilu',
+        'presiden', 'menteri', 'kebijakan', 'uu', 'hukum', 'kasus', 'viral', 'trending'
+    ];
+    const isGeneralSearch = searchKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
+
+    let searchToggleInterval: ReturnType<typeof setInterval> | undefined;
+    let initialSearchTimeout: ReturnType<typeof setTimeout> | undefined;
+
+    if (isYoutubeIntent || isGeneralSearch) {
+        initialSearchTimeout = setTimeout(() => {
+            const searchType = isYoutubeIntent ? 'youtube_search' : 'searching';
+            setLoadingState(searchType);
+            searchToggleInterval = setInterval(() => {
+                setLoadingState(currentState => 
+                    (currentState === 'searching' || currentState === 'youtube_search') ? 'thinking' : searchType
+                );
+            }, 2500); 
+        }, 1500); 
+    }
+
     try {
-      let responseText = "";
+      const response = await sendMessageToGemini(text, selectedModel, historyMessages, attachments);
       
-      // Get API Key: Prioritize LocalStorage, Fallback to Environment Variable
-      const apiKey = localStorage.getItem('velicia_user_api_key') || process.env.POLLINATIONS_API_KEY;
-      
-      // Use Pollinations Service
-      responseText = await sendToPollinations(
-          text, 
-          historyMessages, 
-          CONFIG.SYSTEM_INSTRUCTION, 
-          selectedModel,
-          apiKey,
-          attachments
-      );
-      
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       const newModelMessage: Message = {
         id: (Date.now() + 1).toString(), 
         role: Role.MODEL,
-        text: responseText,
+        text: response.text,
         timestamp: Date.now(),
-        // Grounding metadata is not supported by Pollinations directly in this implementation
-        groundingMetadata: undefined
+        groundingMetadata: response.groundingMetadata
       };
       
       const updatedMessages = [...historyMessages, newModelMessage];
@@ -519,6 +531,8 @@ const App: React.FC = () => {
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
+      if (initialSearchTimeout) clearTimeout(initialSearchTimeout);
+      if (searchToggleInterval) clearInterval(searchToggleInterval);
       setIsAILoading(false);
       setLoadingState('idle');
     }
@@ -537,7 +551,7 @@ const App: React.FC = () => {
   };
 
   const handleModelSelectFromDashboard = (type: 'text' | 'image') => {
-    setModel(ModelType.POLLINATIONS_GPT4O);
+    setModel(ModelType.GEN2_V2_5);
   };
 
   // --- MODAL HANDLERS ---

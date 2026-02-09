@@ -47,13 +47,10 @@ export interface UserProfile {
   isLoggedIn: boolean;
 }
 
-// Updated Model Types for Pollinations
 export enum ModelType {
-  POLLINATIONS_GPT4O = 'openai', // Maps to GPT-4o via Pollinations
-  POLLINATIONS_CLAUDE = 'claude', // Maps to Claude 3.5 Sonnet via Pollinations
-  POLLINATIONS_MISTRAL = 'mistral',
-  POLLINATIONS_LLAMA = 'llama',
-  POLLINATIONS_GEMINI = 'gemini' // Pollinations proxy for Gemini
+  GEN2_V2_5 = 'gemini-3-flash-preview',
+  GEN2_V1_0 = 'gemini-flash-latest',
+  BANANA_PRO_3 = 'gemini-2.5-flash-image' // Mapped to Flash Image for free tier compatibility
 }
 
 export type BrandType = 'velicia';
@@ -66,41 +63,26 @@ export interface ModelOption {
   brand: BrandType;
 }
 
-// Cleaned up DEFAULT_MODELS to focus on Pollinations
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
-    id: ModelType.POLLINATIONS_GPT4O, 
-    label: 'Velicia GPT-4o', 
-    description: 'Cerdas & Vision (Premium)', 
+    id: ModelType.GEN2_V2_5, 
+    label: 'Gen2 v2.0', 
+    description: 'Penalaran & Pemecahan Masalah', 
     category: 'text',
     brand: 'velicia'
   },
   { 
-    id: ModelType.POLLINATIONS_CLAUDE, 
-    label: 'Velicia Claude 3.5', 
-    description: 'Coding & Humanis (Premium)', 
+    id: ModelType.GEN2_V1_0, 
+    label: 'Gen2 v1.0', 
+    description: 'Cepat & Efisien', 
     category: 'text',
     brand: 'velicia'
   },
-  { 
-    id: ModelType.POLLINATIONS_GEMINI, 
-    label: 'Velicia Gemini 2.0', 
-    description: 'Google DeepMind', 
-    category: 'text',
-    brand: 'velicia'
-  },
-  { 
-    id: ModelType.POLLINATIONS_MISTRAL, 
-    label: 'Velicia Mistral', 
-    description: 'Cepat & Ringan', 
-    category: 'text',
-    brand: 'velicia'
-  },
-  { 
-    id: ModelType.POLLINATIONS_LLAMA, 
-    label: 'Velicia Llama 3.3', 
-    description: 'Open Source Meta', 
-    category: 'text',
+  {
+    id: ModelType.BANANA_PRO_3, 
+    label: 'Banana Pro 3', 
+    description: 'Edit & Buat Foto Presisi', 
+    category: 'image', 
     brand: 'velicia'
   }
 ];
