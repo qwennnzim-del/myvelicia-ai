@@ -118,15 +118,16 @@ export const sendMessageToGemini = async (
         let generatedImageBase64 = null;
         let outputMetadata = undefined;
 
-        if (response.candidates && response.candidates[0].content.parts) {
-            for (const part of response.candidates[0].content.parts) {
+        const candidate = response.candidates?.[0];
+        if (candidate?.content?.parts) {
+            for (const part of candidate.content.parts) {
                 if (part.inlineData) {
                     generatedImageBase64 = part.inlineData.data;
                 } else if (part.text) {
                     outputText += part.text;
                 }
             }
-            outputMetadata = response.candidates[0].groundingMetadata as unknown as GroundingMetadata;
+            outputMetadata = candidate.groundingMetadata as unknown as GroundingMetadata;
         }
 
         // 5. Construct Result
