@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { X, MessageSquarePlus, Settings, CircleHelp, History, LogIn, LayoutGrid, Layers, CreditCard, BookOpen, Info, MessageSquare, User, Trash2 } from 'lucide-react';
-import { ChatSession, UserProfile } from '@/types';
+import { ChatSession, UserProfile } from '../types';
 
 interface SidebarProps {
   isOpen: boolean;

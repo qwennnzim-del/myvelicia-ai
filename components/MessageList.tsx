@@ -1,8 +1,8 @@
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Message, Role } from '@/types';
+import { Message, Role } from '../types';
 import ReactMarkdown from 'react-markdown';
-import { IMAGE_MODELS, generateSpeechFromGemini } from '@/services/geminiService';
+import { IMAGE_MODELS, generateSpeechFromGemini } from '../services/geminiService';
 import { Copy, ThumbsUp, Share2, Edit2, Check, ExternalLink, Globe, Play, Youtube, FileText, Brain, ChevronDown, Cpu, Volume2, StopCircle, Loader2, Download, Image as ImageIcon } from 'lucide-react';
 
 interface MessageListProps {

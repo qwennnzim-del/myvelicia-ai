@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Save, Trash2, Globe, User, LogIn, Mail, Lock, HelpCircle, CheckCircle, AlertTriangle, Key } from 'lucide-react';
+import { X, Save, Trash2, Globe, User, LogIn, Mail, Lock, HelpCircle, CheckCircle, AlertTriangle } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface ModalProps {
@@ -41,28 +41,11 @@ interface SettingsModalProps {
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, language, setLanguage, onClearHistory }) => {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const [showKeyInput, setShowKeyInput] = useState(false);
 
-  // Load saved key on open
+  // Reset state on open
   useEffect(() => {
-    if (isOpen) {
-        setIsConfirmingDelete(false);
-        const savedKey = localStorage.getItem('velicia_user_api_key');
-        setApiKey(savedKey || '');
-        if (savedKey) setShowKeyInput(true);
-    }
+    if (isOpen) setIsConfirmingDelete(false);
   }, [isOpen]);
-
-  const handleSaveKey = () => {
-      if (apiKey.trim()) {
-          localStorage.setItem('velicia_user_api_key', apiKey.trim());
-          alert("Secret Key tersimpan! Anda sekarang terhubung ke Pollinations Premium.");
-      } else {
-          localStorage.removeItem('velicia_user_api_key');
-          alert("Secret Key dihapus. Kembali menggunakan mode publik (terbatas).");
-      }
-  };
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Pengaturan">
@@ -83,48 +66,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, l
               🇺🇸 English
             </button>
           </div>
-        </div>
-
-        {/* --- CUSTOM API KEY SECTION --- */}
-        <div className="pt-6 border-t border-gray-100">
-           <label className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 block">Akses Premium</label>
-           
-           {!showKeyInput && !apiKey ? (
-               <button 
-                 onClick={() => setShowKeyInput(true)}
-                 className="w-full p-3 bg-purple-50 text-purple-700 rounded-xl border border-purple-100 font-bold text-sm flex items-center justify-center gap-2 hover:bg-purple-100 transition-colors"
-               >
-                   <Key size={16} /> Masukkan Pollinations Secret
-               </button>
-           ) : (
-               <div className="space-y-2 animate-in fade-in duration-300">
-                   <p className="text-xs text-gray-500 mb-2">
-                       Masukkan <strong>Secret Key</strong> dari <a href="https://enter.pollinations.ai/" target="_blank" className="text-blue-600 underline">enter.pollinations.ai</a> untuk akses model GPT-4o, Claude 3.5, dll.
-                   </p>
-                   <div className="relative">
-                       <input 
-                          type="password" 
-                          value={apiKey}
-                          onChange={(e) => setApiKey(e.target.value)}
-                          placeholder="Paste Secret Key..."
-                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 outline-none text-sm font-mono"
-                       />
-                       <Key size={16} className="absolute left-3 top-3.5 text-gray-400" />
-                   </div>
-                   <button 
-                      onClick={handleSaveKey}
-                      className="w-full py-2 bg-black text-white rounded-lg font-bold text-xs"
-                   >
-                       Simpan Secret
-                   </button>
-                   <button 
-                      onClick={() => { setShowKeyInput(false); setApiKey(''); localStorage.removeItem('velicia_user_api_key'); }}
-                      className="w-full py-2 text-red-500 font-bold text-xs hover:bg-red-50 rounded-lg"
-                   >
-                       Hapus
-                   </button>
-               </div>
-           )}
         </div>
         
         <div className="pt-6 border-t border-gray-100">

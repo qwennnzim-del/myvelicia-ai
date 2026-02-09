@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Paperclip, AudioLines, ArrowUp, ChevronUp, X, FileText, Image as ImageIcon, FileSpreadsheet, FileIcon, Sparkles } from 'lucide-react';
-import { ModelOption, Attachment } from '@/types';
+import { ModelOption, Attachment } from '../types';
 
 interface InputAreaProps {
   onSend: (text: string, modelId: string, attachments?: Attachment[]) => void;

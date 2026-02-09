@@ -44,22 +44,22 @@ const TRANSLATIONS = {
       viewAll: 'Lihat Semua',
       articles: [
         {
-          id: 6,
-          title: "Cara Mengatasi Limit Kuota & Akses Unlimited",
-          desc: "Panduan lengkap mendapatkan akses tanpa batas di Velicia.",
-          tag: "Tips"
-        },
-        {
-          id: 5,
-          title: "Team Velicia Himbau Bahaya WiFi Publik",
-          desc: "M. Fariz (Lead Engineer) jelaskan alur pencurian data via WiFi publik.",
-          tag: "Security"
-        },
-        {
           id: 4,
           title: "Velicia Resmi Mengganti Library ke Gen2",
           desc: "Peningkatan performa, penalaran, dan kecepatan dengan arsitektur terbaru.",
           tag: "Update"
+        },
+        {
+          id: 3,
+          title: "Peluncuran Velicia AI 2026",
+          desc: "Pengumuman resmi, hasil rapat, dan roadmap menuju 2028.",
+          tag: "News"
+        },
+        {
+          id: 0,
+          title: "Visi Kedaulatan Digital",
+          desc: "Velicia AI sebagai solusi mandiri untuk kebutuhan teknologi nasional.",
+          tag: "Visi"
         }
       ]
     },
@@ -104,7 +104,7 @@ const TRANSLATIONS = {
       ]
     },
     footer: {
-      text: '© 2026 MyVelicia | Inc.'
+      text: '© 2026 Velicia Karawang Centrall Inc.'
     }
   },
   en: {
@@ -134,22 +134,22 @@ const TRANSLATIONS = {
       viewAll: 'View All',
       articles: [
          {
-          id: 6,
-          title: "How to Overcome Quota Limits & Get Unlimited Access",
-          desc: "Complete guide to getting unlimited access in Velicia.",
-          tag: "Tips"
-        },
-         {
-          id: 5,
-          title: "Team Velicia Warns of Public WiFi Dangers",
-          desc: "M. Fariz (Lead Engineer) explains data theft flow via public WiFi.",
-          tag: "Security"
-        },
-         {
           id: 4,
           title: "Velicia Officially Switches to Gen2 Library",
           desc: "Performance improvements, reasoning, and speed with the latest architecture.",
           tag: "Update"
+        },
+         {
+          id: 3,
+          title: "Velicia AI Launch 2026",
+          desc: "Official announcement, meeting results, and roadmap to 2028.",
+          tag: "News"
+        },
+        {
+          id: 0,
+          title: "Digital Sovereignty Vision",
+          desc: "Velicia AI as an independent solution for national tech needs.",
+          tag: "Vision"
         }
       ]
     },
@@ -194,7 +194,7 @@ const TRANSLATIONS = {
       ]
     },
     footer: {
-      text: '© 2026 MyVelicia | Inc.'
+      text: '© 2026 Velicia Karawang Centrall Inc.'
     }
   }
 };
@@ -382,12 +382,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
   };
 
   const blogImages = [
-    "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop", // New Article
-    "/logoApp/thumbnail-himbau.png", 
-    "/logoApp/thumbnail-gen2.png"
+    "/logoApp/thumbnail-gen2.png", // Corrected Path
+    "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop", 
+    "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2000&auto=format&fit=crop"
   ];
 
-  const blogDates = ["Now", "Today", "Yesterday"];
+  const blogDates = ["Now", "28 Jan", "12 Okt"];
 
   const professions = [
     { id: 'Entrepreneur', label: language === 'id' ? 'Bisnis' : 'Business', icon: <Briefcase size={14}/> },

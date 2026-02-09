@@ -16,94 +16,13 @@ export interface ArticleData {
 // Data Artikel Lengkap (Hardcoded untuk demo)
 export const BLOG_POSTS: ArticleData[] = [
   {
-      id: 6,
-      title: "Tutorial: Cara Mengatasi Limit Kuota & Mendapatkan Akses Unlimited",
-      date: "Baru Saja",
-      author: "M. Fariz (Lead Engineer)",
-      readTime: "2 menit baca",
-      tag: "Tips",
-      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop",
-      content: `
-        <p class="lead">Sering mendapati pesan <em>"Service Busy"</em> atau <em>"Quota Exceeded"</em>? Jangan khawatir. Velicia didesain untuk tetap gratis, namun karena tingginya pengguna, kuota publik (Shared Pool) terkadang habis. Berikut adalah 2 cara ampuh untuk mengatasinya.</p>
-
-        <h3>Cara 1: Ganti ke Model "Velicia Unlimited" (Paling Mudah)</h3>
-        <p>Kami menyediakan model khusus yang tidak menggunakan kuota Google Gemini, melainkan jalur server independen. Model ini <strong>100% Gratis & Unlimited</strong>.</p>
-        
-        <p><strong>Caranya:</strong></p>
-        <ul>
-            <li>Pada kolom chat, klik tombol selector model (di sebelah kiri tombol kirim/file).</li>
-            <li>Pilih opsi <strong>"Velicia Unlimited"</strong>.</li>
-            <li>Selesai! Anda bisa chat sepuasnya tanpa batasan waktu atau kuota.</li>
-        </ul>
-        <p><em>Catatan: Model ini sangat cepat tetapi mungkin tidak secerdas Gen2 dalam hal penalaran logika yang sangat kompleks (Deep Reasoning).</em></p>
-
-        <h3>Cara 2: Gunakan "Personal API Key" (Untuk Gen2 Pro)</h3>
-        <p>Jika Anda tetap ingin menggunakan kecerdasan tinggi dari model <strong>Gen2</strong> namun terkena limit, Anda bisa menggunakan API Key milik Anda sendiri (gratis dari Google).</p>
-        
-        <p><strong>Langkah-langkah:</strong></p>
-        <ol>
-            <li>Kunjungi <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> dan login dengan akun Google Anda.</li>
-            <li>Klik tombol <strong>"Create API Key"</strong>.</li>
-            <li>Salin (Copy) kode kunci tersebut.</li>
-            <li>Di Velicia, buka <strong>Settings</strong> (Menu Sidebar -> Settings).</li>
-            <li>Pilih opsi <strong>"Pakai API Key Sendiri"</strong> dan tempel (Paste) kuncinya.</li>
-        </ol>
-
-        <p>Dengan cara ini, Anda menggunakan kuota pribadi Anda (yang sangat besar dan gratis) langsung dari Google, sehingga tidak perlu berebut kuota dengan pengguna Velicia lainnya.</p>
-
-        <blockquote>"Velicia dibuat untuk memberdayakan, bukan membatasi. Pilih metode yang paling sesuai dengan kebutuhan produktivitas Anda." — M. Fariz.</blockquote>
-      `
-  },
-  {
-      id: 5,
-      title: "Team Velicia Menghimbau Bahaya WiFi Publik terhadap Data Transaksi & M-Banking",
-      date: "Hari Ini",
-      author: "M. Fariz (Lead Engineer)",
-      readTime: "4 menit baca",
-      tag: "Security",
-      image: "/logoApp/thumbnail-himbau.png",
-      content: `
-        <p class="lead">Di era konektivitas tanpa batas, WiFi publik di kafe atau tempat umum menjadi fasilitas yang dicari. Namun, <strong>M. Fariz</strong>, Lead Engineer Velicia AI, mengeluarkan peringatan keras mengenai risiko fatal di balik kenyamanan ini, khususnya terkait data perbankan.</p>
-
-        <h3>Mengapa WiFi Publik Berbahaya?</h3>
-        <p>Fariz menjelaskan bahwa sebagian besar jaringan WiFi publik tidak memiliki enkripsi yang memadai. "Menggunakan WiFi publik untuk M-Banking ibarat berteriak menyebutkan PIN ATM anda di pasar yang ramai," tegas Fariz. "Siapapun dengan alat yang tepat bisa 'mendengar' data tersebut."</p>
-
-        <h3>Alur Serangan: Bagaimana Data Anda Dicuri?</h3>
-        <p>Secara teknis, Fariz menjelaskan alur serangan yang sering terjadi, yang dikenal sebagai <em>Man-in-the-Middle (MitM) Attack</em>:</p>
-        
-        <ol>
-            <li><strong>Tahap 1: Jebakan (The Evil Twin)</strong><br/>
-            Peretas membuat titik hotspot palsu dengan nama yang mirip lokasi asli (misal: "CoffeShop_Free" padahal aslinya "CoffeeShop_Guest"). Pengunjung yang tidak teliti akan terkoneksi ke jaringan peretas.</li>
-            
-            <li><strong>Tahap 2: Intersepsi Jalur</strong><br/>
-            Saat Anda terkoneksi, data internet Anda tidak langsung ke server bank/aplikasi, melainkan melewati perangkat laptop peretas terlebih dahulu.</li>
-            
-            <li><strong>Tahap 3: Sniffing & Decryption</strong><br/>
-            Peretas menggunakan <em>packet sniffer</em> untuk merekam lalu lintas data. Jika aplikasi atau website tidak menggunakan enkripsi SSL/TLS terbaru (HTTPS), username, password, dan token transaksi M-Banking bisa terbaca dalam format teks biasa (plain text).</li>
-            
-            <li><strong>Tahap 4: Session Hijacking</strong><br/>
-            Peretas dapat mengambil alih sesi login Anda (session cookies) dan melakukan transaksi seolah-olah itu adalah Anda.</li>
-        </ol>
-
-        <h3>Himbauan & Solusi dari Team Velicia</h3>
-        <p>Untuk melindungi kedaulatan data pribadi pengguna, Team Velicia menghimbau langkah preventif berikut:</p>
-        <ul>
-            <li><strong>Gunakan Data Seluler:</strong> Saat membuka M-Banking, matikan WiFi dan gunakan jaringan 4G/5G pribadi.</li>
-            <li><strong>Gunakan VPN:</strong> Jika terpaksa menggunakan WiFi publik, aktifkan VPN (Virtual Private Network) untuk mengenkripsi "terowongan" data Anda.</li>
-            <li><strong>Verifikasi Jaringan:</strong> Tanyakan nama WiFi resmi kepada staf lokasi.</li>
-        </ul>
-
-        <blockquote>"Keamanan bukan hanya tentang teknologi canggih, tapi tentang kebiasaan pengguna. Jangan korbankan keamanan finansial demi kuota gratis." — M. Fariz, Lead Engineer Velicia.</blockquote>
-      `
-  },
-  {
       id: 4, // Gen2 Update Article
       title: "Velicia Resmi Mengganti Library ke Gen2: Era Baru Kecerdasan AI",
-      date: "Kemarin",
+      date: "Hari Ini",
       author: "M. Fariz (Lead Engineer)",
       readTime: "3 menit baca",
       tag: "Update",
-      image: "/logoApp/thumbnail-gen2.png",
+      image: "/logoApp/thumbnail-gen2.png", // Corrected path
       content: `
         <p class="lead">Kami dengan bangga mengumumkan bahwa per hari ini, Velicia AI telah sepenuhnya bermigrasi ke arsitektur <strong>Gen2</strong>. Ini bukan sekadar pembaruan versi, melainkan transformasi fundamental pada mesin kecerdasan kami.</p>
 
@@ -283,12 +202,9 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack, onReadArti
            <div dangerouslySetInnerHTML={{ __html: article.content }} />
         </article>
 
-        {/* Author Card Component - For specific articles */}
-        {(article.id === 3 || article.id === 5 || article.id === 4 || article.id === 6) && (
-            <AuthorCard 
-              author={article.id === 3 ? "Dwi Putri" : "M. Fariz"} 
-              role={article.id === 3 ? "Sekretaris & Operasional" : "Lead Engineer"} 
-            />
+        {/* Author Card Component - Only for the specific launch article or all */}
+        {article.id === 3 && (
+            <AuthorCard author="Dwi Putri" role="Sekretaris & Operasional" />
         )}
 
         {/* Footer Artikel */}
