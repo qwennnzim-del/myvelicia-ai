@@ -19,15 +19,24 @@ const getAIClient = () => {
 };
 
 // Helper to map internal App IDs to valid Google GenAI Model Names
+// UPDATED: Using Gemini 2.0 Flash family which is Free Tier compatible and supports Vision/Files
 const getGeminiModelName = (modelId: string): string => {
     switch (modelId) {
         case ModelType.GEN2_REASONING:
-            return 'gemini-2.5-flash'; // Deep Reasoning + Search
+            // Gen2 Deep -> Menggunakan Gemini 2.0 Flash (Smartest on Free Tier)
+            // Model ini cerdas, cepat, dan mendukung reasoning + file reading
+            return 'gemini-2.0-flash'; 
+
         case ModelType.GEN2_PRO:
-            return 'gemini-2.5-flash-lite'; // Docs/Complex + Search
+            // Gen2 Docs -> Menggunakan Gemini 2.0 Flash (High Context)
+            // Sangat bagus untuk membaca PDF/Excel panjang
+            return 'gemini-2.0-flash'; 
+
         case ModelType.GEN2_V2_5:
         default:
-            return 'gemini-2.0-flash'; // Fast + Google Search Optimized
+            // Gen2 Flash -> Menggunakan Gemini 2.0 Flash Lite (Fastest)
+            // Model paling ringan dan cepat untuk chat kilat
+            return 'gemini-2.0-flash-lite-preview-02-05'; 
     }
 };
 
@@ -105,20 +114,15 @@ export const sendMessageToGemini = async (
   try {
     
     // PRIORITY 1: Native Gemini (Gen2 Models)
-    // We prioritize Native API for all Gen2 models (Deep, Flash, Docs) to ensure:
-    // 1. Google Search Grounding works (Pollinations doesn't support this)
-    // 2. File attachments work
-    // 3. System Instructions (Deep Thinking) work accurately
+    // Updated to prioritize Native API using Gemini 2.0 Flash family
+    // This supports Files, Images, and Search on the Free Tier.
     
-    // Only fall back to Pollinations if strictly necessary or for legacy models (not used currently)
     return await sendMessageToGeminiNative(text, modelId, history, attachments);
 
   } catch (error: any) {
     console.warn("Native Gemini failed, attempting fallback to Pollinations...", error);
 
     // PRIORITY 2: Pollinations Fallback
-    // Only used if Native API fails (e.g. Quota exceeded or 500 error)
-    // Note: Search & Files won't work perfectly here.
     try {
         if (!attachments || attachments.length === 0) {
             const responseText = await sendToPollinations(text, history, CONFIG.SYSTEM_INSTRUCTION, modelId);
@@ -133,7 +137,7 @@ export const sendMessageToGemini = async (
          return { text: "⚠️ **Akses Ditolak**. API Key tidak valid. Pastikan Anda menggunakan API Key Google AI Studio yang benar." };
     }
     if (error.message?.includes("404") || error.status === 404) {
-        return { text: "⚠️ **Model Error**. Model sedang sibuk. Coba refresh atau pilih model 'Gen2 Flash'." };
+        return { text: "⚠️ **Model Error**. Model sedang sibuk atau tidak ditemukan. Coba pilih model 'Gen2 Flash'." };
     }
     return { text: `⚠️ Maaf, terjadi kesalahan pada koneksi AI: ${error.message}` };
   }
@@ -148,7 +152,7 @@ export const generateSpeechFromGemini = async (text: string): Promise<string | u
     const ai = getAIClient();
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-tts",
+            model: "gemini-2.0-flash", // Updated TTS model to 2.0 Flash as well for better compatibility
             contents: [{ parts: [{ text: text }] }],
             config: {
                 responseModalities: [Modality.AUDIO],
