@@ -151,9 +151,16 @@ export const generatePresentationImage = async (prompt: string): Promise<string>
 export const generateSpeechFromGemini = async (text: string): Promise<string | undefined> => {
     const ai = getAIClient();
     try {
+        // Truncate text if too long to prevent timeouts (Gemini audio limit)
+        const safeText = text.length > 800 ? text.substring(0, 800) + "..." : text;
+
         const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash", // Updated TTS model to 2.0 Flash as well for better compatibility
-            contents: [{ parts: [{ text: text }] }],
+            model: "gemini-2.0-flash", 
+            contents: [{ 
+                parts: [{ 
+                    text: `Baca teks berikut dengan suara yang jelas, natural, dan intonasi yang pas dalam Bahasa Indonesia. Jangan menambahkan komentar lain, hanya baca teks ini: "${safeText}"` 
+                }] 
+            }],
             config: {
                 responseModalities: [Modality.AUDIO],
                 speechConfig: {
@@ -163,7 +170,17 @@ export const generateSpeechFromGemini = async (text: string): Promise<string | u
                 },
             },
         });
-        return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+        
+        // Ensure we get the audio part
+        const parts = response.candidates?.[0]?.content?.parts;
+        if (parts) {
+            for (const part of parts) {
+                if (part.inlineData && part.inlineData.mimeType.startsWith('audio')) {
+                    return part.inlineData.data;
+                }
+            }
+        }
+        return undefined;
     } catch (error) {
         console.error("TTS Generation Error:", error);
         throw error;
