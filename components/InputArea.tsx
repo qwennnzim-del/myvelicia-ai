@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Paperclip, AudioLines, ArrowUp, ChevronUp, X, FileText, Image as ImageIcon, FileSpreadsheet, FileIcon, Sparkles } from 'lucide-react';
+import { Paperclip, AudioLines, ArrowUp, ChevronUp, X, FileText, Image as ImageIcon, FileSpreadsheet, FileIcon, Sparkles, Video, FileChartColumn } from 'lucide-react';
 import { ModelOption, Attachment } from '../types';
 
 interface InputAreaProps {
@@ -79,9 +79,13 @@ const InputArea: React.FC<InputAreaProps> = ({
     filesToProcess.forEach((file: File) => {
         const reader = new FileReader();
         reader.onload = (event) => {
-            const isImage = file.type.startsWith('image/');
+            let type: Attachment['type'] = 'file';
+            if (file.type.startsWith('image/')) type = 'image';
+            else if (file.type.startsWith('video/')) type = 'video';
+            else if (file.type.startsWith('audio/')) type = 'audio';
+
             setAttachments(prev => [...prev, {
-                type: isImage ? 'image' : 'file',
+                type: type,
                 content: event.target?.result as string,
                 mimeType: file.type,
                 name: file.name
@@ -98,10 +102,15 @@ const InputArea: React.FC<InputAreaProps> = ({
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
-  const getFileIcon = (mimeType: string) => {
-      if (mimeType.startsWith('image/')) return <ImageIcon size={16} className="text-purple-500" />;
+  const getFileIcon = (mimeType: string, type: string) => {
+      if (type === 'image') return <ImageIcon size={16} className="text-purple-500" />;
+      if (type === 'video') return <Video size={16} className="text-pink-500" />;
+      if (type === 'audio') return <AudioLines size={16} className="text-orange-500" />;
+      
       if (mimeType.includes('pdf')) return <FileText size={16} className="text-red-500" />;
       if (mimeType.includes('sheet') || mimeType.includes('csv') || mimeType.includes('excel')) return <FileSpreadsheet size={16} className="text-green-500" />;
+      if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return <FileChartColumn size={16} className="text-orange-400" />;
+      
       return <FileIcon size={16} className="text-blue-500" />;
   };
 
@@ -122,7 +131,8 @@ const InputArea: React.FC<InputAreaProps> = ({
         ref={fileInputRef} 
         className="hidden" 
         multiple
-        accept="image/*,application/pdf,text/plain,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+        // Support: Images, Videos, Audio, PDF, Word, Excel, PowerPoint, Text, CSV
+        accept="image/*,video/*,audio/*,application/pdf,text/plain,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" 
         onChange={handleFileChange}
       />
 
@@ -136,9 +146,13 @@ const InputArea: React.FC<InputAreaProps> = ({
                     <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50 flex flex-col items-center justify-center relative">
                         {att.type === 'image' ? (
                             <img src={att.content} alt="Preview" className="w-full h-full object-cover" />
+                        ) : att.type === 'video' ? (
+                            <div className="w-full h-full bg-black flex items-center justify-center">
+                                <Video size={20} className="text-white" />
+                            </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center p-1 w-full text-center">
-                                {getFileIcon(att.mimeType)}
+                            <div className="flex flex-col items-center justify-center p-1 w-full text-center h-full">
+                                {getFileIcon(att.mimeType, att.type)}
                                 <span className="text-[8px] text-gray-500 font-medium truncate w-full mt-1 px-1">{att.name}</span>
                             </div>
                         )}
