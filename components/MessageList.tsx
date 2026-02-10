@@ -4,6 +4,7 @@ import { Message, Role } from '../types';
 import ReactMarkdown from 'react-markdown';
 import { generateSpeechFromGemini } from '../services/geminiService';
 import { Copy, ThumbsUp, Share2, Edit2, Check, ExternalLink, Globe, Play, Youtube, FileText, Brain, ChevronDown, Cpu, Volume2, StopCircle, Loader2, Download, Image as ImageIcon, Video, FileSpreadsheet, FileChartColumn } from 'lucide-react';
+import remarkGfm from 'remark-gfm'; // Note: You might need to install this package: npm install remark-gfm
 
 interface MessageListProps {
   messages: Message[];
@@ -30,6 +31,8 @@ const cleanMarkdownForSpeech = (text: string) => {
   clean = clean.replace(/`([^`]+)`/g, '$1');
   clean = clean.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
   clean = clean.replace(/!\[.*?\]\(.*?\)/g, '');
+  // Remove table syntax roughly for speech
+  clean = clean.replace(/\|/g, ' '); 
   return clean;
 };
 
@@ -383,7 +386,33 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                    animate-in fade-in slide-in-from-bottom-2 duration-1000 fill-mode-both
                    ${hasThought ? 'delay-500' : ''} 
                    `}>
-                    <ReactMarkdown>{answer}</ReactMarkdown>
+                    <ReactMarkdown
+                        components={{
+                            // Custom Table Components for Responsiveness & Styling
+                            table: ({node, ...props}) => (
+                                <div className="overflow-x-auto my-6 rounded-xl border border-gray-200 shadow-sm bg-white">
+                                    <table className="min-w-full divide-y divide-gray-200" {...props} />
+                                </div>
+                            ),
+                            thead: ({node, ...props}) => (
+                                <thead className="bg-gray-50/80" {...props} />
+                            ),
+                            tbody: ({node, ...props}) => (
+                                <tbody className="bg-white divide-y divide-gray-100" {...props} />
+                            ),
+                            tr: ({node, ...props}) => (
+                                <tr className="hover:bg-purple-50/30 transition-colors duration-150" {...props} />
+                            ),
+                            th: ({node, ...props}) => (
+                                <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" {...props} />
+                            ),
+                            td: ({node, ...props}) => (
+                                <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap md:whitespace-normal leading-relaxed" {...props} />
+                            )
+                        }}
+                    >
+                        {answer}
+                    </ReactMarkdown>
                  </div>
                  
                  {/* GROUNDING SOURCES */}
