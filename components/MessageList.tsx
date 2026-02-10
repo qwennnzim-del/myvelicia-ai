@@ -4,7 +4,7 @@ import { Message, Role } from '../types';
 import ReactMarkdown from 'react-markdown';
 import { generateSpeechFromGemini } from '../services/geminiService';
 import { Copy, ThumbsUp, Share2, Edit2, Check, ExternalLink, Globe, Play, Youtube, FileText, Brain, ChevronDown, Cpu, Volume2, StopCircle, Loader2, Download, Image as ImageIcon, Video, FileSpreadsheet, FileChartColumn } from 'lucide-react';
-import remarkGfm from 'remark-gfm'; // Note: You might need to install this package: npm install remark-gfm
+import remarkGfm from 'remark-gfm'; 
 
 interface MessageListProps {
   messages: Message[];
@@ -387,6 +387,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                    ${hasThought ? 'delay-500' : ''} 
                    `}>
                     <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
                         components={{
                             // Custom Table Components for Responsiveness & Styling
                             table: ({node, ...props}) => (
