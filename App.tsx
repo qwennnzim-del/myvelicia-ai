@@ -11,7 +11,7 @@ import HelpPage from './components/HelpPage';
 import Onboarding, { OnboardingStep } from './components/Onboarding'; 
 import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; 
 import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
-import { sendMessageToGemini } from './services/geminiService';
+import { streamMessageToGemini } from './services/geminiService';
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   const [progress, setProgress] = useState(0);
@@ -407,12 +407,10 @@ const App: React.FC = () => {
       return newSession;
   };
 
-  const updateActiveSession = (newMessages: Message[]) => {
-      if (activeChatId) {
-          setHistory(prev => prev.map(session => 
-              session.id === activeChatId ? { ...session, messages: newMessages } : session
-          ));
-      }
+  const updateActiveSession = (sessionId: string, newMessages: Message[]) => {
+      setHistory(prev => prev.map(session => 
+          session.id === sessionId ? { ...session, messages: newMessages } : session
+      ));
   };
 
   const handleSelectChat = (id: string) => {
@@ -452,18 +450,16 @@ const App: React.FC = () => {
     setMessages(currentMessages);
     
     // Create new session OR update existing one BEFORE sending to AI
-    // This ensures we have a valid Session ID to update later
     let targetSessionId = activeChatId;
     
     if (!targetSessionId) {
         const newSession = createNewSession(newUserMessage);
         targetSessionId = newSession.id;
     } else {
-        updateActiveSession(currentMessages);
+        updateActiveSession(targetSessionId, currentMessages);
     }
 
     // Pass the specific Session ID to the processor
-    // ensuring AI response goes to the correct session even if UI updates
     await processAIResponse(text, selectedModel, currentMessages, attachments, targetSessionId);
   };
 
@@ -486,64 +482,74 @@ const App: React.FC = () => {
     ];
     const isGeneralSearch = searchKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
 
+    // Loading State Logic (Visual only)
     let searchToggleInterval: ReturnType<typeof setInterval> | undefined;
-    let initialSearchTimeout: ReturnType<typeof setTimeout> | undefined;
-
     if (isYoutubeIntent || isGeneralSearch) {
-        initialSearchTimeout = setTimeout(() => {
-            const searchType = isYoutubeIntent ? 'youtube_search' : 'searching';
-            setLoadingState(searchType);
-            searchToggleInterval = setInterval(() => {
-                setLoadingState(currentState => 
-                    (currentState === 'searching' || currentState === 'youtube_search') ? 'thinking' : searchType
-                );
-            }, 2500); 
-        }, 1500); 
+        const searchType = isYoutubeIntent ? 'youtube_search' : 'searching';
+        setLoadingState(searchType);
+        searchToggleInterval = setInterval(() => {
+            setLoadingState(currentState => 
+                (currentState === 'searching' || currentState === 'youtube_search') ? 'thinking' : searchType
+            );
+        }, 2500); 
     }
 
-    try {
-      const response = await sendMessageToGemini(text, selectedModel, historyMessages, attachments);
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const newModelMessage: Message = {
-        id: (Date.now() + 1).toString(), 
+    // Initialize the AI Message placeholder
+    const aiMessageId = (Date.now() + 1).toString();
+    const placeholderMessage: Message = {
+        id: aiMessageId,
         role: Role.MODEL,
-        text: response.text,
+        text: '', // Start empty
         timestamp: Date.now(),
-        groundingMetadata: response.groundingMetadata
-      };
+    };
+
+    // Update UI immediately with empty message to prevent "blink"
+    let currentConversation = [...historyMessages, placeholderMessage];
+    
+    // Function to update local messages state AND history state safely
+    const updateConversationState = (updatedMsg: Message) => {
+        const newConv = currentConversation.map(m => m.id === updatedMsg.id ? updatedMsg : m);
+        currentConversation = newConv; // Update reference
+        
+        // Update View
+        setMessages(newConv);
+        
+        // Update History (Persist)
+        setHistory(prev => prev.map(s => s.id === sessionId ? { ...s, messages: newConv } : s));
+    };
+
+    // Add placeholder to state
+    updateConversationState(placeholderMessage);
+
+    try {
+      // Use Streaming API
+      const stream = streamMessageToGemini(text, selectedModel, historyMessages, attachments);
       
-      const updatedMessages = [...historyMessages, newModelMessage];
+      let accumulatedText = "";
       
-      // 1. Update active view if we are still on the same chat
-      if (activeChatId === sessionId) {
-          setMessages(updatedMessages);
+      for await (const chunk of stream) {
+          accumulatedText += chunk.text;
+          
+          const updatedAiMessage: Message = {
+              ...placeholderMessage,
+              text: accumulatedText,
+              groundingMetadata: chunk.groundingMetadata || placeholderMessage.groundingMetadata
+          };
+          
+          updateConversationState(updatedAiMessage);
       }
-      
-      // 2. Persist to History using the specific Session ID
-      setHistory(prev => prev.map(session => 
-          session.id === sessionId ? { ...session, messages: updatedMessages } : session
-      ));
 
     } catch (error) {
       console.error("Error sending message:", error);
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: aiMessageId,
         role: Role.MODEL,
         text: error instanceof Error ? `⚠️ ${error.message}` : "Maaf, terjadi kesalahan.",
         timestamp: Date.now(),
       };
-      
-      const errorMessages = [...historyMessages, errorMessage];
-      setMessages(errorMessages);
-       // Persist error message too so user doesn't lose context
-      setHistory(prev => prev.map(session => 
-          session.id === sessionId ? { ...session, messages: errorMessages } : session
-      ));
+      updateConversationState(errorMessage);
 
     } finally {
-      if (initialSearchTimeout) clearTimeout(initialSearchTimeout);
       if (searchToggleInterval) clearInterval(searchToggleInterval);
       setIsAILoading(false);
       setLoadingState('idle');
@@ -558,9 +564,8 @@ const App: React.FC = () => {
     const updatedUserMessage: Message = { ...oldMessage, text: newText, timestamp: Date.now() };
     const newHistory = [...pastMessages, updatedUserMessage];
     setMessages(newHistory);
-    updateActiveSession(newHistory);
-    // Use existing activeChatId for edits
     if (activeChatId) {
+        updateActiveSession(activeChatId, newHistory);
         await processAIResponse(newText, model, newHistory, updatedUserMessage.attachments, activeChatId);
     }
   };
