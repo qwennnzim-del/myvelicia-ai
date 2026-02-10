@@ -175,7 +175,8 @@ export const generateSpeechFromGemini = async (text: string): Promise<string | u
         const parts = response.candidates?.[0]?.content?.parts;
         if (parts) {
             for (const part of parts) {
-                if (part.inlineData && part.inlineData.mimeType.startsWith('audio')) {
+                // Fixed optional chaining for strict null checks
+                if (part.inlineData && part.inlineData.mimeType?.startsWith('audio')) {
                     return part.inlineData.data;
                 }
             }
