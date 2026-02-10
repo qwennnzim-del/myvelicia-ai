@@ -282,6 +282,7 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Save history whenever it changes
   useEffect(() => {
     localStorage.setItem('velicia_chat_history', JSON.stringify(history));
   }, [history]);
@@ -335,7 +336,6 @@ const App: React.FC = () => {
   };
 
   const handleEnterApp = async () => {
-    // Simplified Entry Logic: No window.aistudio checks
     handlePageTransition(() => {
       setCurrentView('app');
       setInitialScrollTo(null);
@@ -450,17 +450,24 @@ const App: React.FC = () => {
 
     let currentMessages = [...messages, newUserMessage];
     setMessages(currentMessages);
-
-    if (!activeChatId) {
-        createNewSession(newUserMessage);
+    
+    // Create new session OR update existing one BEFORE sending to AI
+    // This ensures we have a valid Session ID to update later
+    let targetSessionId = activeChatId;
+    
+    if (!targetSessionId) {
+        const newSession = createNewSession(newUserMessage);
+        targetSessionId = newSession.id;
     } else {
         updateActiveSession(currentMessages);
     }
 
-    await processAIResponse(text, selectedModel, currentMessages, attachments);
+    // Pass the specific Session ID to the processor
+    // ensuring AI response goes to the correct session even if UI updates
+    await processAIResponse(text, selectedModel, currentMessages, attachments, targetSessionId);
   };
 
-  const processAIResponse = async (text: string, selectedModel: string, historyMessages: Message[], attachments?: Attachment[]) => {
+  const processAIResponse = async (text: string, selectedModel: string, historyMessages: Message[], attachments: Attachment[] | undefined, sessionId: string) => {
     setIsAILoading(true);
     setLoadingState('thinking'); 
 
@@ -508,18 +515,16 @@ const App: React.FC = () => {
       };
       
       const updatedMessages = [...historyMessages, newModelMessage];
-      setMessages(updatedMessages);
       
-      if (activeChatId) {
-          setHistory(prev => prev.map(session => 
-              session.id === activeChatId ? { ...session, messages: updatedMessages } : session
-          ));
-      } else {
-         const lastSession = history[history.length - 1];
-         if (lastSession) {
-             setHistory(prev => prev.map(s => s.id === lastSession.id ? { ...s, messages: updatedMessages } : s));
-         }
+      // 1. Update active view if we are still on the same chat
+      if (activeChatId === sessionId) {
+          setMessages(updatedMessages);
       }
+      
+      // 2. Persist to History using the specific Session ID
+      setHistory(prev => prev.map(session => 
+          session.id === sessionId ? { ...session, messages: updatedMessages } : session
+      ));
 
     } catch (error) {
       console.error("Error sending message:", error);
@@ -529,7 +534,14 @@ const App: React.FC = () => {
         text: error instanceof Error ? `⚠️ ${error.message}` : "Maaf, terjadi kesalahan.",
         timestamp: Date.now(),
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      
+      const errorMessages = [...historyMessages, errorMessage];
+      setMessages(errorMessages);
+       // Persist error message too so user doesn't lose context
+      setHistory(prev => prev.map(session => 
+          session.id === sessionId ? { ...session, messages: errorMessages } : session
+      ));
+
     } finally {
       if (initialSearchTimeout) clearTimeout(initialSearchTimeout);
       if (searchToggleInterval) clearInterval(searchToggleInterval);
@@ -547,7 +559,10 @@ const App: React.FC = () => {
     const newHistory = [...pastMessages, updatedUserMessage];
     setMessages(newHistory);
     updateActiveSession(newHistory);
-    await processAIResponse(newText, model, newHistory, updatedUserMessage.attachments);
+    // Use existing activeChatId for edits
+    if (activeChatId) {
+        await processAIResponse(newText, model, newHistory, updatedUserMessage.attachments, activeChatId);
+    }
   };
 
   const handleModelSelectFromDashboard = (type: 'text' | 'image') => {
