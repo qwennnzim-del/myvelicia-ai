@@ -24,15 +24,32 @@ const getYoutubeId = (url: string) => {
 
 // --- Helper: Clean Markdown for Speech ---
 const cleanMarkdownForSpeech = (text: string) => {
-  let clean = text.replace(/(\*\*|__)(.*?)\1/g, '$2');
-  clean = clean.replace(/(\*|_)(.*?)\1/g, '$2');
-  clean = clean.replace(/^#+\s+/gm, '');
-  clean = clean.replace(/```[\s\S]*?```/g, 'Code block omitted.');
-  clean = clean.replace(/`([^`]+)`/g, '$1');
-  clean = clean.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-  clean = clean.replace(/!\[.*?\]\(.*?\)/g, '');
-  // Remove table syntax roughly for speech
+  if (!text) return "";
+  
+  // 1. Remove Chain of Thought blocks (PART 1...)
+  let clean = text.replace(/PART 1: THE THINKING SPACE[\s\S]*?PART 2: THE FINAL EXECUTION/i, '');
+  
+  // 2. Remove Code Blocks
+  clean = clean.replace(/```[\s\S]*?```/g, 'Code block ignored. ');
+  
+  // 3. Remove URLs
+  clean = clean.replace(/https?:\/\/[^\s]+/g, 'link. ');
+
+  // 4. Remove Markdown formatting
+  clean = clean.replace(/(\*\*|__)(.*?)\1/g, '$2'); // Bold
+  clean = clean.replace(/(\*|_)(.*?)\1/g, '$2');   // Italic
+  clean = clean.replace(/^#+\s+/gm, '');           // Headers
+  clean = clean.replace(/`([^`]+)`/g, '$1');       // Inline code
+  clean = clean.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'); // Links
+  clean = clean.replace(/!\[.*?\]\(.*?\)/g, '');    // Images
+  
+  // 5. Remove Table syntax
   clean = clean.replace(/\|/g, ' '); 
+  clean = clean.replace(/-{3,}/g, '');
+
+  // 6. Remove excess whitespace
+  clean = clean.replace(/\s+/g, ' ').trim();
+  
   return clean;
 };
 
@@ -60,6 +77,7 @@ async function pcmToAudioBuffer(
   for (let channel = 0; channel < numChannels; channel++) {
     const channelData = buffer.getChannelData(channel);
     for (let i = 0; i < frameCount; i++) {
+      // Convert 16-bit PCM to Float32 (-1.0 to 1.0)
       channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
     }
   }
@@ -259,7 +277,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
 
   const stopAudio = () => {
     if (sourceNodeRef.current) {
-        sourceNodeRef.current.stop();
+        try { sourceNodeRef.current.stop(); } catch(e) {}
         sourceNodeRef.current = null;
     }
     setSpeakingId(null);
@@ -267,22 +285,32 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
   };
 
   const handleSpeak = async (text: string, id: string) => {
+    // If currently loading this message, ignore
     if (audioLoadingId === id) return;
+    
+    // If currently speaking this message, stop it
     if (speakingId === id) {
         stopAudio();
         return;
     }
+    
+    // Stop any other audio
     stopAudio();
     setAudioLoadingId(id);
 
     try {
+        // Clean text and ensure it's not too long for the API in one go
         const cleanText = cleanMarkdownForSpeech(text);
+        if (!cleanText) throw new Error("No readable text found.");
+
         const base64Audio = await generateSpeechFromGemini(cleanText);
-        if (!base64Audio) throw new Error("No audio data returned");
+        if (!base64Audio) throw new Error("No audio data returned from AI.");
 
         if (!audioContextRef.current) {
             audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
         }
+        
+        // Ensure AudioContext is resumed (browser policy)
         if (audioContextRef.current.state === 'suspended') {
             await audioContextRef.current.resume();
         }
@@ -303,6 +331,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
         setSpeakingId(id);
     } catch (error) {
         console.error("Failed to play audio:", error);
+        alert("Gagal memutar suara. Pastikan teks tidak terlalu panjang.");
     } finally {
         setAudioLoadingId(null);
     }
