@@ -1,5 +1,5 @@
 
-import { Message, Role } from '../types';
+import { Message, Role, ModelType } from '../types';
 
 export const sendToPollinations = async (
   text: string,
@@ -24,14 +24,23 @@ export const sendToPollinations = async (
     // 2. Random Seed for variety (optional but good for uniqueness)
     const seed = Math.floor(Math.random() * 1000000);
 
-    // Map modelId to Pollinations model
-    let modelName = 'openai';
-    if (modelId.includes('gpt4')) modelName = 'openai'; 
-    else if (modelId.includes('claude')) modelName = 'claude';
-    else if (modelId.includes('mistral')) modelName = 'mistral';
-    else if (modelId.includes('v5')) modelName = 'openai';
+    // 3. Map App Model IDs to Pollinations Models
+    // 'openai' = GPT-4o (Smartest)
+    // 'mistral' = Mistral Large (Fast/Good)
+    // 'claude' = Claude 3.5 Sonnet (Reasoning)
+    
+    let modelName = 'openai'; 
+    
+    // Map internal IDs to Pollinations provider
+    if (modelId === ModelType.GEN2_REASONING || modelId === ModelType.GEN2_PRO) {
+        modelName = 'openai'; // Use GPT-4o for "Smart" & "Pro" models
+    } else if (modelId === ModelType.GEN2_V2_5) {
+        modelName = 'mistral'; // Use Mistral for "Fast" model
+    } else if (modelId.includes('claude')) {
+        modelName = 'claude';
+    }
 
-    // 3. Call Pollinations API
+    // 4. Call Pollinations API
     // Endpoint: https://text.pollinations.ai/
     const response = await fetch('https://text.pollinations.ai/', {
       method: 'POST',
@@ -56,6 +65,6 @@ export const sendToPollinations = async (
 
   } catch (error: any) {
     console.error("Pollinations Service Error:", error);
-    throw new Error("Gagal terhubung ke jaringan OpenAI via Pollinations.");
+    throw new Error("Gagal terhubung ke jaringan Hybrid AI.");
   }
 };
