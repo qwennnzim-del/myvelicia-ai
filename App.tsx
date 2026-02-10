@@ -113,7 +113,7 @@ const APP_TRANSLATIONS = {
         },
         {
             title: "Pilih Kecerdasan",
-            description: "Ganti model AI di sini. Pilih Gen2 v2.0 untuk penalaran mendalam atau v1.0 untuk kecepatan.",
+            description: "Ganti model AI di sini. Pilih Gen2 Deep untuk penalaran mendalam atau Gen2 Flash untuk kecepatan.",
             targetId: "tour-model-selector",
             position: "top"
         },
@@ -186,7 +186,7 @@ const APP_TRANSLATIONS = {
         },
         {
             title: "Choose Intelligence",
-            description: "Switch AI models here. Choose Gen2 v2.0 for deep reasoning or v1.0 for speed.",
+            description: "Switch AI models here. Choose Gen2 Deep for deep reasoning or Gen2 Flash for speed.",
             targetId: "tour-model-selector",
             position: "top"
         },

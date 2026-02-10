@@ -5,7 +5,7 @@ export enum Role {
 }
 
 export interface Attachment {
-  type: 'image' | 'file';
+  type: 'image' | 'file' | 'video' | 'audio';
   content: string; // Base64 string
   mimeType: string;
   name?: string; // Added for document display
@@ -48,9 +48,10 @@ export interface UserProfile {
 }
 
 export enum ModelType {
-  GEN2_V2_5 = 'gemini-3-flash-preview',
-  GEN2_V1_0 = 'gemini-flash-latest',
-  BANANA_PRO_3 = 'gemini-2.5-flash-image' // Mapped to Flash Image for free tier compatibility
+  // Use internal stable IDs, map to API models in service
+  GEN2_REASONING = 'velicia-reasoning', // Maps to gemini-3-pro-preview + CoT Prompt
+  GEN2_V2_5 = 'velicia-flash', // Maps to gemini-3-flash-preview
+  GEN2_PRO = 'velicia-pro' // Maps to gemini-3-pro-preview (Docs focus)
 }
 
 export type BrandType = 'velicia';
@@ -59,30 +60,30 @@ export interface ModelOption {
   id: string; 
   label: string;
   description?: string;
-  category: 'text' | 'image'; 
+  category: 'text'; 
   brand: BrandType;
 }
 
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
-    id: ModelType.GEN2_V2_5, 
-    label: 'Gen2 v2.0', 
-    description: 'Penalaran & Pemecahan Masalah', 
+    id: ModelType.GEN2_REASONING, 
+    label: 'Gen2 Deep', 
+    description: 'Logika Kompleks • Coding • Analisis Mendalam', 
     category: 'text',
     brand: 'velicia'
   },
   { 
-    id: ModelType.GEN2_V1_0, 
-    label: 'Gen2 v1.0', 
-    description: 'Cepat & Efisien', 
+    id: ModelType.GEN2_V2_5, 
+    label: 'Gen2 Flash', 
+    description: 'Cepat • Google Search • Real-time Info', 
     category: 'text',
     brand: 'velicia'
   },
-  {
-    id: ModelType.BANANA_PRO_3, 
-    label: 'Banana Pro 3', 
-    description: 'Edit & Buat Foto Presisi', 
-    category: 'image', 
+  { 
+    id: ModelType.GEN2_PRO, 
+    label: 'Gen2 Docs', 
+    description: 'Analisis Dokumen Besar (PDF/Excel)', 
+    category: 'text',
     brand: 'velicia'
   }
 ];
