@@ -22,12 +22,12 @@ const getAIClient = () => {
 const getGeminiModelName = (modelId: string): string => {
     switch (modelId) {
         case ModelType.GEN2_REASONING:
-            return 'gemini-3-pro-preview'; // Deep Reasoning + Search
+            return 'gemini-2.5-flash'; // Deep Reasoning + Search
         case ModelType.GEN2_PRO:
-            return 'gemini-3-pro-preview'; // Docs/Complex + Search
+            return 'gemini-2.5-flash-lite'; // Docs/Complex + Search
         case ModelType.GEN2_V2_5:
         default:
-            return 'gemini-3-flash-preview'; // Fast + Google Search Optimized
+            return 'gemini-2.0-flash'; // Fast + Google Search Optimized
     }
 };
 
