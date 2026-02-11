@@ -1,10 +1,9 @@
 
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, Auth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, updateProfile, Auth, User } from "firebase/auth";
 
 // --- KONFIGURASI FIREBASE ---
 // Menggunakan process.env yang sudah di-define di vite.config.ts
-// Ini lebih aman daripada import.meta.env yang terkadang undefined di beberapa context
 const apiKey = process.env.VITE_FIREBASE_API_KEY || "AIzaSyDOdIjp-tl2dtxBDUq4tPRPijFT0kS3LTo";
 const authDomain = process.env.VITE_FIREBASE_AUTH_DOMAIN || "velicia-ai.firebaseapp.com";
 const projectId = process.env.VITE_FIREBASE_PROJECT_ID || "velicia-ai";
@@ -49,6 +48,7 @@ function createMockAuth(): Auth {
             return () => {};
         },
         signOut: async () => {},
+        updateProfile: async () => {},
     } as unknown as Auth;
 }
 
@@ -75,4 +75,14 @@ export const logout = async () => {
   } catch (error) {
     console.error("Error signing out", error);
   }
+};
+
+export const updateUserProfile = async (user: User, displayName: string) => {
+    if (!user) throw new Error("No user to update");
+    try {
+        await updateProfile(user, { displayName });
+    } catch (error) {
+        console.error("Update Profile Error:", error);
+        throw error;
+    }
 };
