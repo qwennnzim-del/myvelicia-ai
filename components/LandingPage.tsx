@@ -414,7 +414,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
              ) : (
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#EC4899] flex items-center justify-center text-white font-bold shadow-md">
-                        {userProfile.name.charAt(0)}
+                        {userProfile.photoURL ? (
+                            <img src={userProfile.photoURL} alt={userProfile.name} className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                            userProfile.name.charAt(0)
+                        )}
                     </div>
                     <span className="font-bold text-gray-900">{userProfile.name}</span>
                 </div>

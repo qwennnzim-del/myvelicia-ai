@@ -30,7 +30,7 @@ const cleanMarkdownForSpeech = (text: string) => {
   let clean = text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
   clean = clean.replace(/<answer>/gi, '').replace(/<\/answer>/gi, '');
   
-  // Legacy cleanup (just in case)
+  // Legacy cleanup
   clean = clean.replace(/PART 1: THE THINKING SPACE[\s\S]*?PART 2: THE FINAL EXECUTION/i, '');
   
   // 2. Remove Code Blocks
@@ -91,27 +91,20 @@ async function pcmToAudioBuffer(
 // --- Helper: Robust Chain of Thought Parsing ---
 const parseChainOfThought = (text: string) => {
   // 1. Try XML Tag Parsing (New Robust Method)
+  // We extract thinking content first, then treat EVERYTHING else as answer
   const thinkingRegex = /<thinking>([\s\S]*?)<\/thinking>/i;
-  const answerRegex = /<answer>([\s\S]*)/i; // Capture everything after <answer>
-
   const thinkingMatch = text.match(thinkingRegex);
-  const answerMatch = text.match(answerRegex);
 
   if (thinkingMatch) {
-      let thought = thinkingMatch[1].trim();
-      let answer = "";
+      const thought = thinkingMatch[1].trim();
+      
+      // Remove the thinking block from the original text to get the answer candidates
+      let remainingText = text.replace(thinkingRegex, '').trim();
+      
+      // Clean up <answer> tags if they exist
+      remainingText = remainingText.replace(/<answer>/i, '').replace(/<\/answer>/i, '').trim();
 
-      if (answerMatch) {
-          answer = answerMatch[1].replace(/<\/answer>/i, '').trim();
-      } else {
-          // If <answer> tag hasn't appeared yet (streaming), implies we might still be in thinking or just transitioning
-          // Check if there is text AFTER </thinking>
-          const split = text.split(/<\/thinking>/i);
-          if (split.length > 1) {
-              answer = split[1].trim();
-          }
-      }
-      return { hasThought: true, thought, answer };
+      return { hasThought: true, thought, answer: remainingText };
   }
 
   // 2. Streaming State: If we have <thinking> but no closing tag yet
