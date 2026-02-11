@@ -12,7 +12,7 @@ import Onboarding, { OnboardingStep } from './components/Onboarding';
 import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; 
 import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
 import { streamMessageToGemini } from './services/geminiService';
-import { auth, logout } from './services/firebase'; // Import Firebase services
+import { auth, logout, updateUserProfile } from './services/firebase'; // Import updated services
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   const [progress, setProgress] = useState(0);
@@ -210,6 +210,10 @@ const APP_TRANSLATIONS = {
 
 type AppView = 'landing' | 'app' | 'article' | 'help'; 
 
+interface ExtendedUserProfile extends UserProfile {
+    photoURL?: string;
+}
+
 const App: React.FC = () => {
   // --- VIEW STATE (Persisted) ---
   const [currentView, setCurrentView] = useState<AppView>(() => {
@@ -251,7 +255,7 @@ const App: React.FC = () => {
 
   // --- USER & SETTINGS STATE ---
   // Default guest state
-  const [userProfile, setUserProfile] = useState<UserProfile>({ 
+  const [userProfile, setUserProfile] = useState<ExtendedUserProfile>({ 
       name: 'Guest', 
       bio: '', 
       isLoggedIn: false 
@@ -277,7 +281,8 @@ const App: React.FC = () => {
             setUserProfile({
                 name: user.displayName || 'User Velicia',
                 bio: user.email || 'Velicia Member',
-                isLoggedIn: true
+                isLoggedIn: true,
+                photoURL: user.photoURL || undefined
             });
             // Close login modal if open
             setModals(prev => ({ ...prev, login: false }));
@@ -604,7 +609,7 @@ const App: React.FC = () => {
       setIsSidebarOpen(false); 
   };
 
-  // Auth Action Handler (Called by Sidebar)
+  // Auth Action Handler (Called by Sidebar & Landing)
   const handleAuthAction = async () => {
       if (userProfile.isLoggedIn) {
           if (window.confirm("Apakah Anda yakin ingin keluar?")) {
@@ -615,7 +620,19 @@ const App: React.FC = () => {
       }
   };
 
-  // No longer need manual login handler since Firebase auth listener handles it
+  const handleSaveProfile = async (newProfile: UserProfile) => {
+      // Update local state temporarily
+      setUserProfile(prev => ({ ...prev, ...newProfile }));
+      
+      // Update Firebase if logged in
+      if (auth.currentUser) {
+          try {
+              await updateUserProfile(auth.currentUser, newProfile.name);
+          } catch (e) {
+              console.error("Failed to update profile in firebase", e);
+          }
+      }
+  };
 
   return (
     <>
@@ -633,7 +650,7 @@ const App: React.FC = () => {
             isOpen={modals.profile} 
             onClose={() => toggleModal('profile')}
             profile={userProfile}
-            onSave={setUserProfile}
+            onSave={handleSaveProfile}
         />
         <LoginModal 
             isOpen={modals.login}
@@ -649,6 +666,8 @@ const App: React.FC = () => {
                     initialScrollTo={initialScrollTo}
                     language={language}
                     setLanguage={setLanguage}
+                    userProfile={userProfile} // Pass profile
+                    onLogin={handleAuthAction} // Pass login/logout handler
                 />
             </div>
         )}
@@ -696,7 +715,7 @@ const App: React.FC = () => {
                 <Header 
                     onNewChat={handleNewChat} 
                     onMenuClick={() => setIsSidebarOpen(true)} 
-                    user={userProfile.isLoggedIn ? { name: userProfile.name, initial: userProfile.name.charAt(0) } : null} 
+                    user={userProfile.isLoggedIn ? { name: userProfile.name, initial: userProfile.name.charAt(0), photoURL: userProfile.photoURL } : null} 
                     translations={APP_TRANSLATIONS[language]}
                 />
                 
