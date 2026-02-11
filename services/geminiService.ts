@@ -7,10 +7,10 @@ import { CONFIG } from '../config';
 export const IMAGE_MODELS = []; 
 
 const getAIClient = () => {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.API_KEY;
     if (!apiKey) {
-        console.error("GEMINI_API_KEY is missing in environment variables.");
-        throw new Error("Fitur ini membutuhkan GEMINI_API_KEY di file .env");
+        console.error("API_KEY is missing in environment variables.");
+        throw new Error("Fitur ini membutuhkan API_KEY di konfigurasi environment");
     }
     return new GoogleGenAI({ apiKey: apiKey });
 };
@@ -19,12 +19,12 @@ const getAIClient = () => {
 const getGeminiModelName = (modelId: string): string => {
     switch (modelId) {
         case ModelType.GEN2_REASONING:
-            return 'gemini-2.0-flash'; 
+            return 'gemini-3-pro-preview'; 
         case ModelType.GEN2_PRO:
-            return 'gemini-2.0-flash'; 
+            return 'gemini-3-pro-preview'; 
         case ModelType.GEN2_V2_5:
         default:
-            return 'gemini-2.0-flash-lite-preview-02-05'; 
+            return 'gemini-3-flash-preview'; 
     }
 };
 
@@ -134,7 +134,7 @@ export const generateSpeechFromGemini = async (text: string): Promise<string | u
         const safeText = cleanText.length > 800 ? cleanText.substring(0, 800) + "..." : cleanText;
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash", 
+            model: "gemini-2.5-flash-preview-tts", 
             contents: [{ 
                 parts: [{ 
                     text: `Read this text clearly and naturally in Indonesian language. Do not add any opening or closing remarks, just read the text: "${safeText}"` 
