@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Loader2, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { X, Loader2, ShieldCheck, AlertCircle, CheckCircle2, AlertTriangle, Settings } from 'lucide-react';
 import { signInWithGoogle } from '../services/firebase';
 
 interface LoginModalProps { 
@@ -11,7 +11,7 @@ interface LoginModalProps {
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ message: string; isConfigError?: boolean } | null>(null);
 
   if (!isOpen) return null;
 
@@ -20,14 +20,36 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
     setError(null);
     try {
         await signInWithGoogle();
-        // Login berhasil, tutup modal
+        // Login berhasil
         onClose();
     } catch (err: any) {
-        console.error(err);
+        console.error("Login Error:", err);
+        
         let msg = "Gagal terhubung ke Google.";
-        if (err.code === 'auth/invalid-api-key') msg = "Konfigurasi API Key salah. Hubungi admin.";
-        if (err.code === 'auth/popup-closed-by-user') msg = "Login dibatalkan oleh pengguna.";
-        setError(msg);
+        let isConfig = false;
+
+        // Handle Specific Firebase Errors
+        if (err.code === 'auth/configuration-not-found') {
+             msg = "Google Sign-In belum diaktifkan di Firebase Console.";
+             isConfig = true;
+        } else if (err.code === 'auth/operation-not-allowed') {
+             msg = "Metode login Google belum diaktifkan.";
+             isConfig = true;
+        } else if (err.code === 'auth/unauthorized-domain') {
+             msg = "Domain website ini belum diizinkan di Firebase.";
+             isConfig = true;
+        } else if (err.code === 'auth/invalid-api-key') {
+             msg = "API Key Firebase tidak valid.";
+             isConfig = true;
+        } else if (err.code === 'auth/popup-closed-by-user') {
+             msg = "Login dibatalkan.";
+        } else if (err.code === 'auth/popup-blocked') {
+             msg = "Popup login diblokir browser.";
+        } else if (err.message) {
+            msg = err.message;
+        }
+
+        setError({ message: msg, isConfigError: isConfig });
     } finally {
         setIsLoading(false);
     }
@@ -42,7 +64,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
       />
       
       {/* Modal Container */}
-      <div className="relative bg-white rounded-3xl w-full max-w-[400px] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300 transform">
+      <div className="relative bg-white rounded-3xl w-full max-w-[420px] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300 transform border border-gray-100">
         
         {/* Decorative Header Background */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-br from-[#7928CA]/10 via-[#FF0080]/10 to-transparent pointer-events-none" />
@@ -66,11 +88,21 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
                Masuk untuk menyimpan riwayat percakapan Anda dengan aman di Cloud Velicia.
             </p>
 
-            {/* Error Message */}
+            {/* Error Message Area */}
             {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-xl text-xs font-bold mb-6 flex items-start text-left gap-2 border border-red-100 animate-in slide-in-from-top-2">
-                    <AlertCircle size={16} className="shrink-0 mt-0.5" /> 
-                    <span>{error}</span>
+                <div className={`p-4 rounded-xl text-xs font-bold mb-6 flex items-start text-left gap-3 border animate-in slide-in-from-top-2 ${error.isConfigError ? 'bg-amber-50 text-amber-800 border-amber-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                    {error.isConfigError ? <Settings size={18} className="shrink-0 mt-0.5" /> : <AlertTriangle size={18} className="shrink-0 mt-0.5" />}
+                    <div className="flex flex-col gap-1">
+                        <span className="text-sm">{error.message}</span>
+                        {error.isConfigError && (
+                            <span className="font-normal opacity-90 leading-relaxed mt-1">
+                                {error.message.includes('Domain') 
+                                  ? <span>Tips: Buka Firebase Console &gt; Authentication &gt; Settings &gt; <b>Authorized domains</b> lalu tambahkan domain ini.</span>
+                                  : <span>Tips: Buka Firebase Console &gt; Authentication &gt; Sign-in method &gt; Aktifkan <b>Google</b>.</span>
+                                }
+                            </span>
+                        )}
+                    </div>
                 </div>
             )}
 
