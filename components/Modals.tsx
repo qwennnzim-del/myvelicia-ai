@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Save, Trash2, Globe, User, LogIn, Mail, Lock, HelpCircle, CheckCircle, AlertTriangle } from 'lucide-react';
+import { X, Save, Trash2, Globe, User, LogIn, Mail, Lock, HelpCircle, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { signInWithGoogle } from '../services/firebase';
 
 interface ModalProps {
   isOpen: boolean;
@@ -177,40 +178,70 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, pro
 
 // --- LOGIN MODAL ---
 export const LoginModal: React.FC<{ isOpen: boolean; onClose: () => void; onLogin: () => void }> = ({ isOpen, onClose, onLogin }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+        await signInWithGoogle();
+        // onLogin is handled by App.tsx detecting auth state change, but we can call onClose
+        onClose();
+    } catch (err: any) {
+        console.error(err);
+        setError("Gagal login dengan Google. Periksa koneksi atau konfigurasi Firebase.");
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Masuk / Daftar">
       <div className="space-y-5">
-         <p className="text-center text-gray-500 text-sm mb-4">Masuk untuk menyimpan riwayat chat dan mengakses fitur Pro.</p>
+         <p className="text-center text-gray-500 text-sm mb-4">Masuk untuk menyimpan riwayat chat di Cloud secara permanen.</p>
          
-         <div>
-            <div className="relative">
-                <Mail className="absolute left-4 top-3.5 text-gray-400" size={20} />
-                <input type="email" placeholder="Email" className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 outline-none" />
+         {error && (
+            <div className="bg-red-50 text-red-600 p-3 rounded-xl text-xs font-bold mb-4 flex items-center gap-2">
+                <AlertTriangle size={16} /> {error}
+            </div>
+         )}
+         
+         {/* Placeholder for Email/Pass (Future Phase) */}
+         <div className="opacity-50 pointer-events-none grayscale">
+            <div className="mb-4">
+                <div className="relative">
+                    <Mail className="absolute left-4 top-3.5 text-gray-400" size={20} />
+                    <input type="email" placeholder="Email (Segera Hadir)" disabled className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 outline-none" />
+                </div>
+            </div>
+            
+            <div>
+                <div className="relative">
+                    <Lock className="absolute left-4 top-3.5 text-gray-400" size={20} />
+                    <input type="password" placeholder="Password (Segera Hadir)" disabled className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 outline-none" />
+                </div>
             </div>
          </div>
-         
-         <div>
-            <div className="relative">
-                <Lock className="absolute left-4 top-3.5 text-gray-400" size={20} />
-                <input type="password" placeholder="Password" className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 outline-none" />
-            </div>
+
+         <div className="relative py-2">
+             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
+             <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-500">Metode Masuk</span></div>
          </div>
 
          <button 
-            onClick={() => { onLogin(); onClose(); }}
-            className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+             onClick={handleGoogleLogin}
+             disabled={isLoading}
+             className="w-full py-3 border border-gray-200 rounded-xl font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors relative"
          >
-            Masuk Sekarang
-         </button>
-         
-         <div className="relative py-2">
-             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
-             <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-500">Atau lanjutkan dengan</span></div>
-         </div>
-
-         <button className="w-full py-3 border border-gray-200 rounded-xl font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors">
-             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
-             Google
+             {isLoading ? (
+                 <Loader2 className="animate-spin text-purple-600" size={20} />
+             ) : (
+                 <>
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+                    Lanjutkan dengan Google
+                 </>
+             )}
          </button>
       </div>
     </BaseModal>
