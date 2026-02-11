@@ -12,6 +12,7 @@ import Onboarding, { OnboardingStep } from './components/Onboarding';
 import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; 
 import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
 import { streamMessageToGemini } from './services/geminiService';
+import { auth, logout } from './services/firebase'; // Import Firebase services
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   const [progress, setProgress] = useState(0);
@@ -69,8 +70,8 @@ const APP_TRANSLATIONS = {
       newChat: 'Chat Baru',
       settings: 'Atur',
       info: 'Panduan', 
-      login: 'Masuk / Daftar',
-      logout: 'Keluar',
+      login: 'Masuk',
+      logout: 'Keluar Akun',
       welcome: 'Pengguna Velicia'
     },
     dashboard: {
@@ -142,7 +143,7 @@ const APP_TRANSLATIONS = {
       newChat: 'New Chat',
       settings: 'Settings',
       info: 'Guide',
-      login: 'Login / Sign Up',
+      login: 'Login',
       logout: 'Logout',
       welcome: 'Velicia User'
     },
@@ -249,10 +250,13 @@ const App: React.FC = () => {
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
 
   // --- USER & SETTINGS STATE ---
-  const [userProfile, setUserProfile] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('velicia_profile');
-    return saved ? JSON.parse(saved) : { name: 'Guest', bio: '', isLoggedIn: false };
+  // Default guest state
+  const [userProfile, setUserProfile] = useState<UserProfile>({ 
+      name: 'Guest', 
+      bio: '', 
+      isLoggedIn: false 
   });
+
   const [language, setLanguage] = useState<'id' | 'en'>('id');
   
   // --- UI FLAGS ---
@@ -266,12 +270,32 @@ const App: React.FC = () => {
   // --- ONBOARDING STATE ---
   const [showOnboarding, setShowOnboarding] = useState(false);
 
+  // --- FIREBASE AUTH LISTENER ---
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+        if (user) {
+            setUserProfile({
+                name: user.displayName || 'User Velicia',
+                bio: user.email || 'Velicia Member',
+                isLoggedIn: true
+            });
+            // Close login modal if open
+            setModals(prev => ({ ...prev, login: false }));
+        } else {
+            setUserProfile({
+                name: 'Guest',
+                bio: '',
+                isLoggedIn: false
+            });
+        }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   // --- PERSISTENCE LOGIC ---
   useEffect(() => {
-    localStorage.setItem('velicia_profile', JSON.stringify(userProfile));
-  }, [userProfile]);
-
-  useEffect(() => {
+    // Only persist history for now, profile is handled by Firebase
     const savedHistory = localStorage.getItem('velicia_chat_history');
     if (savedHistory) {
         try {
@@ -580,19 +604,18 @@ const App: React.FC = () => {
       setIsSidebarOpen(false); 
   };
 
-  const handleLogin = () => {
+  // Auth Action Handler (Called by Sidebar)
+  const handleAuthAction = async () => {
       if (userProfile.isLoggedIn) {
           if (window.confirm("Apakah Anda yakin ingin keluar?")) {
-              setUserProfile({ ...userProfile, isLoggedIn: false, name: 'Guest', bio: '' });
+             await logout(); // Call Firebase logout
           }
       } else {
           toggleModal('login');
       }
   };
 
-  const handlePerformLogin = () => {
-      setUserProfile({ ...userProfile, name: 'User Velicia', isLoggedIn: true });
-  };
+  // No longer need manual login handler since Firebase auth listener handles it
 
   return (
     <>
@@ -615,7 +638,7 @@ const App: React.FC = () => {
         <LoginModal 
             isOpen={modals.login}
             onClose={() => toggleModal('login')}
-            onLogin={handlePerformLogin}
+            onLogin={() => {}} // Not needed anymore, handled inside modal via Firebase
         />
 
         {currentView === 'landing' && (
@@ -666,7 +689,7 @@ const App: React.FC = () => {
                     onOpenSettings={() => toggleModal('settings')}
                     onOpenProfile={() => toggleModal('profile')}
                     onOpenHelp={handleOpenHelpPage} 
-                    onLogin={handleLogin}
+                    onLogin={handleAuthAction} // Pass the centralized auth handler
                     translations={APP_TRANSLATIONS[language]}
                 />
                 
