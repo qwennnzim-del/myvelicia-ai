@@ -211,7 +211,7 @@ const APP_TRANSLATIONS = {
 type AppView = 'landing' | 'app' | 'article' | 'help'; 
 
 interface ExtendedUserProfile extends UserProfile {
-    photoURL?: string;
+    // Extended properties if any
 }
 
 const App: React.FC = () => {

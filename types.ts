@@ -45,6 +45,7 @@ export interface UserProfile {
   name: string;
   bio: string;
   isLoggedIn: boolean;
+  photoURL?: string; // Added photoURL property
 }
 
 export enum ModelType {
