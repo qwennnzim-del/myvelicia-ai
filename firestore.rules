@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Aturan Privasi Velicia.ai
+    // Memastikan setiap pengguna hanya bisa mengakses data chat mereka sendiri.
+    
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+  }
+}

@@ -12,7 +12,8 @@ import Onboarding, { OnboardingStep } from './components/Onboarding';
 import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; 
 import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
 import { streamMessageToGemini } from './services/geminiService';
-import { auth, logout, updateUserProfile } from './services/firebase'; // Import updated services
+import { auth, logout, updateUserProfile } from './services/firebase'; 
+import { loadChatsFromFirestore, saveChatToFirestore, deleteChatFromFirestore, loadChatsFromLocal, saveChatToLocal } from './services/chatService';
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   const [progress, setProgress] = useState(0);
@@ -212,6 +213,7 @@ type AppView = 'landing' | 'app' | 'article' | 'help';
 
 interface ExtendedUserProfile extends UserProfile {
     // Extended properties if any
+    uid?: string; // Firebase UID
 }
 
 const App: React.FC = () => {
@@ -241,12 +243,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<ChatSession[]>([]);
   
-  const [activeChatId, setActiveChatId] = useState<string | null>(() => {
-      if (typeof window !== 'undefined') {
-          return localStorage.getItem('velicia_active_chat_id');
-      }
-      return null;
-  });
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
 
   const [isAILoading, setIsAILoading] = useState(false);
   const [loadingState, setLoadingState] = useState<'idle' | 'thinking' | 'searching' | 'youtube_search'>('idle');
@@ -274,47 +271,81 @@ const App: React.FC = () => {
   // --- ONBOARDING STATE ---
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // --- FIREBASE AUTH LISTENER ---
+  // --- HELPER: PERSISTENCE STRATEGY ---
+  // If Logged In -> Use Firestore
+  // If Guest -> Use LocalStorage
+
+  const saveSessionToStorage = async (session: ChatSession, uid?: string) => {
+      // Logic: Save to Firestore if UID exists, else LocalStorage
+      if (uid) {
+          await saveChatToFirestore(uid, session);
+      } else {
+          // We need the full history to save to local storage (as it stores an array)
+          // Since this function deals with one session, we'll delegate local save to the useEffect
+          // But for immediate consistency we update state which triggers the effect.
+      }
+  };
+
+  // --- FIREBASE AUTH LISTENER & DATA SYNC ---
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
         if (user) {
+            // USER LOGGED IN
             setUserProfile({
                 name: user.displayName || 'User Velicia',
                 bio: user.email || 'Velicia Member',
                 isLoggedIn: true,
-                photoURL: user.photoURL || undefined
+                photoURL: user.photoURL || undefined,
+                uid: user.uid
             });
-            // Close login modal if open
             setModals(prev => ({ ...prev, login: false }));
+
+            // Load Cloud Chats
+            setIsPageLoading(true);
+            const cloudChats = await loadChatsFromFirestore(user.uid);
+            setHistory(cloudChats);
+            
+            // If there was an active chat ID in local storage that matches a cloud chat, select it
+            const savedActiveId = localStorage.getItem('velicia_active_chat_id');
+            if (savedActiveId && cloudChats.find(c => c.id === savedActiveId)) {
+                setActiveChatId(savedActiveId);
+            } else {
+                setActiveChatId(null);
+                setMessages([]);
+            }
+            setIsPageLoading(false);
+
         } else {
+            // GUEST MODE
             setUserProfile({
                 name: 'Guest',
                 bio: '',
                 isLoggedIn: false
             });
+            
+            // Load Local Chats
+            const localChats = loadChatsFromLocal();
+            setHistory(localChats);
+
+             // Restore active chat if exists locally
+             const savedActiveId = localStorage.getItem('velicia_active_chat_id');
+             if (savedActiveId && localChats.find(c => c.id === savedActiveId)) {
+                 setActiveChatId(savedActiveId);
+             }
         }
     });
 
     return () => unsubscribe();
   }, []);
 
-  // --- PERSISTENCE LOGIC ---
+  // --- PERSISTENCE LOGIC (LOCAL STORAGE ONLY) ---
+  // We only write to localStorage if user is NOT logged in.
+  // If logged in, we write to Firestore explicitly in handler functions.
   useEffect(() => {
-    // Only persist history for now, profile is handled by Firebase
-    const savedHistory = localStorage.getItem('velicia_chat_history');
-    if (savedHistory) {
-        try {
-            setHistory(JSON.parse(savedHistory));
-        } catch (e) {
-            console.error("Failed to load history", e);
-        }
-    }
-  }, []);
-
-  // Save history whenever it changes
-  useEffect(() => {
-    localStorage.setItem('velicia_chat_history', JSON.stringify(history));
-  }, [history]);
+      if (!userProfile.isLoggedIn) {
+          saveChatToLocal(history);
+      }
+  }, [history, userProfile.isLoggedIn]);
 
   useEffect(() => {
     localStorage.setItem('velicia_current_view', currentView);
@@ -336,16 +367,20 @@ const App: React.FC = () => {
     }
   }, [activeChatId]);
 
+  // Sync Messages state when History/ActiveChat changes
   useEffect(() => {
-      if (activeChatId && history.length > 0 && messages.length === 0) {
+      if (activeChatId && history.length > 0) {
           const session = history.find(s => s.id === activeChatId);
-          if (session) {
+          // Only update messages if they are different length (avoid loop) or if messages is empty
+          if (session && session.messages.length !== messages.length) {
               setMessages(session.messages);
-          } else {
-              setActiveChatId(null);
+          } else if (!session) {
+             // Chat deleted
+             setActiveChatId(null);
+             setMessages([]);
           }
       }
-  }, [history, activeChatId, messages.length]);
+  }, [history, activeChatId]); // Removed messages.length dependency to prevent loops
 
 
   // --- NAVIGATION HANDLERS ---
@@ -433,13 +468,30 @@ const App: React.FC = () => {
       };
       setHistory(prev => [...prev, newSession]);
       setActiveChatId(newSession.id);
+      
+      // If logged in, save new session immediately
+      if (userProfile.isLoggedIn && userProfile.uid) {
+          saveChatToFirestore(userProfile.uid, newSession);
+      }
+
       return newSession;
   };
 
   const updateActiveSession = (sessionId: string, newMessages: Message[]) => {
-      setHistory(prev => prev.map(session => 
-          session.id === sessionId ? { ...session, messages: newMessages } : session
-      ));
+      // Optimistic Update
+      setHistory(prev => {
+          const updated = prev.map(session => 
+             session.id === sessionId ? { ...session, messages: newMessages } : session
+          );
+          
+          // Trigger Firestore save if logged in
+          const sessionToSave = updated.find(s => s.id === sessionId);
+          if (sessionToSave && userProfile.isLoggedIn && userProfile.uid) {
+              saveChatToFirestore(userProfile.uid, sessionToSave);
+          }
+
+          return updated;
+      });
   };
 
   const handleSelectChat = (id: string) => {
@@ -456,6 +508,10 @@ const App: React.FC = () => {
       if (activeChatId === id) {
           setActiveChatId(null);
           setMessages([]);
+      }
+      
+      if (userProfile.isLoggedIn && userProfile.uid) {
+          deleteChatFromFirestore(userProfile.uid, id);
       }
   };
 
@@ -543,8 +599,11 @@ const App: React.FC = () => {
         // Update View
         setMessages(newConv);
         
-        // Update History (Persist)
-        setHistory(prev => prev.map(s => s.id === sessionId ? { ...s, messages: newConv } : s));
+        // Update History (Persist logic)
+        setHistory(prev => {
+            const updated = prev.map(s => s.id === sessionId ? { ...s, messages: newConv } : s);
+            return updated;
+        });
     };
 
     // Add placeholder to state
@@ -555,17 +614,32 @@ const App: React.FC = () => {
       const stream = streamMessageToGemini(text, selectedModel, historyMessages, attachments);
       
       let accumulatedText = "";
+      let finalMetadata = undefined;
       
       for await (const chunk of stream) {
           accumulatedText += chunk.text;
+          if (chunk.groundingMetadata) finalMetadata = chunk.groundingMetadata;
           
           const updatedAiMessage: Message = {
               ...placeholderMessage,
               text: accumulatedText,
-              groundingMetadata: chunk.groundingMetadata || placeholderMessage.groundingMetadata
+              groundingMetadata: finalMetadata || placeholderMessage.groundingMetadata
           };
           
           updateConversationState(updatedAiMessage);
+      }
+      
+      // Final Save to Firestore after streaming completes
+      if (userProfile.isLoggedIn && userProfile.uid) {
+          const finalSession = history.find(s => s.id === sessionId);
+          // Get the latest history state from logic above, but ensure we have the full object
+          if (finalSession) {
+              const sessionToSave = {
+                  ...finalSession,
+                  messages: currentConversation // Use the latest Conversation
+              };
+              saveChatToFirestore(userProfile.uid, sessionToSave);
+          }
       }
 
     } catch (error) {
@@ -592,7 +666,9 @@ const App: React.FC = () => {
     const oldMessage = messages[messageIndex];
     const updatedUserMessage: Message = { ...oldMessage, text: newText, timestamp: Date.now() };
     const newHistory = [...pastMessages, updatedUserMessage];
+    
     setMessages(newHistory);
+    
     if (activeChatId) {
         updateActiveSession(activeChatId, newHistory);
         await processAIResponse(newText, model, newHistory, updatedUserMessage.attachments, activeChatId);
@@ -614,6 +690,7 @@ const App: React.FC = () => {
       if (userProfile.isLoggedIn) {
           if (window.confirm("Apakah Anda yakin ingin keluar?")) {
              await logout(); // Call Firebase logout
+             // State update handled by onAuthStateChanged
           }
       } else {
           toggleModal('login');
@@ -644,7 +721,19 @@ const App: React.FC = () => {
             onClose={() => toggleModal('settings')} 
             language={language}
             setLanguage={setLanguage}
-            onClearHistory={() => { setHistory([]); setMessages([]); setActiveChatId(null); }}
+            onClearHistory={() => { 
+                setHistory([]); 
+                setMessages([]); 
+                setActiveChatId(null);
+                // Also clear storage
+                if(userProfile.isLoggedIn && userProfile.uid) {
+                    // Note: This would need a backend function to efficiently delete all collections
+                    // For now, we rely on individual delete, or implementing batch delete in service
+                    alert("Untuk saat ini, silakan hapus chat satu per satu di sidebar.");
+                } else {
+                    localStorage.removeItem('velicia_chat_history');
+                }
+            }}
         />
         <ProfileModal 
             isOpen={modals.profile} 
