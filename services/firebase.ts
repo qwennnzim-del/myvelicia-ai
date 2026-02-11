@@ -1,15 +1,16 @@
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, updateProfile, Auth, User } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
 
 // --- KONFIGURASI FIREBASE ---
 // Menggunakan process.env yang sudah di-define di vite.config.ts
-const apiKey = process.env.VITE_FIREBASE_API_KEY || "AIzaSyDOdIjp-tl2dtxBDUq4tPRPijFT0kS3LTo";
-const authDomain = process.env.VITE_FIREBASE_AUTH_DOMAIN || "velicia-ai.firebaseapp.com";
-const projectId = process.env.VITE_FIREBASE_PROJECT_ID || "velicia-ai";
-const storageBucket = process.env.VITE_FIREBASE_STORAGE_BUCKET || "velicia-ai.firebasestorage.app";
-const messagingSenderId = process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "379786845099";
-const appId = process.env.VITE_FIREBASE_APP_ID || "1:379786845099:web:0adfa419dbb130218290ee";
+const apiKey = process.env.VITE_FIREBASE_API_KEY;
+const authDomain = process.env.VITE_FIREBASE_AUTH_DOMAIN;
+const projectId = process.env.VITE_FIREBASE_PROJECT_ID;
+const storageBucket = process.env.VITE_FIREBASE_STORAGE_BUCKET;
+const messagingSenderId = process.env.VITE_FIREBASE_MESSAGING_SENDER_ID;
+const appId = process.env.VITE_FIREBASE_APP_ID;
 
 const firebaseConfig = {
   apiKey,
@@ -24,19 +25,27 @@ const firebaseConfig = {
 const isFirebaseConfigured = !!apiKey && apiKey !== "your_firebase_api_key";
 
 let auth: Auth;
+let db: Firestore;
 const googleProvider = new GoogleAuthProvider();
 
 if (isFirebaseConfigured) {
   try {
     const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
+    db = getFirestore(app);
   } catch (error) {
     console.error("Firebase Initialization Error:", error);
+    // @ts-ignore
     auth = createMockAuth();
+    // @ts-ignore
+    db = {}; 
   }
 } else {
   console.warn("Firebase configuration missing. Using Mock Auth.");
+  // @ts-ignore
   auth = createMockAuth();
+  // @ts-ignore
+  db = {};
 }
 
 function createMockAuth(): Auth {
@@ -52,7 +61,7 @@ function createMockAuth(): Auth {
     } as unknown as Auth;
 }
 
-export { auth };
+export { auth, db };
 
 export const signInWithGoogle = async () => {
   if (!isFirebaseConfigured) {
