@@ -97,7 +97,7 @@ const TRANSLATIONS = {
     },
     team: {
       title: 'Tim Gen2 Kami',
-      subtitle: '34 talenta muda membangun masa depan AI Indonesia.',
+      subtitle: 'Talenta muda terbaik yang membangun masa depan AI Indonesia.',
     },
     faq: {
       title: 'FAQ',
@@ -188,7 +188,7 @@ const TRANSLATIONS = {
     },
     team: {
       title: 'Our Gen2 Team',
-      subtitle: '34 young talents building Indonesia\'s AI future.',
+      subtitle: 'The best young talents building Indonesia\'s AI future.',
     },
     faq: {
       title: 'FAQ',
@@ -372,10 +372,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
   };
 
   const allTeamMembers = [
+    // Core Leadership
     { name: 'M. Fariz', role: 'CEO & Lead Engineer', color: 'from-[#7928CA] to-[#FF0080]' },
     { name: 'Sarah A.', role: 'AI Research Lead', color: 'from-[#FF0080] to-[#FF4D4D]' },
     { name: 'Andi W.', role: 'Head of Operations', color: 'from-[#0070F3] to-[#00DFD8]' },
-    // ... rest of team
+    { name: 'Jessica T.', role: 'Product Manager', color: 'from-[#F59E0B] to-[#D97706]' },
+    { name: 'Rian K.', role: 'Cloud Architect', color: 'from-[#10B981] to-[#059669]' },
+    
+    // Gen Z Squad
+    { name: 'Kevin S.', role: 'Frontend Wizard', color: 'from-[#3B82F6] to-[#8B5CF6]' }, // Blue to Purple
+    { name: 'Dinda R.', role: 'UI/UX Aesthetics', color: 'from-[#EC4899] to-[#F43F5E]' }, // Pink to Rose
+    { name: 'Fikri Z.', role: 'Backend Ninja', color: 'from-[#6366F1] to-[#4F46E5]' }, // Indigo
+    { name: 'Bella C.', role: 'Social Media Lead', color: 'from-[#F472B6] to-[#DB2777]' }, // Pink
+    { name: 'Reza P.', role: 'Data Scientist', color: 'from-[#14B8A6] to-[#0D9488]' }, // Teal
+    { name: 'Vanya L.', role: 'Community Mgr', color: 'from-[#F59E0B] to-[#D97706]' }, // Amber
+    { name: 'Jojo K.', role: 'DevOps & Sec', color: 'from-[#64748B] to-[#475569]' }, // Slate
+    { name: 'Tasya M.', role: 'Creative Content', color: 'from-[#FB7185] to-[#E11D48]' }, // Rose
   ];
 
   const visibleTeam = showAllTeam ? allTeamMembers : allTeamMembers.slice(0, 5);
@@ -553,9 +565,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
         </div>
       </section>
 
-      {/* --- BLOG SECTION (Truncated for brevity in output, logic identical to previous) --- */}
+      {/* --- BLOG SECTION --- */}
       <section ref={blogSectionRef} className="py-20 bg-[#FAFAFA] relative overflow-hidden">
-          {/* Content similar to original LandingPage... */}
            <div className="max-w-6xl mx-auto px-6">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-12 text-center tracking-tight">{t.blog.title}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -614,6 +625,63 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
                 })}
             </div>
          </div>
+      </section>
+
+      {/* --- TEAM SECTION --- */}
+      <section className="py-20 bg-[#FAFAFA] border-t border-gray-100 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
+           <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">{t.team.title}</h2>
+           <p className="text-gray-500 max-w-2xl mx-auto mb-16 font-medium text-lg">{t.team.subtitle}</p>
+           
+           <div className="flex flex-wrap justify-center gap-8 md:gap-10 animate-in fade-in zoom-in-95 duration-700">
+              {visibleTeam.map((member, i) => (
+                 <div key={i} className="group relative w-32 md:w-40 flex flex-col items-center">
+                    <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br ${member.color} p-[3px] mb-4 shadow-xl shadow-gray-200 transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
+                       <div className="w-full h-full bg-white rounded-full flex items-center justify-center overflow-hidden relative">
+                           {/* Placeholder Avatar - In prod use real images */}
+                           <span className={`text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-br ${member.color}`}>
+                             {member.name.charAt(0)}
+                           </span>
+                       </div>
+                    </div>
+                    <h3 className="text-base md:text-lg font-bold text-gray-900 leading-tight mb-1">{member.name}</h3>
+                    <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">{member.role}</p>
+                 </div>
+              ))}
+           </div>
+           
+           {!showAllTeam && (
+               <button 
+                 onClick={() => setShowAllTeam(true)}
+                 className="mt-16 px-8 py-3 bg-white border border-gray-200 rounded-full font-bold text-sm hover:bg-black hover:text-white hover:border-black transition-all shadow-sm active:scale-95"
+               >
+                 Lihat Semua Anggota
+               </button>
+           )}
+        </div>
+      </section>
+
+      {/* --- FAQ SECTION --- */}
+      <section className="py-20 bg-white border-t border-gray-100">
+        <div className="max-w-3xl mx-auto px-6">
+            <h2 className="text-3xl md:text-4xl font-black text-gray-900 text-center mb-12 tracking-tight">{t.faq.title}</h2>
+            <div className="space-y-4">
+                {t.faq.items.map((item, i) => (
+                    <div key={i} className="border border-gray-100 rounded-2xl bg-gray-50 overflow-hidden transition-all hover:border-gray-200">
+                        <button 
+                            onClick={() => toggleFaq(i)}
+                            className="w-full flex items-center justify-between p-5 text-left font-bold text-gray-900 hover:bg-gray-100 transition-colors"
+                        >
+                            <span className="text-sm md:text-base leading-snug">{item.q}</span>
+                            {openFaqIndex === i ? <ChevronUp size={20} className="text-[#7928CA]" /> : <ChevronDown size={20} className="text-gray-400" />}
+                        </button>
+                        <div className={`px-5 text-sm md:text-base text-gray-600 leading-relaxed overflow-hidden transition-all duration-300 ${openFaqIndex === i ? 'max-h-40 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
+                            {item.a}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
       </section>
 
       {/* --- FOOTER --- */}
