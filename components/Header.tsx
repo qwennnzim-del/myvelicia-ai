@@ -5,7 +5,7 @@ import { MessageCirclePlus, Menu } from 'lucide-react';
 interface HeaderProps {
   onNewChat: () => void;
   onMenuClick: () => void; // Restored sidebar trigger
-  user: { name: string; initial: string } | null;
+  user: { name: string; initial: string; photoURL?: string } | null;
   translations: any;
 }
 
@@ -28,8 +28,13 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, onMenuClick, user, translati
         {/* User Info (If Logged In) */}
         {user && (
           <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-4">
-             <div className="w-[36px] h-[36px] rounded-[10px] bg-gradient-to-br from-[#7C3AED] to-[#EC4899] flex items-center justify-center text-white font-bold text-sm shadow-md shadow-purple-200 border-2 border-white">
-                {user.initial}
+             {/* Circular Avatar */}
+             <div className="w-[36px] h-[36px] rounded-full bg-gradient-to-br from-[#7C3AED] to-[#EC4899] flex items-center justify-center text-white font-bold text-sm shadow-md shadow-purple-200 border-2 border-white overflow-hidden">
+                {user.photoURL ? (
+                    <img src={user.photoURL} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                    user.initial
+                )}
              </div>
              <div className="hidden sm:block">
                  <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider leading-none mb-0.5">{t.welcome}</p>

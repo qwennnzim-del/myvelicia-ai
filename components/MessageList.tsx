@@ -26,8 +26,12 @@ const getYoutubeId = (url: string) => {
 const cleanMarkdownForSpeech = (text: string) => {
   if (!text) return "";
   
-  // 1. Remove Chain of Thought blocks (PART 1...)
-  let clean = text.replace(/PART 1: THE THINKING SPACE[\s\S]*?PART 2: THE FINAL EXECUTION/i, '');
+  // 1. Remove XML Tags (Thinking)
+  let clean = text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
+  clean = clean.replace(/<answer>/gi, '').replace(/<\/answer>/gi, '');
+  
+  // Legacy cleanup (just in case)
+  clean = clean.replace(/PART 1: THE THINKING SPACE[\s\S]*?PART 2: THE FINAL EXECUTION/i, '');
   
   // 2. Remove Code Blocks
   clean = clean.replace(/```[\s\S]*?```/g, 'Code block ignored. ');
@@ -86,6 +90,37 @@ async function pcmToAudioBuffer(
 
 // --- Helper: Robust Chain of Thought Parsing ---
 const parseChainOfThought = (text: string) => {
+  // 1. Try XML Tag Parsing (New Robust Method)
+  const thinkingRegex = /<thinking>([\s\S]*?)<\/thinking>/i;
+  const answerRegex = /<answer>([\s\S]*)/i; // Capture everything after <answer>
+
+  const thinkingMatch = text.match(thinkingRegex);
+  const answerMatch = text.match(answerRegex);
+
+  if (thinkingMatch) {
+      let thought = thinkingMatch[1].trim();
+      let answer = "";
+
+      if (answerMatch) {
+          answer = answerMatch[1].replace(/<\/answer>/i, '').trim();
+      } else {
+          // If <answer> tag hasn't appeared yet (streaming), implies we might still be in thinking or just transitioning
+          // Check if there is text AFTER </thinking>
+          const split = text.split(/<\/thinking>/i);
+          if (split.length > 1) {
+              answer = split[1].trim();
+          }
+      }
+      return { hasThought: true, thought, answer };
+  }
+
+  // 2. Streaming State: If we have <thinking> but no closing tag yet
+  if (text.trim().toLowerCase().startsWith('<thinking>')) {
+      const partialThought = text.replace(/<thinking>/i, '').trim();
+      return { hasThought: true, thought: partialThought, answer: '' };
+  }
+
+  // 3. Fallback to Legacy Parsing (PART 1 / PART 2)
   const upperText = text.toUpperCase();
   const part1Marker = "PART 1: THE THINKING SPACE";
   const part2Marker = "PART 2: THE FINAL EXECUTION";
@@ -104,13 +139,21 @@ const parseChainOfThought = (text: string) => {
     }
     return { hasThought: true, thought: thought, answer: answer };
   }
+  
   return { hasThought: false, thought: '', answer: text };
 };
 
 // --- Component: Thinking Box (CoT) ---
-const ThinkingBox: React.FC<{ thought: string, labels: any }> = ({ thought, labels }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const ThinkingBox: React.FC<{ thought: string, labels: any, isThinking: boolean }> = ({ thought, labels, isThinking }) => {
+  const [isOpen, setIsOpen] = useState(true); // Default open while generating
   const duration = Math.max(1.2, (thought.length / 100)).toFixed(1);
+
+  // Auto-collapse when done thinking (optional UX choice)
+  useEffect(() => {
+     if (!isThinking && thought.length > 500) {
+         setIsOpen(false);
+     }
+  }, [isThinking]);
 
   return (
     <div className="mb-4 w-full animate-in fade-in slide-in-from-top-2 duration-500">
@@ -123,11 +166,13 @@ const ThinkingBox: React.FC<{ thought: string, labels: any }> = ({ thought, labe
         }`}
       >
         <div className={`p-1.5 rounded-lg transition-colors ${isOpen ? 'bg-purple-200 text-purple-700' : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'}`}>
-           <Brain size={14} />
+           <Brain size={14} className={isThinking ? "animate-pulse" : ""} />
         </div>
         <div className="flex flex-col items-start text-left">
             <span className="leading-none">{labels.thinkingProcess}</span>
-            <span className="text-[9px] opacity-60 font-medium mt-0.5">{duration}s</span>
+            <span className="text-[9px] opacity-60 font-medium mt-0.5">
+                {isThinking ? "Processing..." : `${duration}s`}
+            </span>
         </div>
         <ChevronDown size={14} className={`ml-auto md:ml-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -143,6 +188,7 @@ const ThinkingBox: React.FC<{ thought: string, labels: any }> = ({ thought, labe
               <Cpu size={12} /> {labels.analysisLog}
            </div>
            <ReactMarkdown>{thought}</ReactMarkdown>
+           {isThinking && <span className="inline-block w-2 h-4 ml-1 bg-purple-500 animate-pulse align-middle"></span>}
         </div>
       </div>
     </div>
@@ -358,10 +404,15 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
 
   return (
     <div className="flex flex-col space-y-8 pb-4">
-      {messages.map((msg) => {
+      {messages.map((msg, index) => {
+        const isLatest = index === messages.length - 1;
         const { hasThought, thought, answer } = (msg.role === Role.MODEL) 
             ? parseChainOfThought(msg.text) 
             : { hasThought: false, thought: '', answer: msg.text };
+
+        // Determine if we are still "thinking" in the UI sense
+        // True if it is the latest message, it is loading, and the answer is empty
+        const isGeneratingThought = isLoading && isLatest && hasThought && !answer;
 
         return (
         <div key={msg.id} className={`flex w-full group ${msg.role === Role.USER ? 'justify-end' : 'justify-start'}`}>
@@ -404,46 +455,48 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
                      <span className="text-sm md:text-base font-bold text-gray-900 tracking-tight">Velicia</span>
                  </div>
 
-                 {hasThought && <ThinkingBox thought={thought} labels={t} />}
+                 {hasThought && <ThinkingBox thought={thought} labels={t} isThinking={isGeneratingThought} />}
 
-                 <div className={`prose prose-slate max-w-none 
-                   prose-p:leading-relaxed prose-p:text-gray-800 prose-p:text-[15px]
-                   prose-headings:font-bold prose-headings:text-gray-900
-                   prose-code:font-mono prose-code:bg-gray-100 prose-code:text-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                   prose-pre:bg-[#1a1a1a] prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:p-3
-                   prose-img:rounded-2xl prose-img:shadow-md
-                   animate-in fade-in slide-in-from-bottom-2 duration-1000 fill-mode-both
-                   ${hasThought ? 'delay-500' : ''} 
-                   `}>
-                    <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                            // Custom Table Components for Responsiveness & Styling
-                            table: ({node, ...props}) => (
-                                <div className="overflow-x-auto my-6 rounded-xl border border-gray-200 shadow-sm bg-white">
-                                    <table className="min-w-full divide-y divide-gray-200" {...props} />
-                                </div>
-                            ),
-                            thead: ({node, ...props}) => (
-                                <thead className="bg-gray-50/80" {...props} />
-                            ),
-                            tbody: ({node, ...props}) => (
-                                <tbody className="bg-white divide-y divide-gray-100" {...props} />
-                            ),
-                            tr: ({node, ...props}) => (
-                                <tr className="hover:bg-purple-50/30 transition-colors duration-150" {...props} />
-                            ),
-                            th: ({node, ...props}) => (
-                                <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" {...props} />
-                            ),
-                            td: ({node, ...props}) => (
-                                <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap md:whitespace-normal leading-relaxed" {...props} />
-                            )
-                        }}
-                    >
-                        {answer}
-                    </ReactMarkdown>
-                 </div>
+                 {/* Show Answer Content */}
+                 {(answer || (!hasThought && msg.text)) && (
+                    <div className={`prose prose-slate max-w-none 
+                    prose-p:leading-relaxed prose-p:text-gray-800 prose-p:text-[15px]
+                    prose-headings:font-bold prose-headings:text-gray-900
+                    prose-code:font-mono prose-code:bg-gray-100 prose-code:text-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                    prose-pre:bg-[#1a1a1a] prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:p-3
+                    prose-img:rounded-2xl prose-img:shadow-md
+                    animate-in fade-in slide-in-from-bottom-2 duration-1000 fill-mode-both
+                    ${hasThought ? 'delay-200' : ''} 
+                    `}>
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                                table: ({node, ...props}) => (
+                                    <div className="overflow-x-auto my-6 rounded-xl border border-gray-200 shadow-sm bg-white">
+                                        <table className="min-w-full divide-y divide-gray-200" {...props} />
+                                    </div>
+                                ),
+                                thead: ({node, ...props}) => (
+                                    <thead className="bg-gray-50/80" {...props} />
+                                ),
+                                tbody: ({node, ...props}) => (
+                                    <tbody className="bg-white divide-y divide-gray-100" {...props} />
+                                ),
+                                tr: ({node, ...props}) => (
+                                    <tr className="hover:bg-purple-50/30 transition-colors duration-150" {...props} />
+                                ),
+                                th: ({node, ...props}) => (
+                                    <th className="px-4 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap" {...props} />
+                                ),
+                                td: ({node, ...props}) => (
+                                    <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap md:whitespace-normal leading-relaxed" {...props} />
+                                )
+                            }}
+                        >
+                            {answer || (!hasThought ? msg.text : "")}
+                        </ReactMarkdown>
+                    </div>
+                 )}
                  
                  {/* GROUNDING SOURCES */}
                  {msg.groundingMetadata && msg.groundingMetadata.groundingChunks?.length > 0 && (
@@ -494,7 +547,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, loadingS
 
                  <div className="flex items-center gap-2 mt-3 pt-1 animate-in fade-in duration-700 delay-1000">
                     <button 
-                        onClick={() => handleSpeak(answer, msg.id)}
+                        onClick={() => handleSpeak(answer || msg.text, msg.id)}
                         disabled={audioLoadingId !== null && audioLoadingId !== msg.id}
                         className={`flex items-center gap-1 text-[10px] font-medium transition-colors p-1 rounded-md hover:bg-gray-100 ${speakingId === msg.id ? 'text-purple-600 bg-purple-50' : 'text-gray-400 hover:text-gray-600'}`}
                         title={speakingId === msg.id ? t.stop : t.listen}
