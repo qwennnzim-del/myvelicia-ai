@@ -16,10 +16,11 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      // Expose keys to client-side code via process.env replacement
-      // Use || "" to ensure we don't pass undefined to JSON.stringify
+      // Manual Polyfill untuk Env Vars agar aman diakses via process.env di browser
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || ""), 
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || ""),
+      
+      // Firebase Config Polyfills
       'process.env.VITE_FIREBASE_API_KEY': JSON.stringify(env.VITE_FIREBASE_API_KEY || ""),
       'process.env.VITE_FIREBASE_AUTH_DOMAIN': JSON.stringify(env.VITE_FIREBASE_AUTH_DOMAIN || ""),
       'process.env.VITE_FIREBASE_PROJECT_ID': JSON.stringify(env.VITE_FIREBASE_PROJECT_ID || ""),
