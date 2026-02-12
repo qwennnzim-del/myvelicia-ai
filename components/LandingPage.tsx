@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   MessageSquare, Search, PenTool, Image as ImageIcon, 
   FileText, Globe, Play, Menu, X, 
   ChevronDown, Star, Layout, Sparkles, Smartphone, Monitor, Chrome, Brain, Mail, Briefcase, Zap,
-  Linkedin, Github, Twitter, Calendar, ArrowRight, BarChart3, ShieldCheck, ChevronUp, LogIn
+  Linkedin, Github, Twitter, Calendar, ArrowRight, BarChart3, ShieldCheck, ChevronUp, LogIn, Instagram
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -691,6 +690,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
                 <img src="/logoApp/logo-app.png" alt="Velicia Logo" className="h-12 w-auto object-contain opacity-80" />
                 <span className="font-bold text-xl tracking-tight text-gray-400">Velicia</span>
               </div>
+              
+              {/* SOCIAL LINKS - Added per request */}
+              <div className="flex justify-center gap-6 mb-8">
+                  <a href="https://www.linkedin.com/in/hezell-tech-72a7963b0" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#0077b5] hover:shadow-md transition-all">
+                      <Linkedin size={20} />
+                  </a>
+                  <a href="https://www.instagram.com/account.hezell?igsh=MXczZXI3eW1nbHdmMQ==" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#E4405F] hover:shadow-md transition-all">
+                      <Instagram size={20} />
+                  </a>
+              </div>
+
               <p className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">
                 {t.footer.text}
               </p>
