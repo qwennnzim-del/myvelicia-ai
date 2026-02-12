@@ -3,7 +3,7 @@ import {
   MessageSquare, Search, PenTool, Image as ImageIcon, 
   FileText, Globe, Play, Menu, X, 
   ChevronDown, Star, Layout, Sparkles, Smartphone, Monitor, Chrome, Brain, Mail, Briefcase, Zap,
-  Linkedin, Github, Twitter, Calendar, ArrowRight, BarChart3, ShieldCheck, ChevronUp, LogIn, Instagram
+  Linkedin, Github, Twitter, Calendar, ArrowRight, BarChart3, ShieldCheck, ChevronUp, LogIn, Instagram, MapPin, GraduationCap
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -94,6 +94,15 @@ const TRANSLATIONS = {
         ]
       }
     },
+    creator: {
+        title: "Tentang Kreator",
+        name: "M. Fariz Alfauzi",
+        role: "CEO & Lead Engineer",
+        bio: "Seorang inovator muda berusia 17 tahun yang berdedikasi membangun kedaulatan AI Indonesia.",
+        school: "SMK NURUL ISLAM AFFANDIYAH",
+        major: "Teknik Jaringan Komputer",
+        location: "Cianjur, Jawa Barat"
+    },
     team: {
       title: 'Tim Gen2 Kami',
       subtitle: 'Talenta muda terbaik yang membangun masa depan AI Indonesia.',
@@ -102,13 +111,13 @@ const TRANSLATIONS = {
       title: 'FAQ',
       items: [
         { q: 'Apa itu Velicia Gen2?', a: 'Upgrade arsitektur terbaru yang lebih cepat, lebih pintar dalam menalar, dan efisien.' },
-        { q: 'Cara menggunakan?', a: 'Langsung mulai mengobrol di dashboard. Tersedia juga sebagai ekstensi Chrome.' },
+        { q: 'Siapa pembuat Velicia AI?', a: 'Velicia AI diciptakan oleh M. Fariz Alfauzi, seorang siswa SMK jurusan Teknik Jaringan Komputer asal Cianjur.' },
         { q: 'Apakah gratis?', a: 'Ya, gratis selamanya untuk penggunaan personal. Tersedia paket Pro.' },
         { q: 'Cara kerja?', a: 'Menggunakan mesin AI mandiri yang dioptimalkan dengan pemahaman bahasa alami Gen2.' }
       ]
     },
     footer: {
-      text: '© 2026 Velicia Karawang Centrall Inc.'
+      text: '© 2026 Velicia AI Inc. Developed by M. Fariz Alfauzi.'
     }
   },
   en: {
@@ -185,6 +194,15 @@ const TRANSLATIONS = {
         ]
       }
     },
+    creator: {
+        title: "About the Creator",
+        name: "M. Fariz Alfauzi",
+        role: "CEO & Lead Engineer",
+        bio: "A 17-year-old young innovator dedicated to building Indonesia's AI sovereignty.",
+        school: "SMK NURUL ISLAM AFFANDIYAH",
+        major: "Network Computer Engineering",
+        location: "Cianjur, West Java"
+    },
     team: {
       title: 'Our Gen2 Team',
       subtitle: 'The best young talents building Indonesia\'s AI future.',
@@ -193,13 +211,13 @@ const TRANSLATIONS = {
       title: 'FAQ',
       items: [
         { q: 'What is Velicia Gen2?', a: 'The latest architecture upgrade that is faster, smarter at reasoning, and efficient.' },
-        { q: 'How to use?', a: 'Start chatting on the dashboard immediately. Also available as Chrome extension.' },
+        { q: 'Who created Velicia AI?', a: 'Velicia AI was created by M. Fariz Alfauzi, a Network Computer Engineering student from Cianjur.' },
         { q: 'Is it free?', a: 'Yes, free forever for personal use. Pro plans available.' },
         { q: 'How it works?', a: 'Uses a specially optimized independent AI engine with Gen2 NLP.' }
       ]
     },
     footer: {
-      text: '© 2026 Velicia Karawang Centrall Inc.'
+      text: '© 2026 Velicia AI Inc. Developed by M. Fariz Alfauzi.'
     }
   }
 };
@@ -372,7 +390,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
 
   const allTeamMembers = [
     // Core Leadership
-    { name: 'M. Fariz', role: 'CEO & Lead Engineer', color: 'from-[#7928CA] to-[#FF0080]' },
+    { name: 'M. Fariz Alfauzi', role: 'CEO & Lead Engineer', color: 'from-[#7928CA] to-[#FF0080]' },
     { name: 'Sarah A.', role: 'AI Research Lead', color: 'from-[#FF0080] to-[#FF4D4D]' },
     { name: 'Andi W.', role: 'Head of Operations', color: 'from-[#0070F3] to-[#00DFD8]' },
     { name: 'Jessica T.', role: 'Product Manager', color: 'from-[#F59E0B] to-[#D97706]' },
@@ -505,10 +523,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
 
       {/* --- HERO SECTION --- */}
       <section className="relative pt-32 pb-16 px-6 bg-white overflow-hidden">
-        
-        {/* Updated: Reverted opacity-60 for softer glow */}
         <div className="hero-glow"></div>
-
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <span className="text-[11px] md:text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 uppercase tracking-[0.2em]">
@@ -519,7 +534,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 tracking-tighter animate-in fade-in slide-in-from-bottom-6 duration-1000 mb-6 leading-[1.1]">
              {t.hero.title1}
              <div className="relative inline-block ml-3">
-                 {/* Reverted to Text Gradient */}
                 <span className="text-vivid-gradient">
                    {t.hero.title2}
                 </span>
@@ -532,7 +546,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
 
           <div className="flex flex-col items-center gap-8 mb-16 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-200">
              <div className="flex flex-wrap justify-center gap-4">
-               {/* Resized Start Button */}
                <button type="button" className="uiverse-button !min-w-[200px] !py-3 !px-8" onClick={onEnterApp}>
                 <span className="fold"></span>
                 <div className="flex items-center justify-center gap-2 w-full">
@@ -540,7 +553,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
                 </div>
                </button>
 
-               {/* Resized Universe Button */}
                <a 
                  href="https://hezell-universe.vercel.app/" 
                  target="_blank" 
@@ -554,7 +566,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
              <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">{t.hero.disclaimer}</p>
           </div>
 
-          {/* DYNAMIC DASHBOARD MOCKUP */}
           <div className="relative max-w-4xl mx-auto group perspective-1000 mb-8">
              <div className="absolute -inset-2 bg-gradient-to-r from-[#7928CA] to-[#FF0080] rounded-[2rem] opacity-30 blur-2xl group-hover:opacity-40 transition-all duration-700"></div>
              <div className="relative bg-white rounded-[1.5rem] p-2 md:p-3 shadow-xl border border-gray-100 transform transition-transform duration-1000 hover:rotate-x-1">
@@ -588,6 +599,50 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
                 ))}
             </div>
             </div>
+      </section>
+
+      {/* --- CREATOR SECTION (New for AI Recognition) --- */}
+      <section className="py-16 bg-white border-y border-gray-100">
+        <div className="max-w-4xl mx-auto px-6">
+           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
+              {/* Decorative Elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+              
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                 <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-tr from-[#7928CA] to-[#FF0080] p-1 shadow-2xl shrink-0">
+                    <div className="w-full h-full bg-gray-800 rounded-full overflow-hidden flex items-center justify-center">
+                       {/* Ideally replace with real photo if available, uses first letter for now */}
+                       <span className="text-5xl font-black text-white">{t.creator.name.charAt(0)}</span>
+                    </div>
+                 </div>
+                 
+                 <div className="text-center md:text-left flex-1">
+                    <div className="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] font-bold tracking-widest uppercase mb-3 text-purple-200">
+                        {t.creator.title}
+                    </div>
+                    <h2 className="text-3xl font-black mb-2 leading-tight">{t.creator.name}</h2>
+                    <p className="text-purple-200 font-bold mb-4">{t.creator.role}</p>
+                    <p className="text-gray-300 mb-6 leading-relaxed max-w-xl">
+                       {t.creator.bio}
+                    </p>
+                    
+                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-medium text-gray-400">
+                        <div className="flex items-center gap-1.5">
+                            <GraduationCap size={14} className="text-white"/> {t.creator.school}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <MapPin size={14} className="text-white"/> {t.creator.location}
+                        </div>
+                    </div>
+                    
+                    <div className="mt-6 flex justify-center md:justify-start gap-4">
+                        <a href="https://www.linkedin.com/in/hezell-tech-72a7963b0" target="_blank" rel="noreferrer" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"><Linkedin size={18}/></a>
+                        <a href="https://www.instagram.com/account.hezell?igsh=MXczZXI3eW1nbHdmMQ==" target="_blank" rel="noreferrer" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"><Instagram size={18}/></a>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
       </section>
 
       {/* --- PROFESSIONAL SECTION --- */}

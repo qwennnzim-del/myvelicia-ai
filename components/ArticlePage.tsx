@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Share2, Clock, ChevronRight, Check } from 'lucide-react';
 
@@ -19,7 +18,7 @@ export const BLOG_POSTS: ArticleData[] = [
       id: 4, // Gen2 Update Article
       title: "Velicia Resmi Mengganti Library ke Gen2: Era Baru Kecerdasan AI",
       date: "Hari Ini",
-      author: "M. Fariz (Lead Engineer)",
+      author: "M. Fariz Alfauzi (CEO & Lead Engineer)",
       readTime: "3 menit baca",
       tag: "Update",
       image: "/logoApp/thumbnail-gen2.png", // Corrected path
@@ -68,7 +67,7 @@ export const BLOG_POSTS: ArticleData[] = [
     id: 0,
     title: "Visi Kedaulatan Digital: Mengapa AI Mandiri Penting?",
     date: "12 Oktober 2025",
-    author: "M. Fariz (Lead Engineer)",
+    author: "M. Fariz Alfauzi (CEO & Lead Engineer)",
     readTime: "5 menit baca",
     tag: "Visi",
     image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2000&auto=format&fit=crop",
