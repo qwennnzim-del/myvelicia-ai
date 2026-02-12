@@ -19,9 +19,9 @@ const getAIClient = () => {
 const getGeminiModelName = (modelId: string): string => {
     switch (modelId) {
         case ModelType.GEN2_REASONING:
-            return 'gemini-2.5-flash'; 
+            return 'gemini-2.5-pro'; 
         case ModelType.GEN2_PRO:
-            return 'gemini-2.5-flash-lite'; 
+            return 'gemini-flash-lite-latest'; 
         case ModelType.GEN2_V2_5:
         default:
             return 'gemini-flash-latest'; 
