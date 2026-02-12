@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Share2, Clock, ChevronRight, Check } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Share2, Clock, ChevronRight, Check, Tag } from 'lucide-react';
 
 export interface ArticleData {
   id: number;
@@ -8,20 +8,22 @@ export interface ArticleData {
   author: string;
   readTime: string;
   image: string;
-  tag: string;
+  tag: 'Update' | 'Teknologi' | 'Visi' | 'News' | 'Tutorial';
   content: string; // HTML string for rich text
+  excerpt?: string;
 }
 
-// Data Artikel Lengkap (Hardcoded untuk demo)
+// Data Artikel Lengkap (Expanded for SEO & Support Pages)
 export const BLOG_POSTS: ArticleData[] = [
   {
-      id: 4, // Gen2 Update Article
+      id: 4, 
       title: "Velicia Resmi Mengganti Library ke Gen2: Era Baru Kecerdasan AI",
-      date: "Hari Ini",
-      author: "M. Fariz Alfauzi (CEO & Lead Engineer)",
+      date: "12 Feb 2026",
+      author: "M. Fariz Alfauzi",
       readTime: "3 menit baca",
-      tag: "Update",
-      image: "/logoApp/thumbnail-gen2.png", // Corrected path
+      tag: "Teknologi",
+      image: "/logoApp/thumbnail-gen2.png", 
+      excerpt: "Transformasi fundamental pada mesin kecerdasan kami membawa penalaran mendalam dan efisiensi tinggi.",
       content: `
         <p class="lead">Kami dengan bangga mengumumkan bahwa per hari ini, Velicia AI telah sepenuhnya bermigrasi ke arsitektur <strong>Gen2</strong>. Ini bukan sekadar pembaruan versi, melainkan transformasi fundamental pada mesin kecerdasan kami.</p>
 
@@ -37,18 +39,69 @@ export const BLOG_POSTS: ArticleData[] = [
         <p>Bagi pengguna setia kami, ini berarti pengalaman yang lebih mulus. Baik Anda menggunakan Velicia untuk coding, penulisan kreatif, atau analisis data, Anda akan merasakan respons yang lebih tajam dan manusiawi.</p>
 
         <blockquote>"Gen2 adalah langkah besar menuju visi kami menciptakan AI yang tidak hanya menjawab, tetapi juga memahami." — Tim Pengembang Velicia.</blockquote>
-
-        <p>Selamat mencoba pengalaman baru ini di dashboard Velicia Anda sekarang!</p>
       `
+  },
+  {
+    id: 101,
+    title: "Update Log v1.2: Mode Suara & Analisis Dokumen",
+    date: "10 Feb 2026",
+    author: "Tim Teknis Velicia",
+    readTime: "2 menit baca",
+    tag: "Update",
+    image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=2000&auto=format&fit=crop",
+    excerpt: "Pembaruan Februari membawa fitur Text-to-Speech (TTS) dan kemampuan membaca file PDF/Excel.",
+    content: `
+      <h3>Apa yang Baru di v1.2?</h3>
+      <p>Kami mendengarkan masukan Anda! Versi 1.2 hadir dengan fitur yang paling banyak diminta oleh komunitas pengguna Velicia.</p>
+      
+      <h4>1. Interaksi Suara (TTS)</h4>
+      <p>Velicia kini bisa berbicara! Tekan ikon speaker di bawah setiap pesan balasan untuk mendengarkan jawaban Velicia dalam Bahasa Indonesia yang natural.</p>
+
+      <h4>2. Analisis Dokumen Multi-Format</h4>
+      <p>Kini Anda bisa mengunggah file:</p>
+      <ul>
+        <li><strong>PDF & DOCX:</strong> Untuk ringkasan dokumen legal atau jurnal.</li>
+        <li><strong>Excel & CSV:</strong> Untuk analisis data cepat.</li>
+      </ul>
+
+      <h4>3. Perbaikan Bug</h4>
+      <ul>
+        <li>Memperbaiki masalah scroll otomatis pada mobile.</li>
+        <li>Optimasi rendering markdown pada tabel.</li>
+      </ul>
+    `
+  },
+  {
+    id: 100,
+    title: "Update Log v1.0: Lahirnya Asisten Digital Nusantara",
+    date: "28 Jan 2026",
+    author: "M. Fariz Alfauzi",
+    readTime: "4 menit baca",
+    tag: "Update",
+    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2000&auto=format&fit=crop",
+    excerpt: "Rilis publik pertama Velicia AI. Membawa visi kedaulatan digital ke tangan pengguna Indonesia.",
+    content: `
+      <p>Hari ini menandai tonggak sejarah baru. Velicia v1.0 resmi dirilis ke publik sebagai platform Beta Terbuka.</p>
+      
+      <h3>Fitur Peluncuran:</h3>
+      <ul>
+        <li><strong>Chat Cerdas:</strong> Didukung model bahasa yang dioptimalkan untuk Bahasa Indonesia.</li>
+        <li><strong>Google Search Integration:</strong> Mendapatkan informasi terkini secara real-time.</li>
+        <li><strong>Antarmuka Minimalis:</strong> Fokus pada konten dan kemudahan penggunaan.</li>
+      </ul>
+      
+      <p>Terima kasih kepada para beta tester yang telah membantu kami menyempurnakan versi ini.</p>
+    `
   },
   {
     id: 3, 
     title: "Peluncuran Velicia AI Asisten Cerdas Indonesia",
-    date: "28 Januari 2026",
-    author: "Dwi Putri (Sekretaris)",
+    date: "28 Jan 2026",
+    author: "Dwi Putri",
     readTime: "7 menit baca",
     tag: "News",
     image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop",
+    excerpt: "Rapat strategis dan roadmap pengembangan Velicia menuju 2028.",
     content: `
       <p class="lead">Hari ini, 28 Januari 2026, menjadi titik awal perjalanan ambisius kami. Dalam rapat strategis tertutup yang dihadiri oleh seluruh jajaran pengembang dan pemangku kepentingan, Velicia AI secara resmi diperkenalkan sebagai proyek unggulan nasional.</p>
       
@@ -56,21 +109,17 @@ export const BLOG_POSTS: ArticleData[] = [
       <p>Rapat yang dinotulensikan oleh tim sekretariat hari ini menghasilkan keputusan mutlak. Melalui proses voting yang demokratis namun ketat, nama <strong>"Velicia"</strong> dipilih karena merepresentasikan kecepatan (Velocity) dan kecerdasan (Intelligence) yang berakar pada identitas Indonesia.</p>
 
       <p>Kami menyepakati visi bersama: <em>Membangun kedaulatan AI tanpa bergantung pada infrastruktur asing.</em></p>
-
-      <h3>Pengembangan & Roadmap</h3>
-      <p>Saat ini, Velicia berada dalam fase <strong>Alpha-Protocol</strong>. Tim teknis sedang fokus pada pembangunan arsitektur <em>neural network</em> yang mampu memproses konteks budaya tinggi (high-context culture) yang lazim ditemukan dalam interaksi masyarakat Nusantara.</p>
-      
-      <blockquote>"Kami tidak berlomba untuk menjadi yang tercepat rilis, tetapi kami berlomba untuk menjadi yang paling mengerti Indonesia." — Notulensi Rapat Strategis, 28 Jan 2026.</blockquote>
     `
   },
   {
     id: 0,
     title: "Visi Kedaulatan Digital: Mengapa AI Mandiri Penting?",
-    date: "12 Oktober 2025",
-    author: "M. Fariz Alfauzi (CEO & Lead Engineer)",
+    date: "12 Okt 2025",
+    author: "M. Fariz Alfauzi",
     readTime: "5 menit baca",
     tag: "Visi",
     image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2000&auto=format&fit=crop",
+    excerpt: "Mengapa Indonesia membutuhkan infrastruktur AI sendiri? Sebuah opini mendalam.",
     content: `
       <p class="lead">Di tengah gempuran teknologi global, pertanyaannya bukan lagi "apakah kita bisa?", melainkan "kapan kita mandiri?". Velicia AI hadir sebagai jawaban atas tantangan kedaulatan digital Indonesia.</p>
       
@@ -78,6 +127,24 @@ export const BLOG_POSTS: ArticleData[] = [
       <p>Ketergantungan pada penyedia layanan AI asing membawa risiko tersendiri, mulai dari privasi data hingga bias budaya. Model bahasa besar (LLM) yang dilatih dengan data barat seringkali gagal menangkap nuansa lokal, etika, dan konteks sosial masyarakat Indonesia.</p>
       
       <p>Velicia dibangun dengan filosofi <strong>"Dari Indonesia, Untuk Indonesia"</strong>.</p>
+    `
+  },
+  {
+    id: 5,
+    title: "Tutorial: Mengoptimalkan Prompt untuk Hasil Terbaik",
+    date: "15 Feb 2026",
+    author: "Tim Edukasi",
+    readTime: "5 menit baca",
+    tag: "Tutorial",
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2000&auto=format&fit=crop",
+    excerpt: "Panduan praktis menyusun perintah agar Velicia memberikan jawaban yang paling akurat dan relevan.",
+    content: `
+      <p>AI hanyalah alat, dan kualias outputnya sangat bergantung pada input Anda. Berikut adalah teknik "Prompt Engineering" sederhana untuk pengguna Velicia.</p>
+
+      <h3>Rumus Prompt Efektif</h3>
+      <p>Gunakan struktur: <strong>Konteks + Instruksi + Format Output</strong>.</p>
+      <p><em>Contoh Buruk:</em> "Buatkan surat lamaran kerja."</p>
+      <p><em>Contoh Baik:</em> "Saya fresh graduate jurusan Akuntansi (Konteks). Buatkan surat lamaran kerja untuk posisi Staff Finance di perusahaan startup (Instruksi). Gunakan bahasa formal namun antusias (Tone)."</p>
     `
   }
 ];
@@ -104,7 +171,7 @@ const AuthorCard: React.FC<{ author: string, role: string }> = ({ author, role }
 interface ArticlePageProps {
   articleId: number;
   onBack: () => void;
-  onReadArticle: (id: number) => void; // New prop for navigation
+  onReadArticle: (id: number) => void; 
 }
 
 const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack, onReadArticle }) => {
@@ -119,7 +186,7 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack, onReadArti
       const shareData = {
           title: article.title,
           text: `Baca artikel ini di Velicia AI: ${article.title}`,
-          url: window.location.href // In a real app this would be the permalink
+          url: window.location.href 
       };
 
       if (navigator.share) {
@@ -129,7 +196,6 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack, onReadArti
               console.log('Error sharing', err);
           }
       } else {
-          // Fallback
           navigator.clipboard.writeText(`${article.title} - Baca di Velicia AI`);
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
@@ -163,12 +229,18 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack, onReadArti
         {/* Header Artikel */}
         <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
            <div className="flex flex-wrap items-center gap-3 mb-4 text-xs font-bold text-gray-500 uppercase tracking-wide">
-              <span className="text-[#7928CA] bg-purple-50 px-2 py-1 rounded-md border border-purple-100">{article.tag}</span>
+              <span className={`px-2 py-1 rounded-md border text-[10px] ${
+                  article.tag === 'Update' ? 'bg-green-50 text-green-700 border-green-100' : 
+                  article.tag === 'Teknologi' ? 'bg-blue-50 text-blue-700 border-blue-100' : 
+                  'bg-purple-50 text-purple-700 border-purple-100'
+              }`}>
+                {article.tag}
+              </span>
               <span className="flex items-center gap-1"><Calendar size={12}/> {article.date}</span>
               <span className="flex items-center gap-1"><Clock size={12}/> {article.readTime}</span>
            </div>
            
-           <h1 className="text-3xl md:text-5xl font-black text-vivid-gradient mb-6 leading-tight tracking-tight pb-1">
+           <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight tracking-tight pb-1">
              {article.title}
            </h1>
 
@@ -201,10 +273,8 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack, onReadArti
            <div dangerouslySetInnerHTML={{ __html: article.content }} />
         </article>
 
-        {/* Author Card Component - Only for the specific launch article or all */}
-        {article.id === 3 && (
-            <AuthorCard author="Dwi Putri" role="Sekretaris & Operasional" />
-        )}
+        {/* Author Card Component */}
+        <AuthorCard author={article.author} role="Velicia AI Contributor" />
 
         {/* Footer Artikel */}
         <div className="mt-16 pt-10 border-t border-gray-100">
@@ -215,7 +285,7 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ articleId, onBack, onReadArti
                     key={post.id} 
                     onClick={() => {
                         window.scrollTo(0,0);
-                        onReadArticle(post.id); // Call the navigation function
+                        onReadArticle(post.id); 
                     }}
                     className="flex gap-4 p-4 rounded-2xl border border-gray-100 hover:border-gray-300 hover:bg-gray-50 transition-all text-left group"
                  >

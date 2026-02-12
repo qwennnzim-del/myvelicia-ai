@@ -10,6 +10,7 @@ import { UserProfile } from '../types';
 interface LandingPageProps {
   onEnterApp: () => void;
   onReadArticle: (id: number) => void;
+  onOpenBlog: () => void;
   initialScrollTo?: string | null;
   language: 'id' | 'en';
   setLanguage: (lang: 'id' | 'en') => void;
@@ -43,7 +44,7 @@ const TRANSLATIONS = {
       mockupPowered: 'Velicia Gen2 Engine'
     },
     blog: {
-      title: 'Artikel Terkini',
+      title: 'Artikel & Pembaruan',
       readMore: 'Baca',
       viewAll: 'Lihat Semua',
       articles: [
@@ -51,13 +52,13 @@ const TRANSLATIONS = {
           id: 4,
           title: "Velicia Resmi Mengganti Library ke Gen2",
           desc: "Peningkatan performa, penalaran, dan kecepatan dengan arsitektur terbaru.",
-          tag: "Update"
+          tag: "Teknologi"
         },
         {
-          id: 3,
-          title: "Peluncuran Velicia AI 2026",
-          desc: "Pengumuman resmi, hasil rapat, dan roadmap menuju 2028.",
-          tag: "News"
+          id: 101,
+          title: "Update v1.2: Mode Suara (TTS) & File Reader",
+          desc: "Fitur baru untuk analisis dokumen dan interaksi suara yang lebih natural.",
+          tag: "Update"
         },
         {
           id: 0,
@@ -143,7 +144,7 @@ const TRANSLATIONS = {
       mockupPowered: 'Velicia Gen2 Engine'
     },
     blog: {
-      title: 'Latest Articles',
+      title: 'Articles & Updates',
       readMore: 'Read',
       viewAll: 'View All',
       articles: [
@@ -151,13 +152,13 @@ const TRANSLATIONS = {
           id: 4,
           title: "Velicia Officially Switches to Gen2 Library",
           desc: "Performance improvements, reasoning, and speed with the latest architecture.",
-          tag: "Update"
+          tag: "Tech"
         },
          {
-          id: 3,
-          title: "Velicia AI Launch 2026",
-          desc: "Official announcement, meeting results, and roadmap to 2028.",
-          tag: "News"
+          id: 101,
+          title: "Update v1.2: Voice Mode & File Reader",
+          desc: "New features for document analysis and natural voice interaction.",
+          tag: "Update"
         },
         {
           id: 0,
@@ -324,7 +325,7 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
   );
 };
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, language, setLanguage, userProfile, onLogin }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, onOpenBlog, language, setLanguage, userProfile, onLogin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeProfession, setActiveProfession] = useState('Entrepreneur');
   const [scrolled, setScrolled] = useState(false);
@@ -366,11 +367,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
 
   const blogImages = [
     "/logoApp/thumbnail-gen2.png",
-    "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop", 
+    "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=2000&auto=format&fit=crop", 
     "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2000&auto=format&fit=crop"
   ];
 
-  const blogDates = ["Now", "28 Jan", "12 Okt"];
+  const blogDates = ["12 Feb", "10 Feb", "12 Okt"];
 
   const professions = [
     { id: 'Entrepreneur', label: language === 'id' ? 'Bisnis' : 'Business', icon: <Briefcase size={14}/> },
@@ -430,7 +431,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
           <div className="flex-1 flex flex-col p-6 gap-6 overflow-y-auto">
              <a href="#" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.features}</a>
              <a href="#" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.pricing}</a>
-             <a href="#" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.blog}</a>
+             <button onClick={() => { setMobileMenuOpen(false); onOpenBlog(); }} className="text-xl font-bold text-gray-900 text-left">{t.nav.blog}</button>
              
              {/* Mobile Login Button */}
              {!userProfile?.isLoggedIn ? (
@@ -476,9 +477,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-             {[t.nav.features, t.nav.pricing, t.nav.about].map((item) => (
-                <button key={item} className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{item}</button>
-             ))}
+             <button className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{t.nav.features}</button>
+             <button className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{t.nav.pricing}</button>
+             <button onClick={onOpenBlog} className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{t.nav.blog}</button>
+             
              <div className="w-px h-4 bg-gray-200 mx-2"></div>
              <button 
                 onClick={toggleLanguage}
@@ -578,13 +580,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
       {/* --- BLOG SECTION --- */}
       <section ref={blogSectionRef} className="py-20 bg-[#FAFAFA] relative overflow-hidden">
            <div className="max-w-6xl mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-12 text-center tracking-tight">{t.blog.title}</h2>
+            <div className="flex items-end justify-between mb-12">
+                <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">{t.blog.title}</h2>
+                <button onClick={onOpenBlog} className="hidden md:flex items-center gap-2 text-[#7928CA] font-bold text-sm hover:gap-3 transition-all">
+                    {t.blog.viewAll} <ArrowRight size={16} />
+                </button>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {t.blog.articles.map((article, i) => (
                     <div 
                         key={i} 
-                        className={`bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group ${blogVisible ? 'animate-in fade-in slide-in-from-bottom-10 opacity-100' : 'opacity-0'}`}
+                        className={`bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer ${blogVisible ? 'animate-in fade-in slide-in-from-bottom-10 opacity-100' : 'opacity-0'}`}
                         style={{ animationFillMode: 'both', animationDelay: `${i * 150}ms`, animationDuration: '800ms' }}
+                        onClick={() => onReadArticle(article.id)}
                     >
                          <div className="h-48 w-full overflow-hidden relative">
                              <img src={blogImages[i]} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -593,11 +602,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, la
                         <div className="p-6">
                              <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold mb-3 uppercase tracking-wider"><Calendar size={12} />{blogDates[i]}</div>
                              <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 leading-tight group-hover:text-[#FF0080] transition-colors">{article.title}</h3>
-                             <button onClick={() => onReadArticle(article.id)} className="flex items-center gap-2 text-[#7928CA] font-bold text-xs hover:gap-4 transition-all">{t.blog.readMore} <ArrowRight size={14} /></button>
+                             <div className="flex items-center gap-2 text-[#7928CA] font-bold text-xs group-hover:gap-3 transition-all">{t.blog.readMore} <ArrowRight size={14} /></div>
                         </div>
                     </div>
                 ))}
             </div>
+            
+             <button onClick={onOpenBlog} className="md:hidden w-full mt-8 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 hover:bg-gray-50 flex items-center justify-center gap-2">
+                    {t.blog.viewAll} <ArrowRight size={16} />
+             </button>
             </div>
       </section>
 
