@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
@@ -12,7 +11,7 @@ import Onboarding, { OnboardingStep } from './components/Onboarding';
 import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; 
 import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
 import { streamMessageToGemini } from './services/geminiService';
-import { auth, logout, updateUserProfile } from './services/firebase'; 
+import { auth, logout, updateUserProfile, logAnalyticsEvent } from './services/firebase'; 
 import { loadChatsFromFirestore, saveChatToFirestore, deleteChatFromFirestore, loadChatsFromLocal, saveChatToLocal } from './services/chatService';
 
 const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
@@ -271,21 +270,6 @@ const App: React.FC = () => {
   // --- ONBOARDING STATE ---
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // --- HELPER: PERSISTENCE STRATEGY ---
-  // If Logged In -> Use Firestore
-  // If Guest -> Use LocalStorage
-
-  const saveSessionToStorage = async (session: ChatSession, uid?: string) => {
-      // Logic: Save to Firestore if UID exists, else LocalStorage
-      if (uid) {
-          await saveChatToFirestore(uid, session);
-      } else {
-          // We need the full history to save to local storage (as it stores an array)
-          // Since this function deals with one session, we'll delegate local save to the useEffect
-          // But for immediate consistency we update state which triggers the effect.
-      }
-  };
-
   // --- FIREBASE AUTH LISTENER & DATA SYNC ---
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -334,13 +318,14 @@ const App: React.FC = () => {
              }
         }
     });
+    
+    // Log Page View Event
+    logAnalyticsEvent('page_view', { page: currentView });
 
     return () => unsubscribe();
   }, []);
 
   // --- PERSISTENCE LOGIC (LOCAL STORAGE ONLY) ---
-  // We only write to localStorage if user is NOT logged in.
-  // If logged in, we write to Firestore explicitly in handler functions.
   useEffect(() => {
       if (!userProfile.isLoggedIn) {
           saveChatToLocal(history);
@@ -349,6 +334,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     localStorage.setItem('velicia_current_view', currentView);
+    logAnalyticsEvent('screen_view', { screen_name: currentView });
   }, [currentView]);
 
   useEffect(() => {
@@ -371,16 +357,14 @@ const App: React.FC = () => {
   useEffect(() => {
       if (activeChatId && history.length > 0) {
           const session = history.find(s => s.id === activeChatId);
-          // Only update messages if they are different length (avoid loop) or if messages is empty
           if (session && session.messages.length !== messages.length) {
               setMessages(session.messages);
           } else if (!session) {
-             // Chat deleted
              setActiveChatId(null);
              setMessages([]);
           }
       }
-  }, [history, activeChatId]); // Removed messages.length dependency to prevent loops
+  }, [history, activeChatId]);
 
 
   // --- NAVIGATION HANDLERS ---
@@ -455,6 +439,7 @@ const App: React.FC = () => {
   const finishOnboarding = () => {
       setShowOnboarding(false);
       localStorage.setItem('velicia_has_onboarded', 'true');
+      logAnalyticsEvent('tutorial_complete');
   };
 
   // --- CHAT LOGIC ---
@@ -469,7 +454,6 @@ const App: React.FC = () => {
       setHistory(prev => [...prev, newSession]);
       setActiveChatId(newSession.id);
       
-      // If logged in, save new session immediately
       if (userProfile.isLoggedIn && userProfile.uid) {
           saveChatToFirestore(userProfile.uid, newSession);
       }
@@ -478,13 +462,11 @@ const App: React.FC = () => {
   };
 
   const updateActiveSession = (sessionId: string, newMessages: Message[]) => {
-      // Optimistic Update
       setHistory(prev => {
           const updated = prev.map(session => 
              session.id === sessionId ? { ...session, messages: newMessages } : session
           );
           
-          // Trigger Firestore save if logged in
           const sessionToSave = updated.find(s => s.id === sessionId);
           if (sessionToSave && userProfile.isLoggedIn && userProfile.uid) {
               saveChatToFirestore(userProfile.uid, sessionToSave);
@@ -523,6 +505,12 @@ const App: React.FC = () => {
   };
 
   const handleSend = async (text: string, selectedModel: string, attachments?: Attachment[]) => {
+    // Analytics Tracking
+    logAnalyticsEvent('send_message', { 
+        model_id: selectedModel,
+        has_attachments: attachments && attachments.length > 0 
+    });
+
     const newUserMessage: Message = {
       id: Date.now().toString(),
       role: Role.USER,
@@ -534,7 +522,6 @@ const App: React.FC = () => {
     let currentMessages = [...messages, newUserMessage];
     setMessages(currentMessages);
     
-    // Create new session OR update existing one BEFORE sending to AI
     let targetSessionId = activeChatId;
     
     if (!targetSessionId) {
@@ -544,7 +531,6 @@ const App: React.FC = () => {
         updateActiveSession(targetSessionId, currentMessages);
     }
 
-    // Pass the specific Session ID to the processor
     await processAIResponse(text, selectedModel, currentMessages, attachments, targetSessionId);
   };
 
@@ -567,7 +553,6 @@ const App: React.FC = () => {
     ];
     const isGeneralSearch = searchKeywords.some(keyword => lowerText.includes(keyword)) && !hasAttachments;
 
-    // Loading State Logic (Visual only)
     let searchToggleInterval: ReturnType<typeof setInterval> | undefined;
     if (isYoutubeIntent || isGeneralSearch) {
         const searchType = isYoutubeIntent ? 'youtube_search' : 'searching';
@@ -579,38 +564,29 @@ const App: React.FC = () => {
         }, 2500); 
     }
 
-    // Initialize the AI Message placeholder
     const aiMessageId = (Date.now() + 1).toString();
     const placeholderMessage: Message = {
         id: aiMessageId,
         role: Role.MODEL,
-        text: '', // Start empty
+        text: '', 
         timestamp: Date.now(),
     };
 
-    // Update UI immediately with empty message to prevent "blink"
     let currentConversation = [...historyMessages, placeholderMessage];
     
-    // Function to update local messages state AND history state safely
     const updateConversationState = (updatedMsg: Message) => {
         const newConv = currentConversation.map(m => m.id === updatedMsg.id ? updatedMsg : m);
-        currentConversation = newConv; // Update reference
-        
-        // Update View
+        currentConversation = newConv;
         setMessages(newConv);
-        
-        // Update History (Persist logic)
         setHistory(prev => {
             const updated = prev.map(s => s.id === sessionId ? { ...s, messages: newConv } : s);
             return updated;
         });
     };
 
-    // Add placeholder to state
     updateConversationState(placeholderMessage);
 
     try {
-      // Use Streaming API
       const stream = streamMessageToGemini(text, selectedModel, historyMessages, attachments);
       
       let accumulatedText = "";
@@ -629,14 +605,12 @@ const App: React.FC = () => {
           updateConversationState(updatedAiMessage);
       }
       
-      // Final Save to Firestore after streaming completes
       if (userProfile.isLoggedIn && userProfile.uid) {
           const finalSession = history.find(s => s.id === sessionId);
-          // Get the latest history state from logic above, but ensure we have the full object
           if (finalSession) {
               const sessionToSave = {
                   ...finalSession,
-                  messages: currentConversation // Use the latest Conversation
+                  messages: currentConversation 
               };
               saveChatToFirestore(userProfile.uid, sessionToSave);
           }
@@ -651,6 +625,7 @@ const App: React.FC = () => {
         timestamp: Date.now(),
       };
       updateConversationState(errorMessage);
+      logAnalyticsEvent('error', { type: 'ai_generation', message: error instanceof Error ? error.message : 'Unknown' });
 
     } finally {
       if (searchToggleInterval) clearInterval(searchToggleInterval);
@@ -677,20 +652,19 @@ const App: React.FC = () => {
 
   const handleModelSelectFromDashboard = (type: 'text' | 'image') => {
     setModel(ModelType.GEN2_V2_5);
+    logAnalyticsEvent('dashboard_action', { action: type });
   };
 
-  // --- MODAL HANDLERS ---
   const toggleModal = (key: keyof typeof modals) => {
       setModals(prev => ({ ...prev, [key]: !prev[key] }));
       setIsSidebarOpen(false); 
   };
 
-  // Auth Action Handler (Called by Sidebar & Landing)
   const handleAuthAction = async () => {
       if (userProfile.isLoggedIn) {
           if (window.confirm("Apakah Anda yakin ingin keluar?")) {
-             await logout(); // Call Firebase logout
-             // State update handled by onAuthStateChanged
+             await logout();
+             logAnalyticsEvent('logout');
           }
       } else {
           toggleModal('login');
@@ -698,10 +672,7 @@ const App: React.FC = () => {
   };
 
   const handleSaveProfile = async (newProfile: UserProfile) => {
-      // Update local state temporarily
       setUserProfile(prev => ({ ...prev, ...newProfile }));
-      
-      // Update Firebase if logged in
       if (auth.currentUser) {
           try {
               await updateUserProfile(auth.currentUser, newProfile.name);
@@ -720,19 +691,20 @@ const App: React.FC = () => {
             isOpen={modals.settings} 
             onClose={() => toggleModal('settings')} 
             language={language}
-            setLanguage={setLanguage}
+            setLanguage={(lang) => {
+                setLanguage(lang);
+                logAnalyticsEvent('change_language', { language: lang });
+            }}
             onClearHistory={() => { 
                 setHistory([]); 
                 setMessages([]); 
                 setActiveChatId(null);
-                // Also clear storage
                 if(userProfile.isLoggedIn && userProfile.uid) {
-                    // Note: This would need a backend function to efficiently delete all collections
-                    // For now, we rely on individual delete, or implementing batch delete in service
                     alert("Untuk saat ini, silakan hapus chat satu per satu di sidebar.");
                 } else {
                     localStorage.removeItem('velicia_chat_history');
                 }
+                logAnalyticsEvent('clear_history');
             }}
         />
         <ProfileModal 
@@ -744,7 +716,7 @@ const App: React.FC = () => {
         <LoginModal 
             isOpen={modals.login}
             onClose={() => toggleModal('login')}
-            onLogin={() => {}} // Not needed anymore, handled inside modal via Firebase
+            onLogin={() => {}} 
         />
 
         {currentView === 'landing' && (
@@ -755,8 +727,8 @@ const App: React.FC = () => {
                     initialScrollTo={initialScrollTo}
                     language={language}
                     setLanguage={setLanguage}
-                    userProfile={userProfile} // Pass profile
-                    onLogin={handleAuthAction} // Pass login/logout handler
+                    userProfile={userProfile} 
+                    onLogin={handleAuthAction} 
                 />
             </div>
         )}
@@ -797,7 +769,7 @@ const App: React.FC = () => {
                     onOpenSettings={() => toggleModal('settings')}
                     onOpenProfile={() => toggleModal('profile')}
                     onOpenHelp={handleOpenHelpPage} 
-                    onLogin={handleAuthAction} // Pass the centralized auth handler
+                    onLogin={handleAuthAction} 
                     translations={APP_TRANSLATIONS[language]}
                 />
                 
@@ -812,7 +784,11 @@ const App: React.FC = () => {
                     <div className="flex-1 px-4 md:px-6 py-4">
                         {messages.length === 0 ? (
                             <div className="h-full flex items-center justify-center">
-                                <Dashboard onModelSelect={handleModelSelectFromDashboard} translations={APP_TRANSLATIONS[language]} />
+                                <Dashboard 
+                                    onModelSelect={handleModelSelectFromDashboard} 
+                                    onPromptSelect={(text) => handleSend(text, model, undefined)}
+                                    translations={APP_TRANSLATIONS[language]} 
+                                />
                             </div>
                         ) : (
                             <MessageList 
