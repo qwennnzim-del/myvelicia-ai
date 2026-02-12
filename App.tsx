@@ -6,6 +6,7 @@ import InputArea from './components/InputArea';
 import Dashboard from './components/Dashboard';
 import Sidebar from './components/Sidebar';
 import ArticlePage from './components/ArticlePage';
+import BlogPage from './components/BlogPage';
 import HelpPage from './components/HelpPage'; 
 import Onboarding, { OnboardingStep } from './components/Onboarding'; 
 import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; 
@@ -40,17 +41,16 @@ const TopProgressBar: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
 
   return (
     <div className={`fixed top-0 left-0 right-0 z-[9999] transition-opacity duration-300 pointer-events-none ${visible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="h-[4px] w-full bg-gray-100/10 overflow-visible">
+      <div className="h-[2px] w-full bg-white/5 overflow-visible">
         <div 
-          className="h-full relative shadow-[0_0_20px_rgba(255,0,128,0.6)]"
+          className="h-full relative shadow-[0_0_20px_rgba(168,85,247,0.8)]"
           style={{
             width: `${progress}%`,
             background: 'linear-gradient(90deg, #7928CA 0%, #FF0080 50%, #FFD700 100%)',
             transition: isLoading ? 'width 1200ms cubic-bezier(0.2, 0.8, 0.2, 1)' : 'width 200ms ease-out',
           }}
         >
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-[120px] h-[30px] bg-gradient-to-l from-white/90 via-white/40 to-transparent blur-[8px]" />
-            <div className="absolute right-0 top-0 bottom-0 w-[4px] bg-white shadow-[0_0_25px_5px_rgba(255,255,255,0.9)] rounded-full" />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-[120px] h-[30px] bg-gradient-to-l from-purple-500/50 via-pink-500/20 to-transparent blur-[8px]" />
         </div>
       </div>
     </div>
@@ -64,7 +64,7 @@ const APP_TRANSLATIONS = {
       nav: 'Navigasi',
       home: 'Utama',
       features: 'Fitur',
-      blog: 'Blog',
+      blog: 'Blog & Update',
       history: 'Riwayat Chat',
       emptyHistory: 'Belum ada riwayat percakapan.',
       newChat: 'Chat Baru',
@@ -137,7 +137,7 @@ const APP_TRANSLATIONS = {
       nav: 'Navigation',
       home: 'Home',
       features: 'Features',
-      blog: 'Blog',
+      blog: 'Blog & Updates',
       history: 'Chat History',
       emptyHistory: 'No conversation history.',
       newChat: 'New Chat',
@@ -208,10 +208,9 @@ const APP_TRANSLATIONS = {
 };
 
 
-type AppView = 'landing' | 'app' | 'article' | 'help'; 
+type AppView = 'landing' | 'app' | 'article' | 'help' | 'blog'; 
 
 interface ExtendedUserProfile extends UserProfile {
-    // Extended properties if any
     uid?: string; // Firebase UID
 }
 
@@ -220,7 +219,7 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(() => {
     if (typeof window !== 'undefined') {
         const saved = localStorage.getItem('velicia_current_view');
-        if (saved === 'app' || saved === 'landing' || saved === 'article' || saved === 'help') {
+        if (saved === 'app' || saved === 'landing' || saved === 'article' || saved === 'help' || saved === 'blog') {
             return saved as AppView;
         }
     }
@@ -250,7 +249,6 @@ const App: React.FC = () => {
   const [availableModels] = useState<ModelOption[]>(DEFAULT_MODELS);
 
   // --- USER & SETTINGS STATE ---
-  // Default guest state
   const [userProfile, setUserProfile] = useState<ExtendedUserProfile>({ 
       name: 'Guest', 
       bio: '', 
@@ -274,7 +272,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
         if (user) {
-            // USER LOGGED IN
             setUserProfile({
                 name: user.displayName || 'User Velicia',
                 bio: user.email || 'Velicia Member',
@@ -284,12 +281,10 @@ const App: React.FC = () => {
             });
             setModals(prev => ({ ...prev, login: false }));
 
-            // Load Cloud Chats
             setIsPageLoading(true);
             const cloudChats = await loadChatsFromFirestore(user.uid);
             setHistory(cloudChats);
             
-            // If there was an active chat ID in local storage that matches a cloud chat, select it
             const savedActiveId = localStorage.getItem('velicia_active_chat_id');
             if (savedActiveId && cloudChats.find(c => c.id === savedActiveId)) {
                 setActiveChatId(savedActiveId);
@@ -300,18 +295,15 @@ const App: React.FC = () => {
             setIsPageLoading(false);
 
         } else {
-            // GUEST MODE
             setUserProfile({
                 name: 'Guest',
                 bio: '',
                 isLoggedIn: false
             });
             
-            // Load Local Chats
             const localChats = loadChatsFromLocal();
             setHistory(localChats);
 
-             // Restore active chat if exists locally
              const savedActiveId = localStorage.getItem('velicia_active_chat_id');
              if (savedActiveId && localChats.find(c => c.id === savedActiveId)) {
                  setActiveChatId(savedActiveId);
@@ -319,7 +311,6 @@ const App: React.FC = () => {
         }
     });
     
-    // Log Page View Event
     logAnalyticsEvent('page_view', { page: currentView });
 
     return () => unsubscribe();
@@ -404,6 +395,13 @@ const App: React.FC = () => {
     });
   };
 
+  const handleOpenBlog = () => {
+      handlePageTransition(() => {
+          setCurrentView('blog');
+          setSelectedArticleId(null);
+      });
+  };
+
   const handleBackToLanding = () => {
      handlePageTransition(() => {
         setCurrentView('landing');
@@ -419,6 +417,12 @@ const App: React.FC = () => {
   
   const handleNavigateFromSidebar = (sectionId: string) => {
     setIsSidebarOpen(false);
+    
+    if (sectionId === 'blog') {
+        handleOpenBlog();
+        return;
+    }
+
     if (currentView !== 'landing') {
         handlePageTransition(() => {
             setCurrentView('landing');
@@ -505,7 +509,6 @@ const App: React.FC = () => {
   };
 
   const handleSend = async (text: string, selectedModel: string, attachments?: Attachment[]) => {
-    // Analytics Tracking
     logAnalyticsEvent('send_message', { 
         model_id: selectedModel,
         has_attachments: attachments && attachments.length > 0 
@@ -720,15 +723,28 @@ const App: React.FC = () => {
         />
 
         {currentView === 'landing' && (
-            <div className="min-h-screen bg-white">
+             <div className="min-h-screen bg-white">
                 <LandingPage 
                     onEnterApp={handleEnterApp} 
                     onReadArticle={handleReadArticle}
+                    onOpenBlog={handleOpenBlog}
                     initialScrollTo={initialScrollTo}
                     language={language}
-                    setLanguage={setLanguage}
+                    setLanguage={(lang) => {
+                        setLanguage(lang);
+                        logAnalyticsEvent('change_language', { language: lang });
+                    }}
                     userProfile={userProfile} 
-                    onLogin={handleAuthAction} 
+                    onLogin={() => toggleModal('login')} 
+                />
+            </div>
+        )}
+
+        {currentView === 'blog' && (
+            <div className="min-h-screen bg-[#FAFAFA]">
+                <BlogPage 
+                    onBack={handleBackToLanding}
+                    onReadArticle={handleReadArticle}
                 />
             </div>
         )}
@@ -737,22 +753,21 @@ const App: React.FC = () => {
             <div className="min-h-screen bg-white">
                 <ArticlePage 
                     articleId={selectedArticleId} 
-                    onBack={handleBackToLanding}
-                    onReadArticle={handleReadArticle} 
+                    onBack={handleOpenBlog}
+                    onReadArticle={handleReadArticle}
                 />
             </div>
         )}
 
         {currentView === 'help' && (
-            <HelpPage 
+             <HelpPage 
                 onBack={handleBackFromHelp}
                 language={language}
             />
         )}
 
         {currentView === 'app' && (
-            <div className="fixed inset-0 w-full h-[100dvh] bg-[#FAFAFA] flex flex-col overflow-hidden text-gray-900 font-sans">
-                
+             <div className="fixed inset-0 w-full h-[100dvh] bg-[#FAFAFA] flex flex-col overflow-hidden text-gray-900 font-sans">
                 <Sidebar 
                     isOpen={isSidebarOpen} 
                     onClose={() => setIsSidebarOpen(false)} 
