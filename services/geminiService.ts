@@ -7,7 +7,7 @@ import { CONFIG } from '../config';
 export const IMAGE_MODELS = []; 
 
 const getAIClient = () => {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.API_KEY;
     if (!apiKey) {
         console.error("API_KEY is missing in environment variables.");
         throw new Error("Fitur ini membutuhkan API_KEY di konfigurasi environment");
@@ -19,12 +19,35 @@ const getAIClient = () => {
 const getGeminiModelName = (modelId: string): string => {
     switch (modelId) {
         case ModelType.GEN2_REASONING:
-            return 'gemini-2.5-flash'; 
+            return 'gemini-3-pro-preview'; 
         case ModelType.GEN2_PRO:
-            return 'gemini-2.5-flash-lite'; 
+            return 'gemini-3-pro-preview'; 
         case ModelType.GEN2_V2_5:
         default:
-            return 'gemini-2.0-flash'; 
+            return 'gemini-3-flash-preview'; 
+    }
+};
+
+// Helper: Fetch URL and convert to Base64 (Clean)
+// Digunakan karena Gemini API via SDK membutuhkan inlineData (base64) 
+// dan tidak bisa menerima public URL secara langsung di parameter parts.
+const getBase64FromUrl = async (url: string): Promise<string> => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch image data");
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const res = reader.result as string;
+                // Remove prefix like "data:image/jpeg;base64,"
+                resolve(res.split(',')[1]);
+            };
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        console.error("Error converting URL to Base64 for Gemini:", e);
+        return "";
     }
 };
 
@@ -38,18 +61,46 @@ export async function* streamMessageToGemini(
     
     const ai = getAIClient();
     
-    // Prepare History
-    const historyMessages = history.slice(0, -1);
-    const sdkHistory = historyMessages.map(msg => {
+    // --- STRATEGI PENGHEMATAN TOKEN (CONTEXT PRUNING) ---
+    // Kita ambil semua pesan kecuali yang terakhir (karena yang terakhir adalah input user saat ini)
+    let historyMessages = history.slice(0, -1);
+
+    // LIMITASI: Hanya kirim 20 pesan terakhir.
+    const MAX_HISTORY_MESSAGES = 20;
+    if (historyMessages.length > MAX_HISTORY_MESSAGES) {
+        historyMessages = historyMessages.slice(-MAX_HISTORY_MESSAGES);
+    }
+
+    // Prepare History with Async Processing (for Image URLs)
+    const sdkHistory: { role: string; parts: Part[] }[] = [];
+    
+    for (const msg of historyMessages) {
         const parts: Part[] = [];
-        if (msg.attachments) {
-            msg.attachments.forEach(att => {
-                parts.push({ inlineData: { mimeType: att.mimeType, data: att.content.split(',')[1] } });
-            });
+        
+        if (msg.attachments && msg.attachments.length > 0) {
+            for (const att of msg.attachments) {
+                let base64Data = "";
+                
+                // Jika konten adalah URL (dari Firebase Storage), fetch dulu jadi Base64
+                if (att.content.startsWith('http')) {
+                    base64Data = await getBase64FromUrl(att.content);
+                } 
+                // Jika konten adalah Base64 (lokal state), ambil langsung
+                else if (att.content.startsWith('data:')) {
+                    base64Data = att.content.split(',')[1];
+                }
+
+                if (base64Data) {
+                    parts.push({ inlineData: { mimeType: att.mimeType, data: base64Data } });
+                }
+            }
         }
+        
         if (msg.text) parts.push({ text: msg.text });
-        return { role: msg.role === Role.MODEL ? 'model' : 'user', parts };
-    });
+        
+        // Push processed message to history
+        sdkHistory.push({ role: msg.role === Role.MODEL ? 'model' : 'user', parts });
+    }
 
     const systemInstruction = modelId === ModelType.GEN2_REASONING 
         ? CONFIG.DEEP_REASONING_INSTRUCTION 
@@ -66,12 +117,21 @@ export async function* streamMessageToGemini(
         }
     });
 
-    // Prepare Current Message
+    // Prepare Current Message Parts
     const currentParts: Part[] = [];
     if (attachments && attachments.length > 0) {
-        attachments.forEach(att => {
-            currentParts.push({ inlineData: { mimeType: att.mimeType, data: att.content.split(',')[1] } });
-        });
+        for (const att of attachments) {
+            let base64Data = "";
+            if (att.content.startsWith('http')) {
+                base64Data = await getBase64FromUrl(att.content);
+            } else if (att.content.startsWith('data:')) {
+                base64Data = att.content.split(',')[1];
+            }
+
+            if (base64Data) {
+                currentParts.push({ inlineData: { mimeType: att.mimeType, data: base64Data } });
+            }
+        }
     }
     if (text) currentParts.push({ text: text });
 
@@ -83,8 +143,6 @@ export async function* streamMessageToGemini(
         
         for await (const chunk of result) {
             const chunkText = chunk.text || "";
-            // We yield chunks as they come in.
-            // Note: groundingMetadata usually appears in the last chunk or aggregated response
             yield { 
                 text: chunkText,
                 groundingMetadata: chunk.candidates?.[0]?.groundingMetadata as unknown as GroundingMetadata
@@ -123,21 +181,19 @@ export const generateSpeechFromGemini = async (text: string): Promise<string | u
     const ai = getAIClient();
     try {
         // 1. Clean Markdown heavily before sending to TTS model
-        // This prevents the AI from reading symbols like "Asterisk Asterisk Title..."
         let cleanText = text
-            .replace(/[*#_`~]/g, '') // Remove basic markdown symbols
-            .replace(/\[.*?\]\(.*?\)/g, '') // Remove links
-            .replace(/https?:\/\/\S+/g, 'link') // Replace URLs with word "link"
-            .replace(/\n\n/g, '. '); // Replace double newlines with pauses
+            .replace(/[*#_`~]/g, '') 
+            .replace(/\[.*?\]\(.*?\)/g, '') 
+            .replace(/https?:\/\/\S+/g, 'link') 
+            .replace(/\n\n/g, '. '); 
         
-        // 2. Truncate for safety limits
         const safeText = cleanText.length > 800 ? cleanText.substring(0, 800) + "..." : cleanText;
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash-preview-tts", 
             contents: [{ 
                 parts: [{ 
-                    text: `Read this text clearly and naturally in Indonesian language. Do not add any opening or closing remarks, just read the text: "${safeText}"` 
+                    text: `Read this text clearly and naturally in Indonesian language: "${safeText}"` 
                 }] 
             }],
             config: {
