@@ -19,12 +19,12 @@ const getAIClient = () => {
 const getGeminiModelName = (modelId: string): string => {
     switch (modelId) {
         case ModelType.GEN2_REASONING:
-            return 'gemini-2.5-flash'; 
+            return 'gemini-3-pro-preview'; 
         case ModelType.GEN2_PRO:
-            return 'gemini-flash-latest'; 
+            return 'gemini-3-pro-preview'; 
         case ModelType.GEN2_V2_5:
         default:
-            return 'gemini-2.5-flash-lite'; 
+            return 'gemini-3-flash-preview'; 
     }
 };
 
@@ -175,7 +175,7 @@ export const sendMessageToGemini = async (
   modelId: string,
   history: Message[],
   attachments?: Attachment[]
-): Promise<{ text: string; groundingMetadata?: GroundingMetadata }> {
+): Promise<{ text: string; groundingMetadata?: GroundingMetadata }> => {
     // Re-use the generator but consume it all at once
     let fullText = "";
     let finalMetadata;
