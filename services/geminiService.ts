@@ -7,7 +7,7 @@ import { CONFIG } from '../config';
 export const IMAGE_MODELS = []; 
 
 const getAIClient = () => {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.API_KEY;
     if (!apiKey) {
         console.error("API_KEY is missing in environment variables.");
         throw new Error("Fitur ini membutuhkan API_KEY di konfigurasi environment");
@@ -19,12 +19,12 @@ const getAIClient = () => {
 const getGeminiModelName = (modelId: string): string => {
     switch (modelId) {
         case ModelType.GEN2_REASONING:
-            return 'gemini-2.5-flash'; 
+            return 'gemini-3-pro-preview'; 
         case ModelType.GEN2_PRO:
-            return 'gemini-flash-lite-latest'; 
+            return 'gemini-3-pro-preview'; 
         case ModelType.GEN2_V2_5:
         default:
-            return 'gemini-flash-latest'; 
+            return 'gemini-3-flash-preview'; 
     }
 };
 
@@ -65,8 +65,9 @@ export async function* streamMessageToGemini(
     // Kita ambil semua pesan kecuali yang terakhir (karena yang terakhir adalah input user saat ini)
     let historyMessages = history.slice(0, -1);
 
-    // LIMITASI: Hanya kirim 20 pesan terakhir.
-    const MAX_HISTORY_MESSAGES = 20;
+    // LIMITASI: Hanya kirim 10 pesan terakhir untuk menghemat TPM (Tokens Per Minute)
+    // Semakin kecil history, semakin kecil kemungkinan terkena limit rate.
+    const MAX_HISTORY_MESSAGES = 10;
     if (historyMessages.length > MAX_HISTORY_MESSAGES) {
         historyMessages = historyMessages.slice(-MAX_HISTORY_MESSAGES);
     }
@@ -96,7 +97,17 @@ export async function* streamMessageToGemini(
             }
         }
         
-        if (msg.text) parts.push({ text: msg.text });
+        if (msg.text) {
+             // OPTIMISASI: Truncate teks history yang sangat panjang
+             // Jika ada pesan > 2000 karakter di masa lalu, kita potong untuk menghemat token.
+             // Model biasanya hanya butuh konteks inti, bukan keseluruhan esai lama.
+             const MAX_CHAR_PER_MSG = 2000;
+             let content = msg.text;
+             if (content.length > MAX_CHAR_PER_MSG) {
+                 content = content.substring(0, MAX_CHAR_PER_MSG) + "... (truncated for token efficiency)";
+             }
+             parts.push({ text: content });
+        }
         
         // Push processed message to history
         sdkHistory.push({ role: msg.role === Role.MODEL ? 'model' : 'user', parts });
@@ -114,6 +125,10 @@ export async function* streamMessageToGemini(
         config: {
             systemInstruction: systemInstruction,
             tools: tools, 
+            // OPTIMISASI: Batasi output token.
+            // Membatasi output membantu mencegah penggunaan TPM berlebih jika model "berhalusinasi" panjang.
+            // 4096 cukup untuk jawaban panjang tapi aman.
+            maxOutputTokens: 4096, 
         }
     });
 
@@ -160,7 +175,7 @@ export const sendMessageToGemini = async (
   modelId: string,
   history: Message[],
   attachments?: Attachment[]
-): Promise<{ text: string; groundingMetadata?: GroundingMetadata }> => {
+): Promise<{ text: string; groundingMetadata?: GroundingMetadata }> {
     // Re-use the generator but consume it all at once
     let fullText = "";
     let finalMetadata;
