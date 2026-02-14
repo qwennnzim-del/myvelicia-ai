@@ -21,7 +21,7 @@ const getGeminiModelName = (modelId: string): string => {
         case ModelType.GEN2_REASONING:
             return 'gemini-2.5-flash'; 
         case ModelType.GEN2_PRO:
-            return 'gemini-2.5-flash-lite'; 
+            return 'gemini-flash-latest-lite'; 
         case ModelType.GEN2_V2_5:
         default:
             return 'gemini-flash-latest'; 
