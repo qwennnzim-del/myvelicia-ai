@@ -7,7 +7,7 @@ import { CONFIG } from '../config';
 export const IMAGE_MODELS = []; 
 
 const getAIClient = () => {
-    const apiKey = process.env.API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
         console.error("API_KEY is missing in environment variables.");
         throw new Error("Fitur ini membutuhkan API_KEY di konfigurasi environment");
@@ -21,10 +21,10 @@ const getGeminiModelName = (modelId: string): string => {
         case ModelType.GEN2_REASONING:
             return 'gemini-2.5-flash'; 
         case ModelType.GEN2_PRO:
-            return 'gemini-2.5-flash'; 
+            return 'gemini-flash-latest'; 
         case ModelType.GEN2_V2_5:
         default:
-            return 'gemini-2.5-flash'; 
+            return 'gemini-flash-lite-latest'; 
     }
 };
 
