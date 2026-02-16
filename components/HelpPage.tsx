@@ -82,19 +82,15 @@ const HelpPage: React.FC<HelpPageProps> = ({ onBack, language }) => {
         },
         models: {
           title: "Memilih Model Kecerdasan",
-          content: `Velicia menyediakan tiga otak utama yang dapat Anda pilih sesuai kebutuhan tugas:`,
+          content: `Velicia menyediakan dua otak utama yang dapat Anda pilih sesuai kebutuhan tugas:`,
           items: [
             {
               name: "Gen2 Deep",
-              desc: "Model paling cerdas. Cocok untuk coding, analisis data kompleks, penulisan kreatif panjang, dan pemecahan masalah logika. Model ini akan 'berpikir' sejenak sebelum menjawab."
+              desc: "Model paling cerdas dengan kemampuan penalaran tingkat lanjut. Cocok untuk coding, analisis data kompleks, penulisan kreatif panjang, dan pemecahan masalah logika. Model ini akan 'berpikir' sejenak sebelum menjawab."
             },
             {
               name: "Gen2 Flash",
-              desc: "Model super cepat. Ideal untuk percakapan santai, pertanyaan singkat, terjemahan, atau tugas-tugas administratif ringan."
-            },
-            {
-              name: "Gen2 Docs",
-              desc: "Model khusus untuk analisis dokumen besar seperti PDF atau Excel dengan konteks yang luas."
+              desc: "Model super cepat dan ringan. Ideal untuk percakapan santai, pertanyaan singkat, terjemahan, atau tugas-tugas administratif yang membutuhkan respon instan."
             }
           ]
         },
@@ -149,19 +145,15 @@ const HelpPage: React.FC<HelpPageProps> = ({ onBack, language }) => {
         },
         models: {
           title: "Choosing Intelligence Models",
-          content: `Velicia provides three main brains you can choose based on the task:`,
+          content: `Velicia provides two main brains you can choose based on the task:`,
           items: [
             {
               name: "Gen2 Deep",
-              desc: "The smartest model. Best for coding, complex data analysis, long-form creative writing, and logical problem solving. This model 'thinks' before answering."
+              desc: "The smartest model with advanced reasoning capabilities. Best for coding, complex data analysis, long-form creative writing, and logical problem solving. This model 'thinks' before answering."
             },
             {
               name: "Gen2 Flash",
-              desc: "Super fast model. Ideal for casual chat, short questions, translation, or light administrative tasks."
-            },
-            {
-              name: "Gen2 Docs",
-              desc: "Specialized model for analyzing large documents like PDF or Excel with extensive context."
+              desc: "Super fast and lightweight model. Ideal for casual chat, short questions, translation, or administrative tasks requiring instant responses."
             }
           ]
         },
