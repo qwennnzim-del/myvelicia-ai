@@ -16,15 +16,10 @@ const getAIClient = () => {
 };
 
 // Helper to map internal App IDs to valid Google GenAI Model Names
-// FIXED: Switched to 2.0-flash and 2.0-flash-thinking to resolve 429 Quota/Availability errors with 2.5-pro
+// FIXED: Using single model strategy: gemini-2.5-flash
 const getGeminiModelName = (modelId: string): string => {
-    switch (modelId) {
-        case ModelType.GEN2_REASONING:
-            return 'gemini-2.0-flash-thinking-exp-01-21'; 
-        case ModelType.GEN2_V2_5:
-        default:
-            return 'gemini-2.0-flash'; 
-    }
+    // Apapun ID internalnya (jika ada chat lama), paksa gunakan 2.5-flash
+    return 'gemini-2.5-flash';
 };
 
 // Helper: Fetch URL and convert to Base64 (Clean)
@@ -62,7 +57,6 @@ export async function* streamMessageToGemini(
     let historyMessages = history.slice(0, -1);
 
     // 2. LIMITASI HISTORY: Hanya kirim 10 pesan terakhir.
-    // Ini mencegah error "TPM Limit Exceeded" saat percakapan menjadi panjang.
     const MAX_HISTORY_MESSAGES = 10;
     if (historyMessages.length > MAX_HISTORY_MESSAGES) {
         historyMessages = historyMessages.slice(-MAX_HISTORY_MESSAGES);
@@ -92,8 +86,6 @@ export async function* streamMessageToGemini(
         
         // Handle Text in History with Truncation
         if (msg.text) {
-             // 3. TEXT TRUNCATION: Potong pesan masa lalu yang terlalu panjang (> 2000 char).
-             // Model AI umumnya hanya butuh intisari konteks, bukan keseluruhan esai lama.
              const MAX_CHAR_PER_MSG = 2000;
              let content = msg.text;
              if (content.length > MAX_CHAR_PER_MSG) {
@@ -105,9 +97,8 @@ export async function* streamMessageToGemini(
         sdkHistory.push({ role: msg.role === Role.MODEL ? 'model' : 'user', parts });
     }
 
-    const systemInstruction = modelId === ModelType.GEN2_REASONING 
-        ? CONFIG.DEEP_REASONING_INSTRUCTION 
-        : CONFIG.SYSTEM_INSTRUCTION;
+    // Use standard system instruction since we are not using the "Thinking" model anymore
+    const systemInstruction = CONFIG.SYSTEM_INSTRUCTION;
 
     // Use Google Search Tool
     const tools = [{ googleSearch: {} }];
@@ -118,7 +109,6 @@ export async function* streamMessageToGemini(
         config: {
             systemInstruction: systemInstruction,
             tools: tools, 
-            // 4. OUTPUT LIMIT: Batasi output token untuk mencegah looping tak terbatas.
             maxOutputTokens: 4096, 
         }
     });
@@ -196,7 +186,7 @@ export const generateSpeechFromGemini = async (text: string): Promise<string | u
         const safeText = cleanText.length > 800 ? cleanText.substring(0, 800) + "..." : cleanText;
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash", // Use 2.0 Flash for TTS as well for consistency/quota
+            model: "gemini-2.5-flash", // Use 2.5 Flash for TTS
             contents: [{ 
                 parts: [{ 
                     text: `Read this text clearly and naturally in Indonesian language: "${safeText}"` 
