@@ -63,34 +63,30 @@ const HelpPage: React.FC<HelpPageProps> = ({ onBack, language }) => {
       sections: {
         intro: {
           title: "Apa itu Velicia?",
-          content: `Velicia adalah asisten AI mandiri yang dibangun di atas arsitektur Gen2 (Generasi Berikutnya). Berbeda dengan chatbot biasa, Velicia dirancang untuk memahami konteks budaya Indonesia, melakukan penalaran mendalam (Deep Reasoning), dan memberikan solusi produktivitas yang nyata.`,
+          content: `Velicia adalah asisten AI mandiri yang dibangun di atas arsitektur Gen2 (Generasi Berikutnya). Velicia dirancang untuk memahami konteks budaya Indonesia, melakukan tugas dengan cepat, dan memberikan solusi produktivitas yang nyata.`,
           points: [
-            "Arsitektur Gen2 yang lebih efisien dan cerdas.",
+            "Arsitektur Gen2 Flash yang sangat cepat.",
             "Dukungan Bahasa Indonesia yang natural.",
             "Terintegrasi dengan Google Search untuk data realtime."
           ]
         },
         start: {
           title: "Cara Memulai",
-          content: `Untuk mulai menggunakan Velicia, Anda hanya perlu mengetikkan pertanyaan atau perintah di kolom chat utama. Tidak ada konfigurasi rumit yang diperlukan.`,
+          content: `Untuk mulai menggunakan Velicia, Anda hanya perlu mengetikkan pertanyaan atau perintah di kolom chat utama.`,
           steps: [
             "Buka Dashboard utama.",
-            "Pilih model AI yang sesuai kebutuhan (lihat bagian Model AI).",
+            "Pastikan model Gen2 Flash aktif (default).",
             "Ketik pesan Anda atau unggah file.",
             "Tekan Enter atau tombol Kirim."
           ]
         },
         models: {
-          title: "Memilih Model Kecerdasan",
-          content: `Velicia menyediakan dua otak utama yang dapat Anda pilih sesuai kebutuhan tugas:`,
+          title: "Model Kecerdasan",
+          content: `Saat ini Velicia menggunakan satu model utama yang telah dioptimalkan untuk segala kebutuhan:`,
           items: [
             {
-              name: "Gen2 Deep",
-              desc: "Model paling cerdas dengan kemampuan penalaran tingkat lanjut. Cocok untuk coding, analisis data kompleks, penulisan kreatif panjang, dan pemecahan masalah logika. Model ini akan 'berpikir' sejenak sebelum menjawab."
-            },
-            {
               name: "Gen2 Flash",
-              desc: "Model super cepat dan ringan. Ideal untuk percakapan santai, pertanyaan singkat, terjemahan, atau tugas-tugas administratif yang membutuhkan respon instan."
+              desc: "Model super cepat, ringan, dan stabil. Ideal untuk percakapan santai, pertanyaan singkat, terjemahan, coding ringan, serta tugas-tugas administratif yang membutuhkan respon instan. Didukung oleh teknologi Gemini 2.5 Flash."
             }
           ]
         },
@@ -126,34 +122,30 @@ const HelpPage: React.FC<HelpPageProps> = ({ onBack, language }) => {
       sections: {
         intro: {
           title: "What is Velicia?",
-          content: `Velicia is an independent AI assistant built on Gen2 (Next Generation) architecture. Unlike standard chatbots, Velicia is designed to understand Indonesian cultural context, perform Deep Reasoning, and provide tangible productivity solutions.`,
+          content: `Velicia is an independent AI assistant built on Gen2 (Next Generation) architecture. Velicia is designed to understand Indonesian cultural context, perform tasks quickly, and provide tangible productivity solutions.`,
           points: [
-            "More efficient and smarter Gen2 Architecture.",
+            "Super fast Gen2 Flash architecture.",
             "Natural Indonesian Language support.",
             "Integrated with Google Search for real-time data."
           ]
         },
         start: {
           title: "Getting Started",
-          content: `To start using Velicia, simply type a question or command in the main chat box. No complex configuration required.`,
+          content: `To start using Velicia, simply type a question or command in the main chat box.`,
           steps: [
             "Open the main Dashboard.",
-            "Select the AI model that fits your needs (see AI Models section).",
+            "Ensure Gen2 Flash model is active (default).",
             "Type your message or upload a file.",
             "Press Enter or the Send button."
           ]
         },
         models: {
-          title: "Choosing Intelligence Models",
-          content: `Velicia provides two main brains you can choose based on the task:`,
+          title: "Intelligence Model",
+          content: `Currently, Velicia uses one primary model optimized for all needs:`,
           items: [
             {
-              name: "Gen2 Deep",
-              desc: "The smartest model with advanced reasoning capabilities. Best for coding, complex data analysis, long-form creative writing, and logical problem solving. This model 'thinks' before answering."
-            },
-            {
               name: "Gen2 Flash",
-              desc: "Super fast and lightweight model. Ideal for casual chat, short questions, translation, or administrative tasks requiring instant responses."
+              desc: "Super fast, lightweight, and stable model. Ideal for casual chat, short questions, translation, light coding, and administrative tasks requiring instant responses. Powered by Gemini 2.5 Flash technology."
             }
           ]
         },
