@@ -50,7 +50,7 @@ export interface UserProfile {
 
 export enum ModelType {
   // Use internal stable IDs, map to API models in service
-  GEN2_REASONING = 'velicia-reasoning', // Maps to gemini-2.5-pro
+  GEN2_REASONING = 'velicia-reasoning', // Deprecated from UI but kept for type safety
   GEN2_V2_5 = 'velicia-flash', // Maps to gemini-2.5-flash
 }
 
@@ -66,16 +66,9 @@ export interface ModelOption {
 
 export const DEFAULT_MODELS: ModelOption[] = [
   { 
-    id: ModelType.GEN2_REASONING, 
-    label: 'Gen2 Deep', 
-    description: 'Logika Kompleks • Coding • Analisis Mendalam', 
-    category: 'text',
-    brand: 'velicia'
-  },
-  { 
     id: ModelType.GEN2_V2_5, 
     label: 'Gen2 Flash', 
-    description: 'Cepat • Google Search • Real-time Info', 
+    description: 'Model Utama • Cepat • Stabil', 
     category: 'text',
     brand: 'velicia'
   }
