@@ -50,9 +50,8 @@ export interface UserProfile {
 
 export enum ModelType {
   // Use internal stable IDs, map to API models in service
-  GEN2_REASONING = 'velicia-reasoning', // Maps to gemini-3-pro-preview + CoT Prompt
-  GEN2_V2_5 = 'velicia-flash', // Maps to gemini-3-flash-preview
-  GEN2_PRO = 'velicia-pro' // Maps to gemini-3-pro-preview (Docs focus)
+  GEN2_REASONING = 'velicia-reasoning', // Maps to gemini-2.5-pro
+  GEN2_V2_5 = 'velicia-flash', // Maps to gemini-2.5-flash
 }
 
 export type BrandType = 'velicia';
@@ -77,13 +76,6 @@ export const DEFAULT_MODELS: ModelOption[] = [
     id: ModelType.GEN2_V2_5, 
     label: 'Gen2 Flash', 
     description: 'Cepat • Google Search • Real-time Info', 
-    category: 'text',
-    brand: 'velicia'
-  },
-  { 
-    id: ModelType.GEN2_PRO, 
-    label: 'Gen2 Docs', 
-    description: 'Analisis Dokumen Besar (PDF/Excel)', 
     category: 'text',
     brand: 'velicia'
   }
