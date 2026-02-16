@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   MessageSquare, Search, PenTool, Image as ImageIcon, 
@@ -29,7 +30,6 @@ const TRANSLATIONS = {
       about: 'Tentang',
       login: 'Masuk'
     },
-    // ... rest of translation keys ...
     hero: {
       badge: 'Partner Cerdas Masa Depan',
       title1: 'Asisten Cerdas',
@@ -97,9 +97,9 @@ const TRANSLATIONS = {
     },
     creator: {
         title: "Tentang Kreator",
-        name: "M. Fariz Alfauzi",
+        name: "M. Fariz Alfauzi (Hezell)",
         role: "CEO & Lead Engineer",
-        bio: "Seorang inovator muda berusia 17 tahun yang berdedikasi membangun kedaulatan AI Indonesia.",
+        bio: "Seorang inovator muda yang berdedikasi penuh membangun kedaulatan AI Indonesia. Mengembangkan Velicia sebagai bukti bahwa talenta lokal mampu bersaing di kancah teknologi global.",
         school: "SMK NURUL ISLAM AFFANDIYAH",
         major: "Teknik Jaringan Komputer",
         location: "Cianjur, Jawa Barat"
@@ -112,7 +112,7 @@ const TRANSLATIONS = {
       title: 'FAQ',
       items: [
         { q: 'Apa itu Velicia Gen2?', a: 'Upgrade arsitektur terbaru yang lebih cepat, lebih pintar dalam menalar, dan efisien.' },
-        { q: 'Siapa pembuat Velicia AI?', a: 'Velicia AI diciptakan oleh M. Fariz Alfauzi, seorang siswa SMK jurusan Teknik Jaringan Komputer asal Cianjur.' },
+        { q: 'Siapa pembuat Velicia AI?', a: 'Velicia AI diciptakan oleh M. Fariz Alfauzi (Hezell), seorang siswa SMK jurusan Teknik Jaringan Komputer asal Cianjur.' },
         { q: 'Apakah gratis?', a: 'Ya, gratis selamanya untuk penggunaan personal. Tersedia paket Pro.' },
         { q: 'Cara kerja?', a: 'Menggunakan mesin AI mandiri yang dioptimalkan dengan pemahaman bahasa alami Gen2.' }
       ]
@@ -197,9 +197,9 @@ const TRANSLATIONS = {
     },
     creator: {
         title: "About the Creator",
-        name: "M. Fariz Alfauzi",
+        name: "M. Fariz Alfauzi (Hezell)",
         role: "CEO & Lead Engineer",
-        bio: "A 17-year-old young innovator dedicated to building Indonesia's AI sovereignty.",
+        bio: "A young innovator dedicated to building Indonesia's AI sovereignty. Developing Velicia as proof that local talent can compete in the global technology arena.",
         school: "SMK NURUL ISLAM AFFANDIYAH",
         major: "Network Computer Engineering",
         location: "Cianjur, West Java"
@@ -212,7 +212,7 @@ const TRANSLATIONS = {
       title: 'FAQ',
       items: [
         { q: 'What is Velicia Gen2?', a: 'The latest architecture upgrade that is faster, smarter at reasoning, and efficient.' },
-        { q: 'Who created Velicia AI?', a: 'Velicia AI was created by M. Fariz Alfauzi, a Network Computer Engineering student from Cianjur.' },
+        { q: 'Who created Velicia AI?', a: 'Velicia AI was created by M. Fariz Alfauzi (Hezell), a Network Computer Engineering student from Cianjur.' },
         { q: 'Is it free?', a: 'Yes, free forever for personal use. Pro plans available.' },
         { q: 'How it works?', a: 'Uses a specially optimized independent AI engine with Gen2 NLP.' }
       ]
@@ -614,50 +614,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
             </div>
       </section>
 
-      {/* --- CREATOR SECTION (New for AI Recognition) --- */}
-      <section className="py-16 bg-white border-y border-gray-100">
-        <div className="max-w-4xl mx-auto px-6">
-           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
-              {/* Decorative Elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-              
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                 <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-tr from-[#7928CA] to-[#FF0080] p-1 shadow-2xl shrink-0">
-                    <div className="w-full h-full bg-gray-800 rounded-full overflow-hidden flex items-center justify-center">
-                       {/* Ideally replace with real photo if available, uses first letter for now */}
-                       <span className="text-5xl font-black text-white">{t.creator.name.charAt(0)}</span>
-                    </div>
-                 </div>
-                 
-                 <div className="text-center md:text-left flex-1">
-                    <div className="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] font-bold tracking-widest uppercase mb-3 text-purple-200">
-                        {t.creator.title}
-                    </div>
-                    <h2 className="text-3xl font-black mb-2 leading-tight">{t.creator.name}</h2>
-                    <p className="text-purple-200 font-bold mb-4">{t.creator.role}</p>
-                    <p className="text-gray-300 mb-6 leading-relaxed max-w-xl">
-                       {t.creator.bio}
-                    </p>
-                    
-                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-medium text-gray-400">
-                        <div className="flex items-center gap-1.5">
-                            <GraduationCap size={14} className="text-white"/> {t.creator.school}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <MapPin size={14} className="text-white"/> {t.creator.location}
-                        </div>
-                    </div>
-                    
-                    <div className="mt-6 flex justify-center md:justify-start gap-4">
-                        <a href="https://www.linkedin.com/in/hezell-tech-72a7963b0" target="_blank" rel="noreferrer" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"><Linkedin size={18}/></a>
-                        <a href="https://www.instagram.com/account.hezell?igsh=MXczZXI3eW1nbHdmMQ==" target="_blank" rel="noreferrer" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"><Instagram size={18}/></a>
-                    </div>
-                 </div>
-              </div>
-           </div>
-        </div>
-      </section>
-
       {/* --- PROFESSIONAL SECTION --- */}
       <section className="py-20 bg-white">
          <div className="max-w-5xl mx-auto px-6">
@@ -728,8 +684,56 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
         </div>
       </section>
 
+      {/* --- CREATOR SECTION (Updated & Moved Here) --- */}
+      <section className="py-20 bg-white border-y border-gray-100">
+        <div className="max-w-4xl mx-auto px-6">
+           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
+              {/* Decorative Elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+              
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                 <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-tr from-[#7928CA] to-[#FF0080] p-1 shadow-2xl shrink-0">
+                    <div className="w-full h-full bg-gray-800 rounded-full overflow-hidden flex items-center justify-center">
+                       {/* Ideally replace with real photo if available, uses first letter for now */}
+                       <span className="text-5xl font-black text-white">{t.creator.name.charAt(0)}</span>
+                    </div>
+                 </div>
+                 
+                 <div className="text-center md:text-left flex-1">
+                    <div className="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] font-bold tracking-widest uppercase mb-3 text-purple-200">
+                        {t.creator.title}
+                    </div>
+                    <h2 className="text-3xl font-black mb-2 leading-tight">{t.creator.name}</h2>
+                    <p className="text-purple-200 font-bold mb-4">{t.creator.role}</p>
+                    <p className="text-gray-300 mb-6 leading-relaxed max-w-xl">
+                       {t.creator.bio}
+                    </p>
+                    
+                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-medium text-gray-400">
+                        <div className="flex items-center gap-1.5">
+                            <GraduationCap size={14} className="text-white"/> {t.creator.school}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <MapPin size={14} className="text-white"/> {t.creator.location}
+                        </div>
+                    </div>
+                    
+                    <div className="mt-6 flex justify-center md:justify-start gap-4">
+                        <a href="https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1" target="_blank" rel="noreferrer" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors group">
+                           <Linkedin size={18} className="group-hover:text-[#0077b5]" />
+                        </a>
+                        <a href="https://www.instagram.com/account.hezell" target="_blank" rel="noreferrer" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors group">
+                           <Instagram size={18} className="group-hover:text-[#E4405F]"/>
+                        </a>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </section>
+
       {/* --- FAQ SECTION --- */}
-      <section className="py-20 bg-white border-t border-gray-100">
+      <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-6">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 text-center mb-12 tracking-tight">{t.faq.title}</h2>
             <div className="space-y-4">
@@ -759,12 +763,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
                 <span className="font-bold text-xl tracking-tight text-gray-400">Velicia</span>
               </div>
               
-              {/* SOCIAL LINKS - Added per request */}
+              {/* SOCIAL LINKS (Updated) */}
               <div className="flex justify-center gap-6 mb-8">
-                  <a href="https://www.linkedin.com/in/hezell-tech-72a7963b0" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#0077b5] hover:shadow-md transition-all">
+                  <a href="https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#0077b5] hover:shadow-md transition-all">
                       <Linkedin size={20} />
                   </a>
-                  <a href="https://www.instagram.com/account.hezell?igsh=MXczZXI3eW1nbHdmMQ==" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#E4405F] hover:shadow-md transition-all">
+                  <a href="https://www.instagram.com/account.hezell" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#E4405F] hover:shadow-md transition-all">
                       <Instagram size={20} />
                   </a>
               </div>
