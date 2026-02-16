@@ -16,13 +16,14 @@ const getAIClient = () => {
 };
 
 // Helper to map internal App IDs to valid Google GenAI Model Names
+// FIXED: Switched to 2.0-flash and 2.0-flash-thinking to resolve 429 Quota/Availability errors with 2.5-pro
 const getGeminiModelName = (modelId: string): string => {
     switch (modelId) {
         case ModelType.GEN2_REASONING:
-            return 'gemini-2.5-pro'; 
+            return 'gemini-2.0-flash-thinking-exp-01-21'; 
         case ModelType.GEN2_V2_5:
         default:
-            return 'gemini-2.5-flash'; 
+            return 'gemini-2.0-flash'; 
     }
 };
 
@@ -159,7 +160,7 @@ export async function* streamMessageToGemini(
     }
 }
 
-// Keep the non-streaming version (Fixing Syntax Error Here)
+// Keep the non-streaming version
 export const sendMessageToGemini = async (
   text: string, 
   modelId: string,
@@ -195,7 +196,7 @@ export const generateSpeechFromGemini = async (text: string): Promise<string | u
         const safeText = cleanText.length > 800 ? cleanText.substring(0, 800) + "..." : cleanText;
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-tts", 
+            model: "gemini-2.0-flash", // Use 2.0 Flash for TTS as well for consistency/quota
             contents: [{ 
                 parts: [{ 
                     text: `Read this text clearly and naturally in Indonesian language: "${safeText}"` 
