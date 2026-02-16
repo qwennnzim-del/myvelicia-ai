@@ -7,7 +7,7 @@ import { CONFIG } from '../config';
 export const IMAGE_MODELS = []; 
 
 const getAIClient = () => {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.API_KEY;
     if (!apiKey) {
         console.error("API_KEY is missing in environment variables.");
         throw new Error("Fitur ini membutuhkan API_KEY di konfigurasi environment");
@@ -19,18 +19,14 @@ const getAIClient = () => {
 const getGeminiModelName = (modelId: string): string => {
     switch (modelId) {
         case ModelType.GEN2_REASONING:
-            return 'gemini-2.5-flash'; 
-        case ModelType.GEN2_PRO:
-            return 'gemini-flash-latest'; 
+            return 'gemini-2.5-pro'; 
         case ModelType.GEN2_V2_5:
         default:
-            return 'gemini-flash-lite-latest'; 
+            return 'gemini-2.5-flash'; 
     }
 };
 
 // Helper: Fetch URL and convert to Base64 (Clean)
-// Digunakan karena Gemini API via SDK membutuhkan inlineData (base64) 
-// dan tidak bisa menerima public URL secara langsung di parameter parts.
 const getBase64FromUrl = async (url: string): Promise<string> => {
     try {
         const response = await fetch(url);
@@ -40,7 +36,6 @@ const getBase64FromUrl = async (url: string): Promise<string> => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 const res = reader.result as string;
-                // Remove prefix like "data:image/jpeg;base64,"
                 resolve(res.split(',')[1]);
             };
             reader.readAsDataURL(blob);
@@ -62,32 +57,29 @@ export async function* streamMessageToGemini(
     const ai = getAIClient();
     
     // --- STRATEGI PENGHEMATAN TOKEN (CONTEXT PRUNING) ---
-    // Kita ambil semua pesan kecuali yang terakhir (karena yang terakhir adalah input user saat ini)
+    // 1. Ambil semua pesan kecuali yang terakhir (input user saat ini)
     let historyMessages = history.slice(0, -1);
 
-    // LIMITASI: Hanya kirim 10 pesan terakhir untuk menghemat TPM (Tokens Per Minute)
-    // Semakin kecil history, semakin kecil kemungkinan terkena limit rate.
+    // 2. LIMITASI HISTORY: Hanya kirim 10 pesan terakhir.
+    // Ini mencegah error "TPM Limit Exceeded" saat percakapan menjadi panjang.
     const MAX_HISTORY_MESSAGES = 10;
     if (historyMessages.length > MAX_HISTORY_MESSAGES) {
         historyMessages = historyMessages.slice(-MAX_HISTORY_MESSAGES);
     }
 
-    // Prepare History with Async Processing (for Image URLs)
+    // Prepare History with Async Processing
     const sdkHistory: { role: string; parts: Part[] }[] = [];
     
     for (const msg of historyMessages) {
         const parts: Part[] = [];
         
+        // Handle Attachments in History
         if (msg.attachments && msg.attachments.length > 0) {
             for (const att of msg.attachments) {
                 let base64Data = "";
-                
-                // Jika konten adalah URL (dari Firebase Storage), fetch dulu jadi Base64
                 if (att.content.startsWith('http')) {
                     base64Data = await getBase64FromUrl(att.content);
-                } 
-                // Jika konten adalah Base64 (lokal state), ambil langsung
-                else if (att.content.startsWith('data:')) {
+                } else if (att.content.startsWith('data:')) {
                     base64Data = att.content.split(',')[1];
                 }
 
@@ -97,19 +89,18 @@ export async function* streamMessageToGemini(
             }
         }
         
+        // Handle Text in History with Truncation
         if (msg.text) {
-             // OPTIMISASI: Truncate teks history yang sangat panjang
-             // Jika ada pesan > 2000 karakter di masa lalu, kita potong untuk menghemat token.
-             // Model biasanya hanya butuh konteks inti, bukan keseluruhan esai lama.
+             // 3. TEXT TRUNCATION: Potong pesan masa lalu yang terlalu panjang (> 2000 char).
+             // Model AI umumnya hanya butuh intisari konteks, bukan keseluruhan esai lama.
              const MAX_CHAR_PER_MSG = 2000;
              let content = msg.text;
              if (content.length > MAX_CHAR_PER_MSG) {
-                 content = content.substring(0, MAX_CHAR_PER_MSG) + "... (truncated for token efficiency)";
+                 content = content.substring(0, MAX_CHAR_PER_MSG) + "... (truncated for efficiency)";
              }
              parts.push({ text: content });
         }
         
-        // Push processed message to history
         sdkHistory.push({ role: msg.role === Role.MODEL ? 'model' : 'user', parts });
     }
 
@@ -117,6 +108,7 @@ export async function* streamMessageToGemini(
         ? CONFIG.DEEP_REASONING_INSTRUCTION 
         : CONFIG.SYSTEM_INSTRUCTION;
 
+    // Use Google Search Tool
     const tools = [{ googleSearch: {} }];
 
     const chatSession = ai.chats.create({
@@ -125,14 +117,12 @@ export async function* streamMessageToGemini(
         config: {
             systemInstruction: systemInstruction,
             tools: tools, 
-            // OPTIMISASI: Batasi output token.
-            // Membatasi output membantu mencegah penggunaan TPM berlebih jika model "berhalusinasi" panjang.
-            // 4096 cukup untuk jawaban panjang tapi aman.
+            // 4. OUTPUT LIMIT: Batasi output token untuk mencegah looping tak terbatas.
             maxOutputTokens: 4096, 
         }
     });
 
-    // Prepare Current Message Parts
+    // Prepare Current Message (Input User Sekarang)
     const currentParts: Part[] = [];
     if (attachments && attachments.length > 0) {
         for (const att of attachments) {
@@ -169,16 +159,16 @@ export async function* streamMessageToGemini(
     }
 }
 
-// Keep the non-streaming version for fallback or specific uses
+// Keep the non-streaming version (Fixing Syntax Error Here)
 export const sendMessageToGemini = async (
   text: string, 
   modelId: string,
   history: Message[],
   attachments?: Attachment[]
 ): Promise<{ text: string; groundingMetadata?: GroundingMetadata }> => {
-    // Re-use the generator but consume it all at once
     let fullText = "";
     let finalMetadata;
+    // Reuse the streaming generator
     for await (const chunk of streamMessageToGemini(text, modelId, history, attachments)) {
         fullText += chunk.text;
         if (chunk.groundingMetadata) finalMetadata = chunk.groundingMetadata;
@@ -195,7 +185,7 @@ export const generatePresentationImage = async (prompt: string): Promise<string>
 export const generateSpeechFromGemini = async (text: string): Promise<string | undefined> => {
     const ai = getAIClient();
     try {
-        // 1. Clean Markdown heavily before sending to TTS model
+        // Clean Markdown heavily before sending to TTS model
         let cleanText = text
             .replace(/[*#_`~]/g, '') 
             .replace(/\[.*?\]\(.*?\)/g, '') 

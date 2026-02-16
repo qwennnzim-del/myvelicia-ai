@@ -32,7 +32,7 @@ export const sendToPollinations = async (
     let modelName = 'openai'; 
     
     // Map internal IDs to Pollinations provider
-    if (modelId === ModelType.GEN2_REASONING || modelId === ModelType.GEN2_PRO) {
+    if (modelId === ModelType.GEN2_REASONING) {
         modelName = 'openai'; // Use GPT-4o for "Smart" & "Pro" models
     } else if (modelId === ModelType.GEN2_V2_5) {
         modelName = 'mistral'; // Use Mistral for "Fast" model
