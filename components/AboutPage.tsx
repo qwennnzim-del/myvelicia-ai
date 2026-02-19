@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ArrowLeft, Sparkles, GraduationCap, MapPin, Linkedin, Instagram, Code, Terminal, Cpu } from 'lucide-react';
+import { ArrowLeft, GraduationCap, MapPin, Linkedin, Instagram, ArrowRight } from 'lucide-react';
 
 interface AboutPageProps {
   onBack: () => void;
@@ -9,7 +9,8 @@ interface AboutPageProps {
 const TRANSLATIONS = {
   id: {
     title: "Tentang Kreator / About Me",
-    name: "M. Fariz Alfauzi (Hezell)",
+    name: "M. Fariz Alfauzi",
+    alias: "Hezell",
     role: "CEO & Lead Engineer Velicia AI",
     devLabel: "Velicia AI Developer",
     bio1: "M. Fariz Alfauzi, yang akrab dikenal sebagai Hezell, adalah pengembang utama di balik myvelicia ai. Sebagai CEO & Lead Engineer, ia berdedikasi membangun kedaulatan AI Indonesia melalui teknologi Gen2 yang mandiri dan inovatif.",
@@ -22,7 +23,8 @@ const TRANSLATIONS = {
   },
   en: {
     title: "About the Creator / About Me",
-    name: "M. Fariz Alfauzi (Hezell)",
+    name: "M. Fariz Alfauzi",
+    alias: "Hezell",
     role: "CEO & Lead Engineer of Velicia AI",
     devLabel: "Velicia AI Developer",
     bio1: "M. Fariz Alfauzi, also known as Hezell, is the lead visionary behind myvelicia ai. As CEO & Lead Engineer, he is dedicated to establishing Indonesia's AI sovereignty through independent and innovative Gen2 technology.",
@@ -43,100 +45,136 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack, language }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 pb-20 selection:bg-pink-100 selection:text-pink-900">
+    <div className="min-h-screen bg-[#FAFAFA] font-sans text-gray-900 pb-24 selection:bg-purple-100 selection:text-purple-900">
       {/* Navbar Minimalis */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 h-16 flex items-center px-4 md:px-6 justify-between transition-all">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAFAFA]/90 backdrop-blur-md border-b border-gray-200/50 h-16 flex items-center px-4 md:px-6 justify-between transition-all">
          <button 
            onClick={onBack}
-           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors py-2 pr-4 group"
+           className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors py-2 pr-4 group"
          >
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             <span className="font-bold text-sm">{t.back}</span>
          </button>
          <div className="flex items-center gap-2">
-            <img src="/logoApp/logo-app.png" alt="Logo" className="h-8 w-auto object-contain" />
-            <span className="font-bold text-lg tracking-tight text-gray-900">Velicia</span>
+            <img src="/logoApp/logo-app.png" alt="Logo" className="h-7 w-auto object-contain grayscale opacity-60" />
+            <span className="font-bold text-base tracking-tight text-gray-400">Profile</span>
          </div>
          <div className="w-10"></div> {/* Spacer for centering */}
       </nav>
 
-      <main className="pt-24 md:pt-32 max-w-5xl mx-auto px-6">
-        <div className="bg-gradient-to-br from-[#0f172a] to-[#1e293b] rounded-[3rem] p-8 md:p-16 text-white relative overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            
-            {/* Background Accents for Modern Feel */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] -mr-40 -mt-40 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-600/10 rounded-full blur-[100px] -ml-40 -mb-40 pointer-events-none"></div>
-            
-            <div className="relative z-10 flex flex-col items-center text-center">
+      <main className="pt-32 max-w-3xl mx-auto px-6">
+        
+        {/* Header Profile Area */}
+        <header className="mb-14 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-8 border-b border-gray-200 pb-10">
                 
-                {/* Profile Avatar with Hover Effect */}
-                <div className="w-40 h-40 md:w-56 md:h-56 rounded-[2.5rem] bg-gradient-to-tr from-[#7928CA] to-[#FF0080] p-1.5 shadow-[0_0_40px_rgba(121,40,202,0.4)] shrink-0 group hover:scale-105 transition-all duration-700 hover:rotate-3 mb-8">
-                    <div className="w-full h-full bg-slate-900 rounded-[2.2rem] overflow-hidden flex items-center justify-center border-4 border-slate-800/50">
-                        <span className="text-7xl md:text-8xl font-black text-white select-none">M</span>
+                {/* Minimalist Avatar */}
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center shrink-0 relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <span className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-gray-700 to-black select-none">
+                        M
+                    </span>
+                </div>
+
+                <div className="flex-1">
+                    <div className="inline-block px-3 py-1 bg-purple-50 text-purple-700 rounded-md text-[10px] font-bold uppercase tracking-widest mb-4 border border-purple-100">
+                        {t.devLabel}
                     </div>
-                </div>
-                
-                <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-extrabold tracking-[0.2em] uppercase mb-6 text-purple-300 backdrop-blur-sm">
-                    <Sparkles size={16} className="text-yellow-400"/> {t.title}
-                </div>
-                
-                <h1 className="text-4xl md:text-6xl font-black mb-4 leading-tight tracking-tighter">
-                    {t.name}
-                </h1>
-                
-                <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4 mb-10">
-                    <p className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                    <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-2">
+                        {t.name} <span className="text-gray-400 font-medium text-3xl md:text-4xl">({t.alias})</span>
+                    </h1>
+                    <p className="text-lg md:text-xl font-medium text-gray-500">
                         {t.role}
                     </p>
-                    <div className="hidden md:block w-2 h-2 rounded-full bg-slate-600"></div>
-                    <p className="text-slate-400 font-bold text-sm md:text-base tracking-widest uppercase">
-                        {t.devLabel}
-                    </p>
                 </div>
+            </div>
+        </header>
 
-                <div className="max-w-3xl space-y-6 text-slate-300 leading-relaxed text-lg font-medium mb-12">
-                    <p>{t.bio1}</p>
-                    <p>{t.bio2}</p>
-                </div>
+        {/* Reading Content Area */}
+        <article className="prose prose-lg prose-slate max-w-none prose-p:leading-loose prose-p:text-gray-600 prose-p:font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100">
+            
+            {/* Paragraph with Drop Cap */}
+            <p className="relative">
+                <span className="float-left text-6xl md:text-7xl font-black text-gray-900 leading-none pr-3 pt-2 pb-1 text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-pink-600">
+                    {t.bio1.charAt(0)}
+                </span>
+                {t.bio1.slice(1)}
+            </p>
+
+            <p>
+                {t.bio2}
+            </p>
+
+            {/* Background Information Box (Integrated smoothly into the article) */}
+            <div className="not-prose mt-12 mb-12 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50 rounded-bl-full -mr-8 -mt-8"></div>
                 
-                {/* Info Tags */}
-                <div className="flex flex-wrap justify-center gap-4 mb-16 text-sm font-bold text-slate-300">
-                    <div className="flex items-center gap-2 px-5 py-3 bg-white/5 hover:bg-white/10 transition-colors rounded-2xl border border-white/5 backdrop-blur-sm cursor-default">
-                        <GraduationCap size={20} className="text-purple-400"/> {t.school}
-                    </div>
-                    <div className="flex items-center gap-2 px-5 py-3 bg-white/5 hover:bg-white/10 transition-colors rounded-2xl border border-white/5 backdrop-blur-sm cursor-default">
-                        <MapPin size={20} className="text-pink-400"/> {t.location}
-                    </div>
-                </div>
-
-                <hr className="w-full border-white/10 mb-12" />
-
-                {/* SOCIAL LINKS (SEO Target) */}
-                <h3 className="text-xl font-bold text-white mb-8 tracking-wide uppercase">{t.connect}</h3>
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6 relative z-10">Latar Belakang Akademis & Lokasi</h3>
                 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-5 w-full max-w-2xl">
+                <ul className="space-y-4 relative z-10">
+                    <li className="flex items-center gap-4 text-gray-600">
+                        <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                            <GraduationCap size={20}/>
+                        </div>
+                        <div>
+                            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-0.5">Pendidikan</div>
+                            <div className="font-semibold text-gray-900">{t.school}</div>
+                        </div>
+                    </li>
+                    <li className="flex items-center gap-4 text-gray-600">
+                        <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                            <MapPin size={20}/>
+                        </div>
+                        <div>
+                            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-0.5">Basis Operasi</div>
+                            <div className="font-semibold text-gray-900">{t.location}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            {/* Social Media & Contact Section */}
+            <div className="not-prose pt-8 border-t border-gray-200">
+                <h3 className="text-2xl font-black text-gray-900 mb-6">{t.connect}</h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* LinkedIn Card */}
                     <a 
                         href="https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1" 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="w-full sm:w-auto flex-1 flex items-center justify-center gap-3 px-8 py-5 bg-[#0077b5] hover:bg-[#005a8a] text-white rounded-2xl font-black text-base transition-all shadow-lg hover:shadow-[#0077b5]/40 hover:-translate-y-1 active:scale-95 group"
+                        className="flex items-center gap-4 p-5 bg-white border border-gray-200 hover:border-blue-300 rounded-2xl transition-all hover:shadow-md group no-underline"
                     >
-                        <Linkedin size={24} className="group-hover:scale-110 transition-transform" />
-                        LinkedIn Profile
+                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                            <Linkedin size={24} className="text-[#0077b5] group-hover:scale-110 transition-transform" />
+                        </div>
+                        <div className="flex-1">
+                            <div className="text-base font-bold text-gray-900 leading-tight">LinkedIn</div>
+                            <div className="text-xs text-gray-500 font-medium mt-0.5">Koneksi Profesional</div>
+                        </div>
+                        <ArrowRight size={18} className="text-gray-300 group-hover:text-[#0077b5] group-hover:translate-x-1 transition-all" />
                     </a>
+
+                    {/* Instagram Card */}
                     <a 
                         href="https://www.instagram.com/account.hezell" 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="w-full sm:w-auto flex-1 flex items-center justify-center gap-3 px-8 py-5 bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] hover:opacity-90 text-white rounded-2xl font-black text-base transition-all shadow-lg hover:shadow-pink-500/40 hover:-translate-y-1 active:scale-95 group"
+                        className="flex items-center gap-4 p-5 bg-white border border-gray-200 hover:border-pink-300 rounded-2xl transition-all hover:shadow-md group no-underline"
                     >
-                        <Instagram size={24} className="group-hover:scale-110 transition-transform" />
-                        Follow @account.hezell
+                        <div className="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center shrink-0">
+                            <Instagram size={24} className="text-[#E4405F] group-hover:scale-110 transition-transform" />
+                        </div>
+                        <div className="flex-1">
+                            <div className="text-base font-bold text-gray-900 leading-tight">Instagram</div>
+                            <div className="text-xs text-gray-500 font-medium mt-0.5">@account.hezell</div>
+                        </div>
+                        <ArrowRight size={18} className="text-gray-300 group-hover:text-[#E4405F] group-hover:translate-x-1 transition-all" />
                     </a>
                 </div>
-                
             </div>
-        </div>
+
+        </article>
       </main>
     </div>
   );
