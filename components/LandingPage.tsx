@@ -96,13 +96,15 @@ const TRANSLATIONS = {
       }
     },
     creator: {
-        title: "Tentang Kreator",
+        title: "Tentang Kreator / About Me",
         name: "M. Fariz Alfauzi (Hezell)",
-        role: "CEO & Lead Engineer",
-        bio: "Seorang inovator muda yang berdedikasi penuh membangun kedaulatan AI Indonesia. Mengembangkan Velicia sebagai bukti bahwa talenta lokal mampu bersaing di kancah teknologi global.",
+        role: "CEO & Lead Engineer Velicia AI",
+        bio: "M. Fariz Alfauzi, yang akrab dikenal sebagai Hezell, adalah pengembang utama di balik myvelicia ai. Sebagai CEO & Lead Engineer, ia berdedikasi membangun kedaulatan AI Indonesia melalui teknologi Gen2 yang mandiri dan inovatif. Hezell berfokus pada efisiensi tinggi dan kecerdasan buatan kelas dunia.",
         school: "SMK NURUL ISLAM AFFANDIYAH",
         major: "Teknik Jaringan Komputer",
-        location: "Cianjur, Jawa Barat"
+        location: "Cianjur, Jawa Barat",
+        linkedin: "https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1",
+        instagram: "https://www.instagram.com/account.hezell"
     },
     team: {
       title: 'Tim Gen2 Kami',
@@ -112,13 +114,13 @@ const TRANSLATIONS = {
       title: 'FAQ',
       items: [
         { q: 'Apa itu Velicia Gen2?', a: 'Upgrade arsitektur terbaru yang lebih cepat, lebih pintar dalam menalar, dan efisien.' },
-        { q: 'Siapa pembuat Velicia AI?', a: 'Velicia AI diciptakan oleh M. Fariz Alfauzi (Hezell), seorang siswa SMK jurusan Teknik Jaringan Komputer asal Cianjur.' },
+        { q: 'Siapa pembuat Velicia AI?', a: 'Velicia AI diciptakan oleh M. Fariz Alfauzi (Hezell), seorang CEO & Lead Engineer berbakat yang fokus pada teknologi AI Indonesia.' },
         { q: 'Apakah gratis?', a: 'Ya, gratis selamanya untuk penggunaan personal. Tersedia paket Pro.' },
         { q: 'Cara kerja?', a: 'Menggunakan mesin AI mandiri yang dioptimalkan dengan pemahaman bahasa alami Gen2.' }
       ]
     },
     footer: {
-      text: '© 2026 Velicia AI Inc. Developed by M. Fariz Alfauzi.'
+      text: '© 2026 Velicia AI Inc. Developed by M. Fariz Alfauzi (Hezell).'
     }
   },
   en: {
@@ -196,13 +198,15 @@ const TRANSLATIONS = {
       }
     },
     creator: {
-        title: "About the Creator",
+        title: "About the Creator / About Me",
         name: "M. Fariz Alfauzi (Hezell)",
-        role: "CEO & Lead Engineer",
-        bio: "A young innovator dedicated to building Indonesia's AI sovereignty. Developing Velicia as proof that local talent can compete in the global technology arena.",
+        role: "CEO & Lead Engineer of Velicia AI",
+        bio: "M. Fariz Alfauzi, also known as Hezell, is the lead visionary behind myvelicia ai. As CEO & Lead Engineer, he is dedicated to establishing Indonesia's AI sovereignty through independent and innovative Gen2 technology.",
         school: "SMK NURUL ISLAM AFFANDIYAH",
         major: "Network Computer Engineering",
-        location: "Cianjur, West Java"
+        location: "Cianjur, West Java",
+        linkedin: "https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1",
+        instagram: "https://www.instagram.com/account.hezell"
     },
     team: {
       title: 'Our Gen2 Team',
@@ -212,13 +216,13 @@ const TRANSLATIONS = {
       title: 'FAQ',
       items: [
         { q: 'What is Velicia Gen2?', a: 'The latest architecture upgrade that is faster, smarter at reasoning, and efficient.' },
-        { q: 'Who created Velicia AI?', a: 'Velicia AI was created by M. Fariz Alfauzi (Hezell), a Network Computer Engineering student from Cianjur.' },
+        { q: 'Who created Velicia AI?', a: 'Velicia AI was created by M. Fariz Alfauzi (Hezell), an Indonesian CEO & Lead Engineer focusing on local AI innovation.' },
         { q: 'Is it free?', a: 'Yes, free forever for personal use. Pro plans available.' },
         { q: 'How it works?', a: 'Uses a specially optimized independent AI engine with Gen2 NLP.' }
       ]
     },
     footer: {
-      text: '© 2026 Velicia AI Inc. Developed by M. Fariz Alfauzi.'
+      text: '© 2026 Velicia AI Inc. Developed by M. Fariz Alfauzi (Hezell).'
     }
   }
 };
@@ -245,7 +249,6 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
 
   return (
     <div className="bg-gray-50 rounded-[1.5rem] overflow-hidden aspect-[16/10] border border-gray-100 relative shadow-inner">
-      {/* ... Content remains same ... */}
       <div className="absolute inset-0 flex">
         <div className="hidden md:block w-40 lg:w-56 bg-white border-r border-gray-100 p-3 space-y-3">
           <div className="flex gap-1.5 mb-4">
@@ -390,22 +393,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
   };
 
   const allTeamMembers = [
-    // Core Leadership
     { name: 'M. Fariz Alfauzi', role: 'CEO & Lead Engineer', color: 'from-[#7928CA] to-[#FF0080]' },
     { name: 'Sarah A.', role: 'AI Research Lead', color: 'from-[#FF0080] to-[#FF4D4D]' },
     { name: 'Andi W.', role: 'Head of Operations', color: 'from-[#0070F3] to-[#00DFD8]' },
     { name: 'Jessica T.', role: 'Product Manager', color: 'from-[#F59E0B] to-[#D97706]' },
     { name: 'Rian K.', role: 'Cloud Architect', color: 'from-[#10B981] to-[#059669]' },
-    
-    // Gen Z Squad
-    { name: 'Kevin S.', role: 'Frontend Wizard', color: 'from-[#3B82F6] to-[#8B5CF6]' }, // Blue to Purple
-    { name: 'Dinda R.', role: 'UI/UX Aesthetics', color: 'from-[#EC4899] to-[#F43F5E]' }, // Pink to Rose
-    { name: 'Fikri Z.', role: 'Backend Ninja', color: 'from-[#6366F1] to-[#4F46E5]' }, // Indigo
-    { name: 'Bella C.', role: 'Social Media Lead', color: 'from-[#F472B6] to-[#DB2777]' }, // Pink
-    { name: 'Reza P.', role: 'Data Scientist', color: 'from-[#14B8A6] to-[#0D9488]' }, // Teal
-    { name: 'Vanya L.', role: 'Community Mgr', color: 'from-[#F59E0B] to-[#D97706]' }, // Amber
-    { name: 'Jojo K.', role: 'DevOps & Sec', color: 'from-[#64748B] to-[#475569]' }, // Slate
-    { name: 'Tasya M.', role: 'Creative Content', color: 'from-[#FB7185] to-[#E11D48]' }, // Rose
+    { name: 'Kevin S.', role: 'Frontend Wizard', color: 'from-[#3B82F6] to-[#8B5CF6]' },
+    { name: 'Dinda R.', role: 'UI/UX Aesthetics', color: 'from-[#EC4899] to-[#F43F5E]' },
+    { name: 'Fikri Z.', role: 'Backend Ninja', color: 'from-[#6366F1] to-[#4F46E5]' },
+    { name: 'Bella C.', role: 'Social Media Lead', color: 'from-[#F472B6] to-[#DB2777]' },
+    { name: 'Reza P.', role: 'Data Scientist', color: 'from-[#14B8A6] to-[#0D9488]' },
+    { name: 'Vanya L.', role: 'Community Mgr', color: 'from-[#F59E0B] to-[#D97706]' },
+    { name: 'Jojo K.', role: 'DevOps & Sec', color: 'from-[#64748B] to-[#475569]' },
+    { name: 'Tasya M.', role: 'Creative Content', color: 'from-[#FB7185] to-[#E11D48]' },
   ];
 
   const visibleTeam = showAllTeam ? allTeamMembers : allTeamMembers.slice(0, 5);
@@ -433,7 +433,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
              <a href="#" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.pricing}</a>
              <button onClick={() => { setMobileMenuOpen(false); onOpenBlog(); }} className="text-xl font-bold text-gray-900 text-left">{t.nav.blog}</button>
              
-             {/* Mobile Login Button */}
              {!userProfile?.isLoggedIn ? (
                  <button 
                     onClick={() => { setMobileMenuOpen(false); onLogin?.(); }}
@@ -489,7 +488,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
                 <span>{t.nav.langLabel}</span>
              </button>
              
-             {/* Desktop Login / Avatar */}
              {!userProfile?.isLoggedIn ? (
                  <button 
                     onClick={onLogin}
@@ -509,7 +507,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
           </div>
 
           <div className="md:hidden flex items-center gap-4">
-            {/* Mobile: Login Button near Menu (if not logged in) */}
             {!userProfile?.isLoggedIn && (
                 <button onClick={onLogin} className="text-[#7928CA] font-bold text-sm flex items-center gap-1">
                     <LogIn size={16} /> {t.nav.login}
@@ -661,7 +658,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
                  <div key={i} className="group relative w-32 md:w-40 flex flex-col items-center">
                     <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br ${member.color} p-[3px] mb-4 shadow-xl shadow-gray-200 transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
                        <div className="w-full h-full bg-white rounded-full flex items-center justify-center overflow-hidden relative">
-                           {/* Placeholder Avatar - In prod use real images */}
                            <span className={`text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-br ${member.color}`}>
                              {member.name.charAt(0)}
                            </span>
@@ -684,46 +680,73 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
         </div>
       </section>
 
-      {/* --- CREATOR SECTION (Updated & Moved Here) --- */}
-      <section className="py-20 bg-white border-y border-gray-100">
-        <div className="max-w-4xl mx-auto px-6">
-           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
-              {/* Decorative Elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+      {/* --- CREATOR / ABOUT ME SECTION (After Team Section) --- */}
+      <section id="about-me" className="py-24 bg-white border-y border-gray-100 scroll-mt-20">
+        <div className="max-w-5xl mx-auto px-6">
+           <div className="bg-gradient-to-br from-[#0f172a] to-[#1e293b] rounded-[3rem] p-8 md:p-16 text-white relative overflow-hidden shadow-2xl">
+              {/* Background Accents for Modern Feel */}
+              <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/20 rounded-full blur-[100px] -mr-40 -mt-40 pointer-events-none"></div>
+              <div className="absolute bottom-0 left-0 w-80 h-80 bg-pink-600/10 rounded-full blur-[100px] -ml-40 -mb-40 pointer-events-none"></div>
               
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                 <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-tr from-[#7928CA] to-[#FF0080] p-1 shadow-2xl shrink-0">
-                    <div className="w-full h-full bg-gray-800 rounded-full overflow-hidden flex items-center justify-center">
-                       {/* Ideally replace with real photo if available, uses first letter for now */}
-                       <span className="text-5xl font-black text-white">{t.creator.name.charAt(0)}</span>
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                 {/* Profile Avatar with Hover Effect */}
+                 <div className="w-40 h-40 md:w-56 md:h-56 rounded-[2rem] bg-gradient-to-tr from-[#7928CA] to-[#FF0080] p-1.5 shadow-2xl shrink-0 group hover:scale-105 transition-all duration-500 hover:rotate-2">
+                    <div className="w-full h-full bg-slate-900 rounded-[1.8rem] overflow-hidden flex items-center justify-center border-4 border-slate-800/50">
+                       <span className="text-7xl font-black text-white select-none">{t.creator.name.charAt(0)}</span>
                     </div>
                  </div>
                  
                  <div className="text-center md:text-left flex-1">
-                    <div className="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] font-bold tracking-widest uppercase mb-3 text-purple-200">
-                        {t.creator.title}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] font-extrabold tracking-[0.2em] uppercase mb-4 text-purple-300">
+                        <Sparkles size={14} className="text-yellow-400"/> {t.creator.title}
                     </div>
-                    <h2 className="text-3xl font-black mb-2 leading-tight">{t.creator.name}</h2>
-                    <p className="text-purple-200 font-bold mb-4">{t.creator.role}</p>
-                    <p className="text-gray-300 mb-6 leading-relaxed max-w-xl">
+                    
+                    <h2 className="text-4xl md:text-5xl font-black mb-3 leading-tight tracking-tighter">
+                        {t.creator.name}
+                    </h2>
+                    
+                    <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 mb-6">
+                       <p className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                           {t.creator.role}
+                       </p>
+                       <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+                       <p className="text-slate-400 font-bold text-sm md:text-base tracking-wide uppercase">
+                           Velicia AI Developer
+                       </p>
+                    </div>
+
+                    <p className="text-slate-300 mb-8 leading-relaxed text-lg font-medium max-w-2xl mx-auto md:mx-0">
                        {t.creator.bio}
                     </p>
                     
-                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-medium text-gray-400">
-                        <div className="flex items-center gap-1.5">
-                            <GraduationCap size={14} className="text-white"/> {t.creator.school}
+                    <div className="flex flex-wrap justify-center md:justify-start gap-5 mb-10 text-sm font-bold text-slate-400">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
+                            <GraduationCap size={18} className="text-purple-400"/> {t.creator.school}
                         </div>
-                        <div className="flex items-center gap-1.5">
-                            <MapPin size={14} className="text-white"/> {t.creator.location}
+                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
+                            <MapPin size={18} className="text-pink-400"/> {t.creator.location}
                         </div>
                     </div>
                     
-                    <div className="mt-6 flex justify-center md:justify-start gap-4">
-                        <a href="https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1" target="_blank" rel="noreferrer" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors group">
-                           <Linkedin size={18} className="group-hover:text-[#0077b5]" />
+                    {/* SOCIAL LINKS (SEO Target) */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <a 
+                            href={t.creator.linkedin} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#0077b5] hover:bg-[#005a8a] text-white rounded-2xl font-black text-sm transition-all shadow-lg hover:shadow-[#0077b5]/30 active:scale-95 group"
+                        >
+                           <Linkedin size={20} className="group-hover:scale-110 transition-transform" />
+                           LinkedIn Profile
                         </a>
-                        <a href="https://www.instagram.com/account.hezell" target="_blank" rel="noreferrer" className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors group">
-                           <Instagram size={18} className="group-hover:text-[#E4405F]"/>
+                        <a 
+                            href={t.creator.instagram} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] hover:opacity-90 text-white rounded-2xl font-black text-sm transition-all shadow-lg hover:shadow-pink-500/20 active:scale-95 group"
+                        >
+                           <Instagram size={20} className="group-hover:scale-110 transition-transform" />
+                           Follow @account.hezell
                         </a>
                     </div>
                  </div>
@@ -763,12 +786,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
                 <span className="font-bold text-xl tracking-tight text-gray-400">Velicia</span>
               </div>
               
-              {/* SOCIAL LINKS (Updated) */}
               <div className="flex justify-center gap-6 mb-8">
-                  <a href="https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#0077b5] hover:shadow-md transition-all">
+                  <a href={t.creator.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#0077b5] hover:shadow-md transition-all">
                       <Linkedin size={20} />
                   </a>
-                  <a href="https://www.instagram.com/account.hezell" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#E4405F] hover:shadow-md transition-all">
+                  <a href={t.creator.instagram} target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#E4405F] hover:shadow-md transition-all">
                       <Instagram size={20} />
                   </a>
               </div>
