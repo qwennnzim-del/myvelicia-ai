@@ -9,6 +9,7 @@ import Sidebar from './components/Sidebar';
 import ArticlePage from './components/ArticlePage';
 import BlogPage from './components/BlogPage';
 import HelpPage from './components/HelpPage'; 
+import AboutPage from './components/AboutPage';
 import Onboarding, { OnboardingStep } from './components/Onboarding'; 
 import { SettingsModal, ProfileModal, LoginModal } from './components/Modals'; 
 import { Message, Role, ModelType, DEFAULT_MODELS, ModelOption, Attachment, ChatSession, UserProfile } from './types';
@@ -369,6 +370,10 @@ const App: React.FC = () => {
       handlePageTransition('/blog');
   };
 
+  const handleOpenAbout = () => {
+      handlePageTransition('/about');
+  };
+
   const handleBackToLanding = () => {
      handlePageTransition('/');
   };
@@ -687,6 +692,7 @@ const App: React.FC = () => {
                         onEnterApp={handleEnterApp} 
                         onReadArticle={handleReadArticle}
                         onOpenBlog={handleOpenBlog}
+                        onOpenAbout={handleOpenAbout}
                         initialScrollTo={initialScrollTo}
                         language={language}
                         setLanguage={(lang) => {
@@ -715,6 +721,13 @@ const App: React.FC = () => {
                         onReadArticle={handleReadArticle}
                     />
                 </div>
+            } />
+
+            <Route path="/about" element={
+                <AboutPage 
+                    onBack={handleBackToLanding}
+                    language={language}
+                />
             } />
 
             <Route path="/help" element={
