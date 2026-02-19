@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import Header from './components/Header';
 import MessageList from './components/MessageList';
@@ -207,32 +208,18 @@ const APP_TRANSLATIONS = {
   }
 };
 
-
-type AppView = 'landing' | 'app' | 'article' | 'help' | 'blog'; 
-
 interface ExtendedUserProfile extends UserProfile {
-    uid?: string; // Firebase UID
+    uid?: string; 
 }
 
-const App: React.FC = () => {
-  // --- VIEW STATE (Persisted) ---
-  const [currentView, setCurrentView] = useState<AppView>(() => {
-    if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem('velicia_current_view');
-        if (saved === 'app' || saved === 'landing' || saved === 'article' || saved === 'help' || saved === 'blog') {
-            return saved as AppView;
-        }
-    }
-    return 'landing';
-  });
+const ArticleRouteWrapper: React.FC<{ onBack: () => void, onReadArticle: (id: number) => void }> = ({ onBack, onReadArticle }) => {
+    const { id } = useParams<{ id: string }>();
+    return <ArticlePage articleId={parseInt(id || '0')} onBack={onBack} onReadArticle={onReadArticle} />;
+};
 
-  const [selectedArticleId, setSelectedArticleId] = useState<number | null>(() => {
-    if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem('velicia_article_id');
-        return saved ? parseInt(saved) : null;
-    }
-    return null;
-  });
+const App: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [initialScrollTo, setInitialScrollTo] = useState<string | null>(null);
   const [isPageLoading, setIsPageLoading] = useState(false);
@@ -240,7 +227,6 @@ const App: React.FC = () => {
   // --- CHAT STATE ---
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<ChatSession[]>([]);
-  
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
 
   const [isAILoading, setIsAILoading] = useState(false);
@@ -254,7 +240,6 @@ const App: React.FC = () => {
       bio: '', 
       isLoggedIn: false 
   });
-
   const [language, setLanguage] = useState<'id' | 'en'>('id');
   
   // --- UI FLAGS ---
@@ -311,12 +296,9 @@ const App: React.FC = () => {
         }
     });
     
-    logAnalyticsEvent('page_view', { page: currentView });
-
     return () => unsubscribe();
   }, []);
 
-  // --- PERSISTENCE LOGIC (LOCAL STORAGE ONLY) ---
   useEffect(() => {
       if (!userProfile.isLoggedIn) {
           saveChatToLocal(history);
@@ -324,17 +306,8 @@ const App: React.FC = () => {
   }, [history, userProfile.isLoggedIn]);
 
   useEffect(() => {
-    localStorage.setItem('velicia_current_view', currentView);
-    logAnalyticsEvent('screen_view', { screen_name: currentView });
-  }, [currentView]);
-
-  useEffect(() => {
-    if (selectedArticleId !== null) {
-        localStorage.setItem('velicia_article_id', selectedArticleId.toString());
-    } else {
-        localStorage.removeItem('velicia_article_id');
-    }
-  }, [selectedArticleId]);
+    logAnalyticsEvent('screen_view', { screen_name: location.pathname });
+  }, [location.pathname]);
 
   useEffect(() => {
     if (activeChatId) {
@@ -359,10 +332,11 @@ const App: React.FC = () => {
 
 
   // --- NAVIGATION HANDLERS ---
-  const handlePageTransition = (callback: () => void) => {
+  const handlePageTransition = (path: string, callback?: () => void) => {
     setIsPageLoading(true);
     setTimeout(() => {
-      callback();
+      navigate(path);
+      if (callback) callback();
       setTimeout(() => setIsPageLoading(false), 200); 
     }, 1200);
   };
@@ -375,44 +349,32 @@ const App: React.FC = () => {
   };
 
   const handleEnterApp = async () => {
-    handlePageTransition(() => {
-      setCurrentView('app');
+    handlePageTransition('/app', () => {
       setInitialScrollTo(null);
       checkOnboarding();
     });
   };
   
   useEffect(() => {
-      if (currentView === 'app') {
+      if (location.pathname === '/app') {
           checkOnboarding();
       }
-  }, [currentView]);
+  }, [location.pathname]);
 
   const handleReadArticle = (id: number) => {
-    handlePageTransition(() => {
-        setSelectedArticleId(id);
-        setCurrentView('article');
-    });
+    handlePageTransition(`/article/${id}`);
   };
 
   const handleOpenBlog = () => {
-      handlePageTransition(() => {
-          setCurrentView('blog');
-          setSelectedArticleId(null);
-      });
+      handlePageTransition('/blog');
   };
 
   const handleBackToLanding = () => {
-     handlePageTransition(() => {
-        setCurrentView('landing');
-        setSelectedArticleId(null);
-     });
+     handlePageTransition('/');
   };
 
   const handleBackFromHelp = () => {
-      handlePageTransition(() => {
-          setCurrentView('app'); 
-      });
+      handlePageTransition('/app'); 
   };
   
   const handleNavigateFromSidebar = (sectionId: string) => {
@@ -423,9 +385,8 @@ const App: React.FC = () => {
         return;
     }
 
-    if (currentView !== 'landing') {
-        handlePageTransition(() => {
-            setCurrentView('landing');
+    if (location.pathname !== '/') {
+        handlePageTransition('/', () => {
             setInitialScrollTo(sectionId);
         });
     } else {
@@ -435,9 +396,7 @@ const App: React.FC = () => {
 
   const handleOpenHelpPage = () => {
       setIsSidebarOpen(false);
-      handlePageTransition(() => {
-          setCurrentView('help');
-      });
+      handlePageTransition('/help');
   };
 
   const finishOnboarding = () => {
@@ -689,7 +648,6 @@ const App: React.FC = () => {
     <>
         <TopProgressBar isLoading={isPageLoading} />
         
-        {/* MODALS */}
         <SettingsModal 
             isOpen={modals.settings} 
             onClose={() => toggleModal('settings')} 
@@ -722,121 +680,122 @@ const App: React.FC = () => {
             onLogin={() => {}} 
         />
 
-        {currentView === 'landing' && (
-             <div className="min-h-screen bg-white">
-                <LandingPage 
-                    onEnterApp={handleEnterApp} 
-                    onReadArticle={handleReadArticle}
-                    onOpenBlog={handleOpenBlog}
-                    initialScrollTo={initialScrollTo}
-                    language={language}
-                    setLanguage={(lang) => {
-                        setLanguage(lang);
-                        logAnalyticsEvent('change_language', { language: lang });
-                    }}
-                    userProfile={userProfile} 
-                    onLogin={() => toggleModal('login')} 
-                />
-            </div>
-        )}
-
-        {currentView === 'blog' && (
-            <div className="min-h-screen bg-[#FAFAFA]">
-                <BlogPage 
-                    onBack={handleBackToLanding}
-                    onReadArticle={handleReadArticle}
-                />
-            </div>
-        )}
-
-        {currentView === 'article' && selectedArticleId !== null && (
-            <div className="min-h-screen bg-white">
-                <ArticlePage 
-                    articleId={selectedArticleId} 
-                    onBack={handleOpenBlog}
-                    onReadArticle={handleReadArticle}
-                />
-            </div>
-        )}
-
-        {currentView === 'help' && (
-             <HelpPage 
-                onBack={handleBackFromHelp}
-                language={language}
-            />
-        )}
-
-        {currentView === 'app' && (
-             <div className="fixed inset-0 w-full h-[100dvh] bg-[#FAFAFA] flex flex-col overflow-hidden text-gray-900 font-sans">
-                <Sidebar 
-                    isOpen={isSidebarOpen} 
-                    onClose={() => setIsSidebarOpen(false)} 
-                    onNewChat={handleNewChat}
-                    onNavigate={handleNavigateFromSidebar}
-                    
-                    history={history}
-                    activeChatId={activeChatId}
-                    onSelectChat={handleSelectChat}
-                    onDeleteChat={handleDeleteChat}
-                    
-                    userProfile={userProfile}
-                    
-                    onOpenSettings={() => toggleModal('settings')}
-                    onOpenProfile={() => toggleModal('profile')}
-                    onOpenHelp={handleOpenHelpPage} 
-                    onLogin={handleAuthAction} 
-                    translations={APP_TRANSLATIONS[language]}
-                />
-                
-                <Header 
-                    onNewChat={handleNewChat} 
-                    onMenuClick={() => setIsSidebarOpen(true)} 
-                    user={userProfile.isLoggedIn ? { name: userProfile.name, initial: userProfile.name.charAt(0), photoURL: userProfile.photoURL } : null} 
-                    translations={APP_TRANSLATIONS[language]}
-                />
-                
-                <main className="flex-1 w-full max-w-5xl mx-auto pt-20 overflow-y-auto no-scrollbar relative flex flex-col scroll-smooth">
-                    <div className="flex-1 px-4 md:px-6 py-4">
-                        {messages.length === 0 ? (
-                            <div className="h-full flex items-center justify-center">
-                                <Dashboard 
-                                    onModelSelect={handleModelSelectFromDashboard} 
-                                    onPromptSelect={(text) => handleSend(text, model, undefined)}
-                                    translations={APP_TRANSLATIONS[language]} 
-                                />
-                            </div>
-                        ) : (
-                            <MessageList 
-                                messages={messages} 
-                                isLoading={isAILoading} 
-                                loadingState={loadingState} 
-                                currentModel={model} 
-                                onEditMessage={handleEditMessage} 
-                                translations={APP_TRANSLATIONS[language]}
-                            />
-                        )}
-                    </div>
-                </main>
-                
-                <div className="w-full shrink-0 z-20 bg-gradient-to-t from-[#FAFAFA] via-[#FAFAFA] to-transparent pt-2 pb-safe">
-                    <InputArea 
-                        onSend={handleSend} 
-                        isLoading={isAILoading} 
-                        selectedModel={model} 
-                        onModelChange={setModel} 
-                        availableModels={availableModels} 
-                        translations={APP_TRANSLATIONS[language]}
+        <Routes>
+            <Route path="/" element={
+                 <div className="min-h-screen bg-white">
+                    <LandingPage 
+                        onEnterApp={handleEnterApp} 
+                        onReadArticle={handleReadArticle}
+                        onOpenBlog={handleOpenBlog}
+                        initialScrollTo={initialScrollTo}
+                        language={language}
+                        setLanguage={(lang) => {
+                            setLanguage(lang);
+                            logAnalyticsEvent('change_language', { language: lang });
+                        }}
+                        userProfile={userProfile} 
+                        onLogin={() => toggleModal('login')} 
                     />
                 </div>
+            } />
 
-                <Onboarding 
-                    isOpen={showOnboarding}
-                    steps={APP_TRANSLATIONS[language].onboarding as OnboardingStep[]}
-                    onComplete={finishOnboarding}
-                    onSkip={finishOnboarding}
+            <Route path="/blog" element={
+                <div className="min-h-screen bg-[#FAFAFA]">
+                    <BlogPage 
+                        onBack={handleBackToLanding}
+                        onReadArticle={handleReadArticle}
+                    />
+                </div>
+            } />
+
+            <Route path="/article/:id" element={
+                <div className="min-h-screen bg-white">
+                    <ArticleRouteWrapper 
+                        onBack={handleOpenBlog}
+                        onReadArticle={handleReadArticle}
+                    />
+                </div>
+            } />
+
+            <Route path="/help" element={
+                 <HelpPage 
+                    onBack={handleBackFromHelp}
+                    language={language}
                 />
-            </div>
-        )}
+            } />
+
+            <Route path="/app" element={
+                 <div className="fixed inset-0 w-full h-[100dvh] bg-[#FAFAFA] flex flex-col overflow-hidden text-gray-900 font-sans">
+                    <Sidebar 
+                        isOpen={isSidebarOpen} 
+                        onClose={() => setIsSidebarOpen(false)} 
+                        onNewChat={handleNewChat}
+                        onNavigate={handleNavigateFromSidebar}
+                        
+                        history={history}
+                        activeChatId={activeChatId}
+                        onSelectChat={handleSelectChat}
+                        onDeleteChat={handleDeleteChat}
+                        
+                        userProfile={userProfile}
+                        
+                        onOpenSettings={() => toggleModal('settings')}
+                        onOpenProfile={() => toggleModal('profile')}
+                        onOpenHelp={handleOpenHelpPage} 
+                        onLogin={handleAuthAction} 
+                        translations={APP_TRANSLATIONS[language]}
+                    />
+                    
+                    <Header 
+                        onNewChat={handleNewChat} 
+                        onMenuClick={() => setIsSidebarOpen(true)} 
+                        user={userProfile.isLoggedIn ? { name: userProfile.name, initial: userProfile.name.charAt(0), photoURL: userProfile.photoURL } : null} 
+                        translations={APP_TRANSLATIONS[language]}
+                    />
+                    
+                    <main className="flex-1 w-full max-w-5xl mx-auto pt-20 overflow-y-auto no-scrollbar relative flex flex-col scroll-smooth">
+                        <div className="flex-1 px-4 md:px-6 py-4">
+                            {messages.length === 0 ? (
+                                <div className="h-full flex items-center justify-center">
+                                    <Dashboard 
+                                        onModelSelect={handleModelSelectFromDashboard} 
+                                        onPromptSelect={(text) => handleSend(text, model, undefined)}
+                                        translations={APP_TRANSLATIONS[language]} 
+                                    />
+                                </div>
+                            ) : (
+                                <MessageList 
+                                    messages={messages} 
+                                    isLoading={isAILoading} 
+                                    loadingState={loadingState} 
+                                    currentModel={model} 
+                                    onEditMessage={handleEditMessage} 
+                                    translations={APP_TRANSLATIONS[language]}
+                                />
+                            )}
+                        </div>
+                    </main>
+                    
+                    <div className="w-full shrink-0 z-20 bg-gradient-to-t from-[#FAFAFA] via-[#FAFAFA] to-transparent pt-2 pb-safe">
+                        <InputArea 
+                            onSend={handleSend} 
+                            isLoading={isAILoading} 
+                            selectedModel={model} 
+                            onModelChange={setModel} 
+                            availableModels={availableModels} 
+                            translations={APP_TRANSLATIONS[language]}
+                        />
+                    </div>
+
+                    <Onboarding 
+                        isOpen={showOnboarding}
+                        steps={APP_TRANSLATIONS[language].onboarding as OnboardingStep[]}
+                        onComplete={finishOnboarding}
+                        onSkip={finishOnboarding}
+                    />
+                </div>
+            } />
+        </Routes>
     </>
   );
 };
