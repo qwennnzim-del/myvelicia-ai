@@ -11,6 +11,7 @@ interface LandingPageProps {
   onEnterApp: () => void;
   onReadArticle: (id: number) => void;
   onOpenBlog: () => void;
+  onOpenAbout: () => void;
   initialScrollTo?: string | null;
   language: 'id' | 'en';
   setLanguage: (lang: 'id' | 'en') => void;
@@ -93,17 +94,6 @@ const TRANSLATIONS = {
             { title: 'Campaign Ideas', desc: 'Brainstorming ide viral.' },
         ]
       }
-    },
-    creator: {
-        title: "Tentang Kreator / About Me",
-        name: "M. Fariz Alfauzi (Hezell)",
-        role: "CEO & Lead Engineer Velicia AI",
-        bio: "M. Fariz Alfauzi, yang akrab dikenal sebagai Hezell, adalah pengembang utama di balik myvelicia ai. Sebagai CEO & Lead Engineer, ia berdedikasi membangun kedaulatan AI Indonesia melalui teknologi Gen2 yang mandiri dan inovatif. Hezell berfokus pada efisiensi tinggi dan kecerdasan buatan kelas dunia.",
-        school: "SMK NURUL ISLAM AFFANDIYAH",
-        major: "Teknik Jaringan Komputer",
-        location: "Cianjur, Jawa Barat",
-        linkedin: "https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1",
-        instagram: "https://www.instagram.com/account.hezell"
     },
     team: {
       title: 'Tim Gen2 Kami',
@@ -195,17 +185,6 @@ const TRANSLATIONS = {
             { title: 'Campaign Ideas', desc: 'Brainstorm viral ideas.' },
         ]
       }
-    },
-    creator: {
-        title: "About the Creator / About Me",
-        name: "M. Fariz Alfauzi (Hezell)",
-        role: "CEO & Lead Engineer of Velicia AI",
-        bio: "M. Fariz Alfauzi, also known as Hezell, is the lead visionary behind myvelicia ai. As CEO & Lead Engineer, he is dedicated to establishing Indonesia's AI sovereignty through independent and innovative Gen2 technology.",
-        school: "SMK NURUL ISLAM AFFANDIYAH",
-        major: "Network Computer Engineering",
-        location: "Cianjur, West Java",
-        linkedin: "https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1",
-        instagram: "https://www.instagram.com/account.hezell"
     },
     team: {
       title: 'Our Gen2 Team',
@@ -327,7 +306,7 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
   );
 };
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, onOpenBlog, initialScrollTo, language, setLanguage, userProfile, onLogin }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, onOpenBlog, onOpenAbout, initialScrollTo, language, setLanguage, userProfile, onLogin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeProfession, setActiveProfession] = useState('Entrepreneur');
   const [scrolled, setScrolled] = useState(false);
@@ -419,6 +398,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.features}</a>
              <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.pricing}</a>
              <button onClick={() => { setMobileMenuOpen(false); onOpenBlog(); }} className="text-xl font-bold text-gray-900 text-left">{t.nav.blog}</button>
+             <button onClick={() => { setMobileMenuOpen(false); onOpenAbout(); }} className="text-xl font-bold text-gray-900 text-left">{t.nav.about}</button>
              
              {!userProfile?.isLoggedIn ? (
                  <button 
@@ -466,6 +446,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
              <button className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{t.nav.features}</button>
              <button className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{t.nav.pricing}</button>
              <button onClick={onOpenBlog} className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{t.nav.blog}</button>
+             <button onClick={onOpenAbout} className="text-sm font-semibold text-gray-600 hover:text-[#FF0080] transition-colors">{t.nav.about}</button>
              
              <div className="w-px h-4 bg-gray-200 mx-2"></div>
              <button 
@@ -635,7 +616,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
       </section>
 
       {/* --- TEAM SECTION --- */}
-      <section id="team" className="py-20 bg-[#FAFAFA] border-t border-gray-100 relative overflow-hidden">
+      <section id="team" className="py-20 bg-[#FAFAFA] border-y border-gray-100 relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">{t.team.title}</h2>
            <p className="text-gray-500 max-w-2xl mx-auto mb-16 font-medium text-lg">{t.team.subtitle}</p>
@@ -664,81 +645,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
                  Lihat Semua Anggota
                </button>
            )}
-        </div>
-      </section>
-
-      {/* --- CREATOR / ABOUT ME SECTION (After Team Section) --- */}
-      <section id="about-me" className="py-24 bg-white border-y border-gray-100 scroll-mt-20">
-        <div className="max-w-5xl mx-auto px-6">
-           <div className="bg-gradient-to-br from-[#0f172a] to-[#1e293b] rounded-[3rem] p-8 md:p-16 text-white relative overflow-hidden shadow-2xl">
-              {/* Background Accents for Modern Feel */}
-              <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/20 rounded-full blur-[100px] -mr-40 -mt-40 pointer-events-none"></div>
-              <div className="absolute bottom-0 left-0 w-80 h-80 bg-pink-600/10 rounded-full blur-[100px] -ml-40 -mb-40 pointer-events-none"></div>
-              
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 md:gap-16">
-                 {/* Profile Avatar with Hover Effect */}
-                 <div className="w-40 h-40 md:w-56 md:h-56 rounded-[2rem] bg-gradient-to-tr from-[#7928CA] to-[#FF0080] p-1.5 shadow-2xl shrink-0 group hover:scale-105 transition-all duration-500 hover:rotate-2">
-                    <div className="w-full h-full bg-slate-900 rounded-[1.8rem] overflow-hidden flex items-center justify-center border-4 border-slate-800/50">
-                       <span className="text-7xl font-black text-white select-none">{t.creator.name.charAt(0)}</span>
-                    </div>
-                 </div>
-                 
-                 <div className="text-center md:text-left flex-1">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] font-extrabold tracking-[0.2em] uppercase mb-4 text-purple-300">
-                        <Sparkles size={14} className="text-yellow-400"/> {t.creator.title}
-                    </div>
-                    
-                    <h2 className="text-4xl md:text-5xl font-black mb-3 leading-tight tracking-tighter">
-                        {t.creator.name}
-                    </h2>
-                    
-                    <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 mb-6">
-                       <p className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                           {t.creator.role}
-                       </p>
-                       <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                       <p className="text-slate-400 font-bold text-sm md:text-base tracking-wide uppercase">
-                           Velicia AI Developer
-                       </p>
-                    </div>
-
-                    <p className="text-slate-300 mb-8 leading-relaxed text-lg font-medium max-w-2xl mx-auto md:mx-0">
-                       {t.creator.bio}
-                    </p>
-                    
-                    <div className="flex flex-wrap justify-center md:justify-start gap-5 mb-10 text-sm font-bold text-slate-400">
-                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
-                            <GraduationCap size={18} className="text-purple-400"/> {t.creator.school}
-                        </div>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
-                            <MapPin size={18} className="text-pink-400"/> {t.creator.location}
-                        </div>
-                    </div>
-                    
-                    {/* SOCIAL LINKS (SEO Target) */}
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                        <a 
-                            href={t.creator.linkedin} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#0077b5] hover:bg-[#005a8a] text-white rounded-2xl font-black text-sm transition-all shadow-lg hover:shadow-[#0077b5]/30 active:scale-95 group"
-                        >
-                           <Linkedin size={20} className="group-hover:scale-110 transition-transform" />
-                           LinkedIn Profile
-                        </a>
-                        <a 
-                            href={t.creator.instagram} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] hover:opacity-90 text-white rounded-2xl font-black text-sm transition-all shadow-lg hover:shadow-pink-500/20 active:scale-95 group"
-                        >
-                           <Instagram size={20} className="group-hover:scale-110 transition-transform" />
-                           Follow @account.hezell
-                        </a>
-                    </div>
-                 </div>
-              </div>
-           </div>
         </div>
       </section>
 
@@ -774,10 +680,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
               </div>
               
               <div className="flex justify-center gap-6 mb-8">
-                  <a href={t.creator.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#0077b5] hover:shadow-md transition-all">
+                  <a href="https://www.linkedin.com/in/m-fariz-alfauzi-19b2833b1" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#0077b5] hover:shadow-md transition-all">
                       <Linkedin size={20} />
                   </a>
-                  <a href={t.creator.instagram} target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#E4405F] hover:shadow-md transition-all">
+                  <a href="https://www.instagram.com/account.hezell" target="_blank" rel="noopener noreferrer" className="p-2 bg-white rounded-full text-gray-400 hover:text-[#E4405F] hover:shadow-md transition-all">
                       <Instagram size={20} />
                   </a>
               </div>
