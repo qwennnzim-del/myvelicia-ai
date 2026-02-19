@@ -36,7 +36,6 @@ const TRANSLATIONS = {
       title2: 'Indonesia',
       desc: 'Velicia dikembangkan untuk Masa Depan Nusantara dengan arsitektur Gen2. Efisiensi tinggi, penalaran mendalam, dan respon cepat.',
       startBtn: 'Mulai Sekarang',
-      viewUniverse: 'Universe',
       disclaimer: 'Gratis selamanya • Tanpa kartu kredit',
       mockupText: 'Halo! Ada yang bisa saya bantu hari ini?',
       mockupPrompt: 'Jelaskan kemampuan Gen2 kamu.',
@@ -127,7 +126,6 @@ const TRANSLATIONS = {
       title2: 'Indonesia',
       desc: 'Velicia developed for Nusantara on Gen2 architecture. High efficiency, deep reasoning, and rapid response.',
       startBtn: 'Start Now',
-      viewUniverse: 'Universe',
       disclaimer: 'Free forever • No credit card',
       mockupText: 'Hello! How can I assist you today?',
       mockupPrompt: 'Explain your Gen2 capabilities.',
@@ -519,16 +517,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
                   <span className="text-white font-bold text-base">{t.hero.startBtn}</span>
                 </div>
                </button>
-
-               <a 
-                 href="https://hezell-universe.vercel.app/" 
-                 target="_blank" 
-                 rel="noopener noreferrer" 
-                 className="btn-github !min-w-[160px] !py-3 !px-6 !text-sm"
-               >
-                <Globe size={18} className="text-white" />
-                <span className="font-bold">{t.hero.viewUniverse}</span>
-               </a>
              </div>
              <p className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">{t.hero.disclaimer}</p>
           </div>
