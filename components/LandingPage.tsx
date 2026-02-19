@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   MessageSquare, Search, PenTool, Image as ImageIcon, 
@@ -328,15 +327,12 @@ const MockupChat: React.FC<{ t: any }> = ({ t }) => {
   );
 };
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, onOpenBlog, language, setLanguage, userProfile, onLogin }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, onOpenBlog, initialScrollTo, language, setLanguage, userProfile, onLogin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeProfession, setActiveProfession] = useState('Entrepreneur');
   const [scrolled, setScrolled] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number>(0);
   const [showAllTeam, setShowAllTeam] = useState(false);
-  
-  const [blogVisible, setBlogVisible] = useState(false);
-  const blogSectionRef = useRef<HTMLElement>(null);
 
   const t = TRANSLATIONS[language]; 
 
@@ -345,24 +341,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setBlogVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (blogSectionRef.current) {
-      observer.observe(blogSectionRef.current);
+    if (initialScrollTo) {
+      setTimeout(() => {
+        const el = document.getElementById(initialScrollTo);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
     }
-
-    return () => observer.disconnect();
-  }, []);
+  }, [initialScrollTo]);
 
   const toggleLanguage = () => {
     setLanguage(language === 'id' ? 'en' : 'id');
@@ -429,8 +416,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
              </button>
           </div>
           <div className="flex-1 flex flex-col p-6 gap-6 overflow-y-auto">
-             <a href="#" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.features}</a>
-             <a href="#" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.pricing}</a>
+             <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.features}</a>
+             <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-gray-900">{t.nav.pricing}</a>
              <button onClick={() => { setMobileMenuOpen(false); onOpenBlog(); }} className="text-xl font-bold text-gray-900 text-left">{t.nav.blog}</button>
              
              {!userProfile?.isLoggedIn ? (
@@ -575,7 +562,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
       </section>
 
       {/* --- BLOG SECTION --- */}
-      <section ref={blogSectionRef} className="py-20 bg-[#FAFAFA] relative overflow-hidden">
+      <section id="blog" className="py-20 bg-[#FAFAFA] relative overflow-hidden">
            <div className="max-w-6xl mx-auto px-6">
             <div className="flex items-end justify-between mb-12">
                 <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">{t.blog.title}</h2>
@@ -588,7 +575,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
                 {t.blog.articles.map((article, i) => (
                     <div 
                         key={i} 
-                        className={`bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer ${blogVisible ? 'animate-in fade-in slide-in-from-bottom-10 opacity-100' : 'opacity-0'}`}
+                        className={`bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer animate-in fade-in slide-in-from-bottom-10`}
                         style={{ animationFillMode: 'both', animationDelay: `${i * 150}ms`, animationDuration: '800ms' }}
                         onClick={() => onReadArticle(article.id)}
                     >
@@ -612,7 +599,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
       </section>
 
       {/* --- PROFESSIONAL SECTION --- */}
-      <section className="py-20 bg-white">
+      <section id="features" className="py-20 bg-white">
          <div className="max-w-5xl mx-auto px-6">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 text-center mb-12 tracking-tight">{t.profession.title}</h2>
             <div className="flex overflow-x-auto pb-4 md:pb-0 md:flex-wrap justify-start md:justify-center gap-3 mb-12 no-scrollbar">
@@ -648,7 +635,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp, onReadArticle, on
       </section>
 
       {/* --- TEAM SECTION --- */}
-      <section className="py-20 bg-[#FAFAFA] border-t border-gray-100 relative overflow-hidden">
+      <section id="team" className="py-20 bg-[#FAFAFA] border-t border-gray-100 relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">{t.team.title}</h2>
            <p className="text-gray-500 max-w-2xl mx-auto mb-16 font-medium text-lg">{t.team.subtitle}</p>
